@@ -70,21 +70,23 @@ class LoginTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_a_partial_failure_streak_does_not_lock_out_a_user_who_then_succeeds(): void
+    public function test_a_successful_login_resets_the_rate_limiter(): void
     {
         $agency = Agency::factory()->create();
         $user = User::factory()->for($agency, 'agency')->create([
             'password' => Hash::make('Password123'),
         ]);
 
-        for ($i = 0; $i < 3; $i++) {
+        // 4 failed attempts — one below the 5-attempt block threshold.
+        for ($i = 0; $i < 4; $i++) {
             Livewire::test(Login::class)
                 ->set('email', $user->email)
                 ->set('password', 'wrong-password')
                 ->call('authenticate')
-                ->assertHasErrors(['email']);
+                ->assertHasErrors(['email' => 'Identifiants incorrects.']);
         }
 
+        // Succeed on the 5th attempt — this should call RateLimiter::clear().
         Livewire::test(Login::class)
             ->set('email', $user->email)
             ->set('password', 'Password123')
@@ -92,6 +94,31 @@ class LoginTest extends TestCase
             ->assertRedirect(route('dashboard'));
 
         $this->assertAuthenticatedAs($user);
+
+        auth()->logout();
+
+        // Two more failed attempts. The block check (tooManyAttempts) runs
+        // BEFORE the hit that follows a failure, so a single post-success
+        // failure would read as "wrong password" whether or not the counter
+        // was reset (it's the hit that follows it that would push a
+        // *leftover* count of 4 up to 5). It's the SECOND post-success
+        // failure that exposes a broken reset: if the 4 pre-success failures
+        // were never cleared, this second attempt sees a count of 5 already
+        // and is blocked with the rate-limit message instead of the normal
+        // wrong-password one.
+        Livewire::test(Login::class)
+            ->set('email', $user->email)
+            ->set('password', 'still-wrong')
+            ->call('authenticate')
+            ->assertHasErrors(['email' => 'Identifiants incorrects.']);
+
+        Livewire::test(Login::class)
+            ->set('email', $user->email)
+            ->set('password', 'still-wrong-again')
+            ->call('authenticate')
+            ->assertHasErrors(['email' => 'Identifiants incorrects.']);
+
+        $this->assertGuest();
     }
 
     public function test_rate_limit_decays_after_sixty_seconds_allowing_login_again(): void
