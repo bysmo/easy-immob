@@ -13,7 +13,7 @@ trait BelongsToAgency
         static::addGlobalScope(new AgencyScope);
 
         static::creating(function ($model) {
-            if ($model->agency_id === null && Auth::check()) {
+            if (Auth::hasUser()) {
                 $model->agency_id = Auth::user()->agency_id;
             }
         });

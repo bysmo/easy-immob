@@ -11,7 +11,7 @@ class AgencyScope implements Scope
 {
     public function apply(Builder $builder, Model $model): void
     {
-        if (Auth::check()) {
+        if (Auth::hasUser()) {
             $builder->where($model->qualifyColumn('agency_id'), Auth::user()->agency_id);
         }
     }

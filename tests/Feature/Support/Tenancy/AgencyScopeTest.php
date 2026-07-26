@@ -51,4 +51,19 @@ class AgencyScopeTest extends TestCase
 
         $this->assertCount(2, User::all());
     }
+
+    public function test_resolving_the_authenticated_user_from_the_session_does_not_recurse(): void
+    {
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency, 'agency')->create();
+
+        $this->session([
+            'login_web_'.sha1(\Illuminate\Auth\SessionGuard::class) => $user->getAuthIdentifier(),
+        ]);
+
+        $resolved = $this->app['auth']->guard('web')->user();
+
+        $this->assertNotNull($resolved);
+        $this->assertTrue($resolved->is($user));
+    }
 }
