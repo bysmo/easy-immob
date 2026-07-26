@@ -37,7 +37,7 @@
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="text-sm text-gray-600 dark:text-gray-300 hover:text-red-600">
-                            {{ auth()->user()->name }} — Déconnexion
+                            {{ auth()->user()?->name }} — Déconnexion
                         </button>
                     </form>
                 </div>
