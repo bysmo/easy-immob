@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
@@ -22,7 +23,11 @@ class RegisterAgencyAction implements CreatesNewUsers
         Validator::make($input, [
             'agency_name' => ['required', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'email' => [
+                'required', 'string', 'email', 'max:255',
+                Rule::unique('users', 'email'),
+                Rule::unique('agencies', 'email'),
+            ],
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
         ])->validate();
 
