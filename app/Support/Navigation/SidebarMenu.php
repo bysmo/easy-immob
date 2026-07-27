@@ -5,22 +5,67 @@ namespace App\Support\Navigation;
 class SidebarMenu
 {
     /**
+     * @return array<int, array{
+     *     section: string,
+     *     items: array<int, array{label: string, icon: string, route: string, params: array<string, mixed>}>
+     * }>
+     */
+    public static function groupedItems(): array
+    {
+        return [
+            [
+                'section' => 'Pilotage',
+                'items' => [
+                    ['label' => 'Dashboard', 'icon' => 'dashboard', 'route' => 'dashboard', 'params' => []],
+                ],
+            ],
+            [
+                'section' => 'Gestion Locative',
+                'items' => [
+                    ['label' => 'Propriétaires', 'icon' => 'owners', 'route' => 'owners.index', 'params' => []],
+                    ['label' => 'Biens Immobiliers', 'icon' => 'properties', 'route' => 'properties.index', 'params' => []],
+                    ['label' => 'Locataires', 'icon' => 'tenants', 'route' => 'tenants.index', 'params' => []],
+                    ['label' => 'Contrats de Bail', 'icon' => 'leases', 'route' => 'leases.index', 'params' => []],
+                ],
+            ],
+            [
+                'section' => 'Finances & Recouvrement',
+                'items' => [
+                    ['label' => 'Loyers & Échéances', 'icon' => 'rents', 'route' => 'rents.index', 'params' => []],
+                    ['label' => 'Cautions & Dépôts', 'icon' => 'deposits', 'route' => 'deposits.index', 'params' => []],
+                    ['label' => 'Gestion des Impayés', 'icon' => 'arrears', 'route' => 'arrears.index', 'params' => []],
+                ],
+            ],
+            [
+                'section' => 'Suivi & Rapports',
+                'items' => [
+                    ['label' => 'Notifications', 'icon' => 'notifications', 'route' => 'notifications.index', 'params' => []],
+                    ['label' => 'Rapports', 'icon' => 'reports', 'route' => 'reports.index', 'params' => []],
+                ],
+            ],
+            [
+                'section' => 'Administration',
+                'items' => [
+                    ['label' => 'Modèles de contrat', 'icon' => 'lease-templates', 'route' => 'admin.lease-templates.index', 'params' => []],
+                    ['label' => 'Types de biens', 'icon' => 'property-types', 'route' => 'admin.property-types.index', 'params' => []],
+                    ['label' => 'Paramètres Agence', 'icon' => 'admin', 'route' => 'admin.users.index', 'params' => []],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Flat items fallback
      * @return array<int, array{label: string, icon: string, route: string, params: array<string, mixed>}>
      */
     public static function items(): array
     {
-        return [
-            ['label' => 'Dashboard', 'icon' => '📊', 'route' => 'dashboard', 'params' => []],
-            ['label' => 'Propriétaires', 'icon' => '👤', 'route' => 'modules.coming-soon', 'params' => ['module' => 'proprietaires']],
-            ['label' => 'Biens', 'icon' => '🏠', 'route' => 'modules.coming-soon', 'params' => ['module' => 'biens']],
-            ['label' => 'Locataires', 'icon' => '🧑', 'route' => 'modules.coming-soon', 'params' => ['module' => 'locataires']],
-            ['label' => 'Contrats', 'icon' => '📄', 'route' => 'modules.coming-soon', 'params' => ['module' => 'contrats']],
-            ['label' => 'Loyers', 'icon' => '💰', 'route' => 'modules.coming-soon', 'params' => ['module' => 'loyers']],
-            ['label' => 'Cautions', 'icon' => '🔒', 'route' => 'modules.coming-soon', 'params' => ['module' => 'cautions']],
-            ['label' => 'Impayés', 'icon' => '⚠️', 'route' => 'modules.coming-soon', 'params' => ['module' => 'impayes']],
-            ['label' => 'Notifications', 'icon' => '🔔', 'route' => 'modules.coming-soon', 'params' => ['module' => 'notifications']],
-            ['label' => 'Rapports', 'icon' => '📈', 'route' => 'modules.coming-soon', 'params' => ['module' => 'rapports']],
-            ['label' => 'Administration', 'icon' => '⚙️', 'route' => 'admin.users.index', 'params' => []],
-        ];
+        $flat = [];
+        foreach (self::groupedItems() as $group) {
+            foreach ($group['items'] as $item) {
+                $flat[] = $item;
+            }
+        }
+        return $flat;
     }
 }
