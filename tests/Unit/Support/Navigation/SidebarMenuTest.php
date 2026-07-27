@@ -7,9 +7,9 @@ use PHPUnit\Framework\TestCase;
 
 class SidebarMenuTest extends TestCase
 {
-    public function test_it_returns_exactly_eleven_entries(): void
+    public function test_it_returns_exactly_thirteen_entries(): void
     {
-        $this->assertCount(11, SidebarMenu::items());
+        $this->assertCount(13, SidebarMenu::items());
     }
 
     public function test_each_entry_has_the_expected_keys(): void
@@ -31,7 +31,17 @@ class SidebarMenuTest extends TestCase
         $this->assertSame(
             [
                 'dashboard' => 1,
-                'modules.coming-soon' => 9,
+                'owners.index' => 1,
+                'properties.index' => 1,
+                'tenants.index' => 1,
+                'leases.index' => 1,
+                'rents.index' => 1,
+                'deposits.index' => 1,
+                'arrears.index' => 1,
+                'notifications.index' => 1,
+                'reports.index' => 1,
+                'admin.lease-templates.index' => 1,
+                'admin.property-types.index' => 1,
                 'admin.users.index' => 1,
             ],
             $counts

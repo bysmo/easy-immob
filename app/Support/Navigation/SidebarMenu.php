@@ -11,15 +11,17 @@ class SidebarMenu
     {
         return [
             ['label' => 'Dashboard', 'icon' => '📊', 'route' => 'dashboard', 'params' => []],
-            ['label' => 'Propriétaires', 'icon' => '👤', 'route' => 'modules.coming-soon', 'params' => ['module' => 'proprietaires']],
-            ['label' => 'Biens', 'icon' => '🏠', 'route' => 'modules.coming-soon', 'params' => ['module' => 'biens']],
-            ['label' => 'Locataires', 'icon' => '🧑', 'route' => 'modules.coming-soon', 'params' => ['module' => 'locataires']],
-            ['label' => 'Contrats', 'icon' => '📄', 'route' => 'modules.coming-soon', 'params' => ['module' => 'contrats']],
-            ['label' => 'Loyers', 'icon' => '💰', 'route' => 'modules.coming-soon', 'params' => ['module' => 'loyers']],
-            ['label' => 'Cautions', 'icon' => '🔒', 'route' => 'modules.coming-soon', 'params' => ['module' => 'cautions']],
-            ['label' => 'Impayés', 'icon' => '⚠️', 'route' => 'modules.coming-soon', 'params' => ['module' => 'impayes']],
-            ['label' => 'Notifications', 'icon' => '🔔', 'route' => 'modules.coming-soon', 'params' => ['module' => 'notifications']],
-            ['label' => 'Rapports', 'icon' => '📈', 'route' => 'modules.coming-soon', 'params' => ['module' => 'rapports']],
+            ['label' => 'Propriétaires', 'icon' => '👤', 'route' => 'owners.index', 'params' => []],
+            ['label' => 'Biens', 'icon' => '🏠', 'route' => 'properties.index', 'params' => []],
+            ['label' => 'Locataires', 'icon' => '🧑', 'route' => 'tenants.index', 'params' => []],
+            ['label' => 'Contrats', 'icon' => '📄', 'route' => 'leases.index', 'params' => []],
+            ['label' => 'Loyers', 'icon' => '💰', 'route' => 'rents.index', 'params' => []],
+            ['label' => 'Cautions', 'icon' => '🔒', 'route' => 'deposits.index', 'params' => []],
+            ['label' => 'Impayés', 'icon' => '⚠️', 'route' => 'arrears.index', 'params' => []],
+            ['label' => 'Notifications', 'icon' => '🔔', 'route' => 'notifications.index', 'params' => []],
+            ['label' => 'Rapports', 'icon' => '📈', 'route' => 'reports.index', 'params' => []],
+            ['label' => 'Modèles de contrat', 'icon' => '📑', 'route' => 'admin.lease-templates.index', 'params' => []],
+            ['label' => 'Types de biens', 'icon' => '🏷️', 'route' => 'admin.property-types.index', 'params' => []],
             ['label' => 'Administration', 'icon' => '⚙️', 'route' => 'admin.users.index', 'params' => []],
         ];
     }
