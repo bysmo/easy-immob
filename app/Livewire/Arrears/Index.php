@@ -7,24 +7,29 @@ use App\Domain\Arrears\Enums\ArrearSeverity;
 use App\Domain\Arrears\Enums\ArrearStatus;
 use App\Domain\Arrears\Models\Arrear;
 use App\Domain\Arrears\Services\ArrearDetector;
+use App\Livewire\Traits\WithDataTable;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class Index extends Component
 {
-    use WithPagination;
+    use WithDataTable;
 
-    public string $search = '';
     public string $severityFilter = '';
     public string $statusFilter = '';
 
     public function mount(ArrearDetector $detector): void
     {
-        // Détection automatique à l'affichage
         $detector->detect();
+        $this->sortField = 'first_overdue_date';
+        $this->sortDirection = 'desc';
     }
 
-    public function updatedSearch(): void
+    public function updatedSeverityFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedStatusFilter(): void
     {
         $this->resetPage();
     }
@@ -41,19 +46,21 @@ class Index extends Component
 
     public function render(): \Illuminate\View\View
     {
-        $arrears = Arrear::with(['tenant', 'lease.property', 'rentSchedule'])
+        $query = Arrear::with(['tenant', 'lease.property', 'rentSchedule'])
             ->when($this->search, function ($q) {
-                $q->whereHas('tenant', function ($tenantQ) {
-                    $tenantQ->where('first_name', 'like', '%' . $this->search . '%')
-                        ->orWhere('last_name', 'like', '%' . $this->search . '%');
-                })->orWhereHas('lease.property', function ($propQ) {
-                    $propQ->where('title', 'like', '%' . $this->search . '%');
+                $q->where(function ($query) {
+                    $query->whereHas('tenant', function ($tenantQ) {
+                        $tenantQ->where('first_name', 'like', '%' . $this->search . '%')
+                            ->orWhere('last_name', 'like', '%' . $this->search . '%');
+                    })->orWhereHas('lease.property', function ($propQ) {
+                        $propQ->where('title', 'like', '%' . $this->search . '%');
+                    });
                 });
             })
             ->when($this->severityFilter, fn ($q) => $q->where('severity', $this->severityFilter))
-            ->when($this->statusFilter, fn ($q) => $q->where('status', $this->statusFilter))
-            ->latest('first_overdue_date')
-            ->paginate(15);
+            ->when($this->statusFilter, fn ($q) => $q->where('status', $this->statusFilter));
+
+        $arrears = $this->applySorting($query, 'first_overdue_date', 'desc')->paginate($this->perPage);
 
         return view('livewire.arrears.index', [
             'arrears'         => $arrears,

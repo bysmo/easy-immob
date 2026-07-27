@@ -4,21 +4,15 @@ namespace App\Livewire\Properties;
 
 use App\Domain\Property\Enums\PropertyStatus;
 use App\Domain\Property\Models\Property;
+use App\Livewire\Traits\WithDataTable;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class Index extends Component
 {
-    use WithPagination;
+    use WithDataTable;
 
-    public string $search = '';
     public string $statusFilter = '';
-
-    public function updatedSearch(): void
-    {
-        $this->resetPage();
-    }
 
     public function updatedStatusFilter(): void
     {
@@ -37,7 +31,7 @@ class Index extends Component
 
     public function render(): \Illuminate\View\View
     {
-        $properties = Property::with(['owner', 'propertyType'])
+        $query = Property::with(['owner', 'propertyType'])
             ->when($this->search, function ($q) {
                 $q->where(function ($query) {
                     $query->where('title', 'like', '%' . $this->search . '%')
@@ -48,9 +42,9 @@ class Index extends Component
             })
             ->when($this->statusFilter, function ($q) {
                 $q->where('status', $this->statusFilter);
-            })
-            ->latest()
-            ->paginate(15);
+            });
+
+        $properties = $this->applySorting($query, 'created_at', 'desc')->paginate($this->perPage);
 
         return view('livewire.properties.index', [
             'properties'    => $properties,

@@ -385,7 +385,7 @@ class DemoDataSeeder extends Seeder
 
         $properties = [];
         foreach ($propertiesData as $pData) {
-            $properties[$pData['reference']] = Property::withoutGlobalScopes()->firstOrCreate(
+            $properties[$pData['reference']] = Property::withoutGlobalScopes()->updateOrCreate(
                 [
                     'agency_id' => $primaryAgency->id,
                     'reference' => $pData['reference'],

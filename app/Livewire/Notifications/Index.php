@@ -3,12 +3,19 @@
 namespace App\Livewire\Notifications;
 
 use App\Domain\Notification\Models\SystemNotification;
+use App\Livewire\Traits\WithDataTable;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class Index extends Component
 {
-    use WithPagination;
+    use WithDataTable;
+
+    public string $typeFilter = '';
+
+    public function updatedTypeFilter(): void
+    {
+        $this->resetPage();
+    }
 
     public function markAsRead(int $notificationId): void
     {
@@ -18,8 +25,14 @@ class Index extends Component
 
     public function render(): \Illuminate\View\View
     {
-        $notifications = SystemNotification::latest()
-            ->paginate(20);
+        $query = SystemNotification::query()
+            ->when($this->search, fn ($q) => $q->where(function ($query) {
+                $query->where('title', 'like', '%' . $this->search . '%')
+                    ->orWhere('message', 'like', '%' . $this->search . '%');
+            }))
+            ->when($this->typeFilter, fn ($q) => $q->where('type', $this->typeFilter));
+
+        $notifications = $this->applySorting($query, 'created_at', 'desc')->paginate($this->perPage);
 
         return view('livewire.notifications.index', compact('notifications'));
     }

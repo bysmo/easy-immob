@@ -7,15 +7,14 @@ use App\Domain\Deposit\Actions\RefundDepositAction;
 use App\Domain\Deposit\Enums\DepositStatus;
 use App\Domain\Deposit\Models\Deposit;
 use App\Domain\Lease\Models\Lease;
+use App\Livewire\Traits\WithDataTable;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class Index extends Component
 {
-    use WithPagination;
+    use WithDataTable;
 
-    public string $search = '';
     public string $statusFilter = '';
 
     // Modal Réception
@@ -62,6 +61,11 @@ class Index extends Component
                 'status'          => DepositStatus::Pending,
             ]);
         }
+    }
+
+    public function updatedStatusFilter(): void
+    {
+        $this->resetPage();
     }
 
     public function openReceiveModal(int $depositId): void
@@ -132,22 +136,24 @@ class Index extends Component
 
     public function render(): \Illuminate\View\View
     {
-        $deposits = Deposit::with(['lease.property', 'lease.tenant'])
+        $query = Deposit::with(['lease.property', 'lease.tenant'])
             ->when($this->search, function ($q) {
-                $q->whereHas('lease.tenant', function ($tenantQ) {
-                    $tenantQ->where('first_name', 'like', '%' . $this->search . '%')
-                        ->orWhere('last_name', 'like', '%' . $this->search . '%');
-                })->orWhereHas('lease.property', function ($propQ) {
-                    $propQ->where('title', 'like', '%' . $this->search . '%');
-                })->orWhereHas('lease', function ($leaseQ) {
-                    $leaseQ->where('reference', 'like', '%' . $this->search . '%');
+                $q->where(function ($query) {
+                    $query->whereHas('lease.tenant', function ($tenantQ) {
+                        $tenantQ->where('first_name', 'like', '%' . $this->search . '%')
+                            ->orWhere('last_name', 'like', '%' . $this->search . '%');
+                    })->orWhereHas('lease.property', function ($propQ) {
+                        $propQ->where('title', 'like', '%' . $this->search . '%');
+                    })->orWhereHas('lease', function ($leaseQ) {
+                        $leaseQ->where('reference', 'like', '%' . $this->search . '%');
+                    });
                 });
             })
             ->when($this->statusFilter, function ($q) {
                 $q->where('status', $this->statusFilter);
-            })
-            ->latest()
-            ->paginate(15);
+            });
+
+        $deposits = $this->applySorting($query, 'created_at', 'desc')->paginate($this->perPage);
 
         return view('livewire.deposits.index', [
             'deposits'      => $deposits,

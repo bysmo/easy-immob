@@ -1,204 +1,126 @@
-<div class="space-y-5">
-    {{-- En-tête --}}
-    <div class="flex items-center justify-between">
+<div class="space-y-6">
+    
+    <!-- Page Header & Action Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800 pb-4">
         <div>
-            <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Gestion des cautions & dépôts de garantie</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Suivez la réception, les retenues motivées et la restitution des cautions.</p>
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Cautions & Dépôts de Garantie</h1>
+                <x-badge color="amber">{{ $deposits->total() }} au total</x-badge>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Suivi de l'encaissement et de la restitution des garanties locatives.</p>
         </div>
     </div>
 
-    {{-- Flash --}}
+    <!-- Flash Message Notification -->
     @if(session('success'))
-        <div class="rounded-md bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-4 py-3 text-sm text-green-700 dark:text-green-300">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-4 py-3 text-sm text-red-700 dark:text-red-300">
-            {{ session('error') }}
+        <div class="rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 p-4 text-sm text-emerald-800 dark:text-emerald-200 flex items-center justify-between shadow-2xs">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                    <x-icon name="check" class="w-4 h-4" />
+                </div>
+                <span class="font-medium">{{ session('success') }}</span>
+            </div>
         </div>
     @endif
 
-    {{-- Filtres --}}
-    <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-        <div class="max-w-sm flex-1">
-            <x-input wire:model.live.debounce.300ms="search" type="search" placeholder="Rechercher par bien, locataire, réf contrat..." />
-        </div>
-        <div>
-            <select wire:model.live="statusFilter"
-                    class="rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500">
+    <!-- DataTables Controls Top Bar -->
+    <x-datatable.controls placeholder="Rechercher par locataire, bien, réf contrat..." :perPage="$perPage" :search="$search">
+        <x-slot:filters>
+            <select wire:model.live="statusFilter" class="rounded-xl border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs font-medium py-2 px-3 focus:ring-2 focus:ring-emerald-500 shadow-2xs">
                 <option value="">Tous les statuts</option>
                 @foreach($statusOptions as $option)
                     <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
                 @endforeach
             </select>
-        </div>
-    </div>
+        </x-slot:filters>
+    </x-datatable.controls>
 
-    {{-- Tableau --}}
-    <div class="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
-        <table class="w-full text-sm">
-            <thead class="bg-gray-50 dark:bg-gray-700/50 text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
-                <tr>
-                    <th class="px-5 py-3 text-left">Contrat / Bien</th>
-                    <th class="px-5 py-3 text-left">Locataire</th>
-                    <th class="px-5 py-3 text-left">Caution prévue</th>
-                    <th class="px-5 py-3 text-left">Reçue</th>
-                    <th class="px-5 py-3 text-left">Retenue (Motif)</th>
-                    <th class="px-5 py-3 text-left">Restituée</th>
-                    <th class="px-5 py-3 text-left">Statut</th>
-                    <th class="px-5 py-3 text-right">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                @forelse($deposits as $deposit)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
-                        <td class="px-5 py-3 font-medium text-gray-900 dark:text-gray-100">
-                            <div class="font-mono text-xs text-gray-400">{{ $deposit->lease?->reference }}</div>
-                            <div>{{ $deposit->lease?->property?->title }}</div>
-                        </td>
-                        <td class="px-5 py-3 text-gray-600 dark:text-gray-300">
-                            {{ $deposit->lease?->tenant?->full_name }}
-                        </td>
-                        <td class="px-5 py-3 font-medium text-gray-900 dark:text-gray-100">
-                            {{ number_format((float)$deposit->expected_amount, 0, ',', ' ') }} FCFA
-                        </td>
-                        <td class="px-5 py-3 text-green-600 font-medium">
-                            {{ number_format((float)$deposit->received_amount, 0, ',', ' ') }} FCFA
-                            @if($deposit->received_at)
-                                <div class="text-xs text-gray-400 font-normal">le {{ $deposit->received_at->format('d/m/Y') }}</div>
-                            @endif
-                        </td>
-                        <td class="px-5 py-3 text-red-600">
-                            @if((float)$deposit->retained_amount > 0)
-                                <div class="font-medium">{{ number_format((float)$deposit->retained_amount, 0, ',', ' ') }} FCFA</div>
-                                <div class="text-xs text-gray-400 italic font-normal" title="{{ $deposit->retention_reason }}">
-                                    "{{ Str::limit($deposit->retention_reason, 20) }}"
-                                </div>
-                            @else
-                                —
-                            @endif
-                        </td>
-                        <td class="px-5 py-3 text-gray-600 dark:text-gray-300">
-                            @if((float)$deposit->refunded_amount > 0)
-                                <div class="font-medium">{{ number_format((float)$deposit->refunded_amount, 0, ',', ' ') }} FCFA</div>
-                                @if($deposit->refunded_at)
-                                    <div class="text-xs text-gray-400">le {{ $deposit->refunded_at->format('d/m/Y') }}</div>
-                                @endif
-                            @else
-                                —
-                            @endif
-                        </td>
-                        <td class="px-5 py-3">
-                            <x-badge :variant="$deposit->status->badgeColor()">
-                                {{ $deposit->status->label() }}
-                            </x-badge>
-                        </td>
-                        <td class="px-5 py-3 text-right space-x-2">
-                            @if($deposit->status->value === 'pending')
-                                @can('deposits.manage')
-                                    <button wire:click="openReceiveModal({{ $deposit->id }})"
-                                            class="text-green-600 dark:text-green-400 hover:underline text-xs font-medium">
-                                        Encaisser
-                                    </button>
-                                @endcan
-                            @elseif($deposit->status->value === 'held')
-                                @can('deposits.manage')
-                                    <button wire:click="openRefundModal({{ $deposit->id }})"
-                                            class="text-primary-600 dark:text-primary-400 hover:underline text-xs font-medium">
-                                        Restituer / Clôturer
-                                    </button>
-                                @endcan
-                            @endif
-                        </td>
-                    </tr>
-                @empty
+    <!-- Data Table Container -->
+    <div class="overflow-hidden rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
+        <div class="overflow-x-auto scrollbar-thin">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-slate-50/80 dark:bg-slate-800/50 border-b border-slate-200/80 dark:border-slate-800">
                     <tr>
-                        <td colspan="8" class="px-5 py-10 text-center text-gray-400">
-                            Aucune caution répertoriée.
-                        </td>
+                        <x-datatable.th>Contrat / Locataire & Bien</x-datatable.th>
+                        <x-datatable.th field="expected_amount" :sortField="$sortField" :sortDirection="$sortDirection">Montant Attendu</x-datatable.th>
+                        <x-datatable.th field="received_amount" :sortField="$sortField" :sortDirection="$sortDirection">Montant Reçu</x-datatable.th>
+                        <x-datatable.th field="status" :sortField="$sortField" :sortDirection="$sortDirection">Statut</x-datatable.th>
+                        <x-datatable.th align="right">Actions</x-datatable.th>
                     </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80 font-medium">
+                    @forelse($deposits as $deposit)
+                        <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="font-bold text-slate-900 dark:text-white">
+                                    {{ $deposit->lease?->tenant?->full_name ?? 'Inconnu' }}
+                                </div>
+                                <div class="text-xs text-slate-400 font-medium">
+                                    {{ $deposit->lease?->property?->title ?? 'Bien inconnu' }} (Réf: {{ $deposit->lease?->reference }})
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-xs font-bold text-slate-900 dark:text-white">
+                                {{ number_format((float)$deposit->expected_amount, 0, ',', ' ') }} FCFA
+                            </td>
+                            <td class="px-6 py-4 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                                {{ number_format((float)$deposit->received_amount, 0, ',', ' ') }} FCFA
+                            </td>
+                            <td class="px-6 py-4">
+                                <x-badge :variant="$deposit->status->badgeColor()">
+                                    {{ $deposit->status->label() }}
+                                </x-badge>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    @if($deposit->status->value === 'pending')
+                                        <button wire:click="openReceiveModal({{ $deposit->id }})"
+                                                class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs transition">
+                                            Réceptionner
+                                        </button>
+                                    @elseif($deposit->status->value === 'held')
+                                        <button wire:click="openRefundModal({{ $deposit->id }})"
+                                                class="px-2.5 py-1 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-2xs transition">
+                                            Restituer / Clôturer
+                                        </button>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-slate-400">
+                                Aucune garantie ou caution enregistrée.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        @if($deposits->hasPages())
+            <div class="px-6 py-4 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                {{ $deposits->links() }}
+            </div>
+        @endif
     </div>
 
-    {{-- Modal Encaisser la caution --}}
+    <!-- Modals (Reception / Restitution) -->
     @if($showReceiveModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 space-y-4">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    Encaisser la caution
-                </h3>
-
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 space-y-4 shadow-2xl">
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Enregistrer la réception de la caution</h3>
                 <form wire:submit="processReceive" class="space-y-4">
                     <div>
                         <x-label for="receive_amount">Montant encaissé (FCFA)</x-label>
-                        <x-input wire:model="receive_amount" type="number" step="1000" id="receive_amount" autofocus />
-                        @error('receive_amount') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
+                        <x-input id="receive_amount" type="number" wire:model="receive_amount" required />
                     </div>
-
                     <div>
                         <x-label for="received_at">Date de réception</x-label>
-                        <x-input wire:model="received_at" type="date" id="received_at" />
-                        @error('received_at') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
+                        <x-input id="received_at" type="date" wire:model="received_at" required />
                     </div>
-
-                    <div class="flex items-center justify-end gap-3 pt-2">
-                        <x-button type="button" variant="secondary" wire:click="$set('showReceiveModal', false)">
-                            Annuler
-                        </x-button>
-                        <x-button type="submit" wire:loading.attr="disabled">
-                            <span wire:loading.remove>Confirmer l'encaissement</span>
-                            <span wire:loading>Enregistrement...</span>
-                        </x-button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    @endif
-
-    {{-- Modal Restituer / Clôturer la caution --}}
-    @if($showRefundModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 space-y-4">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    Restitution ou retenue de la caution
-                </h3>
-
-                <form wire:submit="processRefund" class="space-y-4">
-                    <div>
-                        <x-label for="refunded_amount">Montant restitué au locataire (FCFA)</x-label>
-                        <x-input wire:model="refunded_amount" type="number" step="1000" id="refunded_amount" autofocus />
-                        @error('refunded_amount') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div>
-                        <x-label for="retained_amount">Montant retenu par le bailleur (FCFA)</x-label>
-                        <x-input wire:model="retained_amount" type="number" step="1000" id="retained_amount" />
-                        @error('retained_amount') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div>
-                        <x-label for="retention_reason">Motif de la retenue (Obligatoire si retenue > 0)</x-label>
-                        <x-input wire:model="retention_reason" type="text" id="retention_reason" placeholder="Ex: Réparation peinture dégradée, facture eau impayée..." />
-                        @error('retention_reason') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div>
-                        <x-label for="refunded_at">Date de la restitution</x-label>
-                        <x-input wire:model="refunded_at" type="date" id="refunded_at" />
-                        @error('refunded_at') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div class="flex items-center justify-end gap-3 pt-2">
-                        <x-button type="button" variant="secondary" wire:click="$set('showRefundModal', false)">
-                            Annuler
-                        </x-button>
-                        <x-button type="submit" wire:loading.attr="disabled">
-                            <span wire:loading.remove>Valider la restitution</span>
-                            <span wire:loading>Traitement...</span>
-                        </x-button>
+                    <div class="flex justify-end gap-3 pt-2">
+                        <x-button type="button" variant="secondary" wire:click="$set('showReceiveModal', false)">Annuler</x-button>
+                        <x-button type="submit" variant="primary">Confirmer</x-button>
                     </div>
                 </form>
             </div>

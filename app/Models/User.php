@@ -12,7 +12,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['agency_id', 'name', 'email', 'password'])]
+use Illuminate\Support\Facades\Storage;
+
+#[Fillable(['agency_id', 'name', 'email', 'phone', 'avatar_path', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -30,5 +32,17 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * URL publique de l'avatar de l'utilisateur.
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if ($this->avatar_path && Storage::disk('public')->exists($this->avatar_path)) {
+            return Storage::disk('public')->url($this->avatar_path);
+        }
+
+        return null;
     }
 }

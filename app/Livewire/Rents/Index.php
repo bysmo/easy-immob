@@ -6,15 +6,14 @@ use App\Domain\Payment\Actions\RecordPaymentAction;
 use App\Domain\Payment\Enums\PaymentMethod;
 use App\Domain\Rent\Enums\RentScheduleStatus;
 use App\Domain\Rent\Models\RentSchedule;
+use App\Livewire\Traits\WithDataTable;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class Index extends Component
 {
-    use WithPagination;
+    use WithDataTable;
 
-    public string $search = '';
     public string $statusFilter = '';
 
     // Modal de paiement
@@ -36,11 +35,8 @@ class Index extends Component
     public function mount(): void
     {
         $this->payment_date = now()->format('Y-m-d');
-    }
-
-    public function updatedSearch(): void
-    {
-        $this->resetPage();
+        $this->sortField = 'due_date';
+        $this->sortDirection = 'desc';
     }
 
     public function updatedStatusFilter(): void
@@ -86,7 +82,7 @@ class Index extends Component
 
     public function render(): \Illuminate\View\View
     {
-        $schedules = RentSchedule::with(['lease.property', 'lease.tenant'])
+        $query = RentSchedule::with(['lease.property', 'lease.tenant'])
             ->when($this->search, function ($q) {
                 $q->where(function ($query) {
                     $query->where('period', 'like', '%' . $this->search . '%')
@@ -101,9 +97,9 @@ class Index extends Component
             })
             ->when($this->statusFilter, function ($q) {
                 $q->where('status', $this->statusFilter);
-            })
-            ->latest('due_date')
-            ->paginate(15);
+            });
+
+        $schedules = $this->applySorting($query, 'due_date', 'desc')->paginate($this->perPage);
 
         return view('livewire.rents.index', [
             'schedules'      => $schedules,

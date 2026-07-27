@@ -3,17 +3,17 @@
 namespace App\Livewire\Tenants;
 
 use App\Domain\Tenant\Models\Tenant;
+use App\Livewire\Traits\WithDataTable;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class Index extends Component
 {
-    use WithPagination;
+    use WithDataTable;
 
-    public string $search = '';
+    public string $statusFilter = '';
 
-    public function updatedSearch(): void
+    public function updatedStatusFilter(): void
     {
         $this->resetPage();
     }
@@ -30,7 +30,7 @@ class Index extends Component
 
     public function render(): \Illuminate\View\View
     {
-        $tenants = Tenant::query()
+        $query = Tenant::query()
             ->when($this->search, function ($q) {
                 $q->where(function ($query) {
                     $query->where('first_name', 'like', '%' . $this->search . '%')
@@ -40,8 +40,11 @@ class Index extends Component
                         ->orWhere('phone', 'like', '%' . $this->search . '%');
                 });
             })
-            ->latest()
-            ->paginate(15);
+            ->when($this->statusFilter, function ($q) {
+                $q->where('status', $this->statusFilter);
+            });
+
+        $tenants = $this->applySorting($query, 'created_at', 'desc')->paginate($this->perPage);
 
         return view('livewire.tenants.index', compact('tenants'));
     }

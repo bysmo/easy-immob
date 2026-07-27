@@ -43,7 +43,7 @@ class Edit extends Component
     #[Validate('nullable|integer|min:0')]
     public ?int $bathrooms = null;
 
-    #[Validate('required|numeric|min:0')]
+    #[Validate('required|numeric|min:1000')]
     public float $rent_amount = 0;
 
     #[Validate('required')]

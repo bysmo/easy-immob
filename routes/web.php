@@ -11,6 +11,9 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
 
+    // Profil & Sécurité
+    Route::get('/profile', fn () => view('profile'))->name('profile.edit');
+
     // Propriétaires
     Route::prefix('owners')
         ->name('owners.')

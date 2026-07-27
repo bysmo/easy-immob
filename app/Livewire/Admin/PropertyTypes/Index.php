@@ -3,12 +3,15 @@
 namespace App\Livewire\Admin\PropertyTypes;
 
 use App\Domain\Property\Models\PropertyType;
+use App\Livewire\Traits\WithDataTable;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 class Index extends Component
 {
+    use WithDataTable;
+
     public bool $showModal = false;
     public ?int $editingTypeId = null;
 
@@ -69,7 +72,10 @@ class Index extends Component
 
     public function render(): \Illuminate\View\View
     {
-        $propertyTypes = PropertyType::latest()->get();
+        $query = PropertyType::query()
+            ->when($this->search, fn ($q) => $q->where('name', 'like', '%' . $this->search . '%'));
+
+        $propertyTypes = $this->applySorting($query, 'name', 'asc')->paginate($this->perPage);
 
         return view('livewire.admin.property-types.index', compact('propertyTypes'));
     }

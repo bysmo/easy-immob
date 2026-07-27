@@ -6,20 +6,14 @@ use App\Domain\Lease\Actions\ActivateLeaseAction;
 use App\Domain\Lease\Actions\TerminateLeaseAction;
 use App\Domain\Lease\Enums\LeaseStatus;
 use App\Domain\Lease\Models\Lease;
+use App\Livewire\Traits\WithDataTable;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class Index extends Component
 {
-    use WithPagination;
+    use WithDataTable;
 
-    public string $search = '';
     public string $statusFilter = '';
-
-    public function updatedSearch(): void
-    {
-        $this->resetPage();
-    }
 
     public function updatedStatusFilter(): void
     {
@@ -33,7 +27,7 @@ class Index extends Component
 
         try {
             $action->execute($lease);
-            session()->flash('success', "Le contrat {$lease->reference} a été activé avec succès. Le bien est à présent occupé et les échéances ont été générées.");
+            session()->flash('success', "Le contrat {$lease->reference} a été activé avec succès.");
         } catch (\InvalidArgumentException $e) {
             session()->flash('error', $e->getMessage());
         }
@@ -45,12 +39,12 @@ class Index extends Component
         $this->authorize('update', $lease);
 
         $action->execute($lease);
-        session()->flash('success', "Le contrat {$lease->reference} a été résilié. Le bien a été libéré.");
+        session()->flash('success', "Le contrat {$lease->reference} a été résilié.");
     }
 
     public function render(): \Illuminate\View\View
     {
-        $leases = Lease::with(['property', 'tenant'])
+        $query = Lease::with(['property', 'tenant'])
             ->when($this->search, function ($q) {
                 $q->where(function ($query) {
                     $query->where('reference', 'like', '%' . $this->search . '%')
@@ -66,9 +60,9 @@ class Index extends Component
             })
             ->when($this->statusFilter, function ($q) {
                 $q->where('status', $this->statusFilter);
-            })
-            ->latest()
-            ->paginate(15);
+            });
+
+        $leases = $this->applySorting($query, 'created_at', 'desc')->paginate($this->perPage);
 
         return view('livewire.leases.index', [
             'leases'        => $leases,

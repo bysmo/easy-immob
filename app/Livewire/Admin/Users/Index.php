@@ -2,39 +2,29 @@
 
 namespace App\Livewire\Admin\Users;
 
+use App\Livewire\Traits\WithDataTable;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class Index extends Component
 {
-    use WithPagination;
-
-    public string $search = '';
-
-    /**
-     * Réinitialise la pagination quand la recherche change.
-     */
-    public function updatedSearch(): void
-    {
-        $this->resetPage();
-    }
+    use WithDataTable;
 
     public function render(): \Illuminate\View\View
     {
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
-        $users = User::withoutGlobalScopes()
+        $query = User::withoutGlobalScopes()
             ->with('roles')
             ->where('agency_id', $currentUser->agency_id)
             ->when($this->search, fn ($q) => $q->where(function ($q) {
                 $q->where('name', 'like', '%'.$this->search.'%')
                   ->orWhere('email', 'like', '%'.$this->search.'%');
-            }))
-            ->latest()
-            ->paginate(15);
+            }));
+
+        $users = $this->applySorting($query, 'created_at', 'desc')->paginate($this->perPage);
 
         return view('livewire.admin.users.index', compact('users'));
     }
