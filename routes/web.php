@@ -34,6 +34,15 @@ Route::middleware('auth')->group(function () {
             Route::get('/{propertyId}', fn (int $propertyId) => view('properties.edit', compact('propertyId')))->name('edit')->middleware('can:properties.update');
         });
 
+    // Incidents & Réparations
+    Route::prefix('incidents')
+        ->name('incidents.')
+        ->group(function () {
+            Route::get('/',           fn () => view('incidents.index'))->name('index');
+            Route::get('/create',     fn () => view('incidents.create'))->name('create');
+            Route::get('/{incidentId}', fn (int $incidentId) => view('incidents.show', compact('incidentId')))->name('show');
+        });
+
     // Reporting & Rapports financiers
     Route::prefix('reports')
         ->name('reports.')

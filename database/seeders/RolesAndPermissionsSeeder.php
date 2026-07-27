@@ -22,6 +22,7 @@ class RolesAndPermissionsSeeder extends Seeder
         'rents.view', 'rents.record-payment',
         'deposits.view', 'deposits.manage',
         'arrears.view', 'arrears.manage',
+        'incidents.view', 'incidents.create', 'incidents.update', 'incidents.manage',
         'notifications.view',
         'documents.view', 'documents.upload',
         'reports.view',
@@ -41,19 +42,26 @@ class RolesAndPermissionsSeeder extends Seeder
             'leases.view', 'leases.create', 'leases.update', 'leases.delete',
             'rents.view', 'rents.record-payment',
             'arrears.view', 'arrears.manage',
+            'incidents.view', 'incidents.create', 'incidents.update', 'incidents.manage',
         ],
         'Comptable' => [
             'rents.view', 'rents.record-payment',
             'deposits.view', 'deposits.manage',
+            'incidents.view',
             'documents.view',
             'reports.view',
         ],
         'Agent' => [
             'properties.view', 'properties.create', 'properties.update', 'properties.delete',
             'owners.view',
+            'incidents.view', 'incidents.update',
         ],
         'Propriétaire' => [],
-        'Locataire' => [],
+        'Locataire' => [
+            'incidents.view', 'incidents.create',
+            'rents.view',
+            'leases.view',
+        ],
     ];
 
     public function run(): void

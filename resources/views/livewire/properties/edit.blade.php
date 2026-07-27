@@ -14,6 +14,20 @@
         </div>
     </div>
 
+    <!-- Banner Suivi d'entretien réel -->
+    <div class="p-4 rounded-2xl bg-gradient-to-tr from-slate-900 to-slate-800 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md">
+        <div>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Coût d'entretien réel cumulé sur ce bien</span>
+            <p class="text-2xl font-bold font-mono text-emerald-400 mt-0.5">
+                {{ number_format((float) $property->total_maintenance_cost, 0, ',', ' ') }} FCFA
+            </p>
+        </div>
+        <a href="{{ route('incidents.index') }}" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs transition flex items-center gap-1.5 self-start sm:self-auto">
+            <x-icon name="bell" class="w-4 h-4 text-emerald-400" />
+            <span>Voir l'historique des réparations</span>
+        </a>
+    </div>
+
     <form wire:submit="save" class="space-y-6">
         
         <!-- Section 1 : Caractéristiques Principales -->

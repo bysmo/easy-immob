@@ -2,6 +2,7 @@
 
 namespace App\Domain\Property\Models;
 
+use App\Domain\Incident\Models\Incident;
 use App\Domain\Owner\Models\Owner;
 use App\Domain\Property\Enums\PropertyStatus;
 use App\Support\Tenancy\BelongsToAgency;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'agency_id',
@@ -57,5 +59,20 @@ class Property extends Model
     public function propertyType(): BelongsTo
     {
         return $this->belongsTo(PropertyType::class);
+    }
+
+    public function incidents(): HasMany
+    {
+        return $this->hasMany(Incident::class);
+    }
+
+    /**
+     * Calcule le coût réel d'entretien du bien (somme des coûts de réparation des incidents résolus ou clôturés).
+     */
+    public function getTotalMaintenanceCostAttribute(): float
+    {
+        return (float) $this->incidents()
+            ->whereIn('status', ['resolved', 'closed'])
+            ->sum('repair_cost');
     }
 }

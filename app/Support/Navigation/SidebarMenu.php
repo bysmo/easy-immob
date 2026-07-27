@@ -2,6 +2,8 @@
 
 namespace App\Support\Navigation;
 
+use Illuminate\Support\Facades\Auth;
+
 class SidebarMenu
 {
     /**
@@ -12,6 +14,27 @@ class SidebarMenu
      */
     public static function groupedItems(): array
     {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::hasUser() ? Auth::user() : null;
+
+        if ($user && $user->isTenant()) {
+            return [
+                [
+                    'section' => 'Mon Espace Locataire',
+                    'items' => [
+                        ['label' => 'Tableau de bord', 'icon' => 'dashboard', 'route' => 'dashboard', 'params' => []],
+                    ],
+                ],
+                [
+                    'section' => 'Demandes & Intervention',
+                    'items' => [
+                        ['label' => 'Incidents & Réparations', 'icon' => 'bell', 'route' => 'incidents.index', 'params' => []],
+                        ['label' => 'Notifications', 'icon' => 'notifications', 'route' => 'notifications.index', 'params' => []],
+                    ],
+                ],
+            ];
+        }
+
         return [
             [
                 'section' => 'Pilotage',
@@ -26,6 +49,7 @@ class SidebarMenu
                     ['label' => 'Biens Immobiliers', 'icon' => 'properties', 'route' => 'properties.index', 'params' => []],
                     ['label' => 'Locataires', 'icon' => 'tenants', 'route' => 'tenants.index', 'params' => []],
                     ['label' => 'Contrats de Bail', 'icon' => 'leases', 'route' => 'leases.index', 'params' => []],
+                    ['label' => 'Incidents & Réparations', 'icon' => 'bell', 'route' => 'incidents.index', 'params' => []],
                 ],
             ],
             [

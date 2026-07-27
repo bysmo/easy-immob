@@ -20,6 +20,10 @@ class Create extends Component
     #[Validate('required|exists:tenants,id')]
     public ?int $tenant_id = null;
 
+    public string $tenant_code_input = '';
+    public ?string $tenant_code_message = null;
+    public ?string $tenant_code_error = null;
+
     #[Validate('nullable|exists:lease_templates,id')]
     public ?int $template_id = null;
 
@@ -40,6 +44,40 @@ class Create extends Component
 
     #[Validate('required|numeric|min:0')]
     public float $deposit_amount = 0;
+
+    public function searchTenantByCode(): void
+    {
+        $this->tenant_code_message = null;
+        $this->tenant_code_error = null;
+
+        $code = strtoupper(trim($this->tenant_code_input));
+
+        if (empty($code)) {
+            $this->tenant_code_error = 'Veuillez saisir un code locataire.';
+            return;
+        }
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $tenant = Tenant::withoutGlobalScopes()
+            ->where('reference', $code)
+            ->first();
+
+        if (! $tenant) {
+            $this->tenant_code_error = "Aucun locataire trouvé avec le code {$code}.";
+            return;
+        }
+
+        // Attach tenant to this agency if not assigned
+        if (! $tenant->agency_id) {
+            $tenant->agency_id = $user->agency_id;
+            $tenant->save();
+        }
+
+        $this->tenant_id = $tenant->id;
+        $this->tenant_code_message = "Locataire rattaché : {$tenant->full_name} ({$tenant->reference})";
+    }
 
     public function updatedPropertyId(): void
     {

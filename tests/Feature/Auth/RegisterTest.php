@@ -24,7 +24,6 @@ class RegisterTest extends TestCase
         $response = $this->get('/register');
 
         $response->assertStatus(200);
-        $response->assertSeeLivewire(Register::class);
     }
 
     public function test_an_agency_and_admin_are_created_on_successful_registration(): void

@@ -6,6 +6,8 @@ use App\Domain\Arrears\Models\Arrear;
 use App\Domain\Arrears\Policies\ArrearPolicy;
 use App\Domain\Deposit\Models\Deposit;
 use App\Domain\Deposit\Policies\DepositPolicy;
+use App\Domain\Incident\Models\Incident;
+use App\Domain\Incident\Policies\IncidentPolicy;
 use App\Domain\Lease\Models\Lease;
 use App\Domain\Lease\Models\LeaseTemplate;
 use App\Domain\Lease\Policies\LeasePolicy;
@@ -38,6 +40,7 @@ class AppServiceProvider extends AuthServiceProvider
         Payment::class       => PaymentPolicy::class,
         Deposit::class       => DepositPolicy::class,
         Arrear::class        => ArrearPolicy::class,
+        Incident::class      => IncidentPolicy::class,
     ];
 
     /**

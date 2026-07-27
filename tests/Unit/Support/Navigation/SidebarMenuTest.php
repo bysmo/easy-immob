@@ -3,13 +3,13 @@
 namespace Tests\Unit\Support\Navigation;
 
 use App\Support\Navigation\SidebarMenu;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class SidebarMenuTest extends TestCase
 {
-    public function test_it_returns_exactly_thirteen_entries(): void
+    public function test_it_returns_exactly_fourteen_entries(): void
     {
-        $this->assertCount(13, SidebarMenu::items());
+        $this->assertCount(14, SidebarMenu::items());
     }
 
     public function test_each_entry_has_the_expected_keys(): void
@@ -35,6 +35,7 @@ class SidebarMenuTest extends TestCase
                 'properties.index' => 1,
                 'tenants.index' => 1,
                 'leases.index' => 1,
+                'incidents.index' => 1,
                 'rents.index' => 1,
                 'deposits.index' => 1,
                 'arrears.index' => 1,

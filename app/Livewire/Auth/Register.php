@@ -3,38 +3,73 @@
 namespace App\Livewire\Auth;
 
 use App\Application\Actions\Auth\RegisterAgencyAction;
+use App\Application\Actions\Auth\RegisterTenantAction;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 class Register extends Component
 {
-    #[Validate('required|string|max:255')]
-    public string $agency_name = '';
+    public string $account_type = 'agency'; // agency or tenant
 
-    #[Validate('required|string|max:255')]
+    // Agency fields
+    public string $agency_name = '';
     public string $name = '';
 
-    #[Validate('required|email|max:255')]
+    // Tenant fields
+    public string $first_name = '';
+    public string $last_name = '';
+    public string $phone = '';
+
+    // Shared fields
     public string $email = '';
-
-    #[Validate('required|string|min:8')]
     public string $password = '';
-
-    #[Validate('required|string|same:password')]
     public string $password_confirmation = '';
 
-    public function register(RegisterAgencyAction $action): void
+    public function setAccountType(string $type): void
     {
-        $this->validate();
+        if (in_array($type, ['agency', 'tenant'])) {
+            $this->account_type = $type;
+            $this->resetValidation();
+        }
+    }
 
-        $user = $action->create([
-            'agency_name'           => $this->agency_name,
-            'name'                  => $this->name,
-            'email'                 => $this->email,
-            'password'              => $this->password,
-            'password_confirmation' => $this->password_confirmation,
-        ]);
+    public function register(RegisterAgencyAction $agencyAction, RegisterTenantAction $tenantAction): void
+    {
+        if ($this->account_type === 'agency') {
+            $this->validate([
+                'agency_name'           => 'required|string|max:255',
+                'name'                  => 'required|string|max:255',
+                'email'                 => 'required|email|max:255|unique:users,email|unique:agencies,email',
+                'password'              => 'required|string|min:8',
+                'password_confirmation' => 'required|string|same:password',
+            ]);
+
+            $user = $agencyAction->create([
+                'agency_name'           => $this->agency_name,
+                'name'                  => $this->name,
+                'email'                 => $this->email,
+                'password'              => $this->password,
+                'password_confirmation' => $this->password_confirmation,
+            ]);
+        } else {
+            $this->validate([
+                'first_name'            => 'required|string|max:255',
+                'last_name'             => 'required|string|max:255',
+                'email'                 => 'required|email|max:255|unique:users,email',
+                'phone'                 => 'nullable|string|max:255',
+                'password'              => 'required|string|min:8',
+                'password_confirmation' => 'required|string|same:password',
+            ]);
+
+            $user = $tenantAction->create([
+                'first_name'            => $this->first_name,
+                'last_name'             => $this->last_name,
+                'email'                 => $this->email,
+                'phone'                 => $this->phone,
+                'password'              => $this->password,
+                'password_confirmation' => $this->password_confirmation,
+            ]);
+        }
 
         Auth::login($user);
 

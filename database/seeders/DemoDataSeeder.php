@@ -10,6 +10,7 @@ use App\Domain\Arrears\Models\Reminder;
 use App\Domain\Audit\Models\AuditLog;
 use App\Domain\Deposit\Enums\DepositStatus;
 use App\Domain\Deposit\Models\Deposit;
+use App\Domain\Incident\Models\Incident;
 use App\Domain\Lease\Enums\LeaseStatus;
 use App\Domain\Lease\Models\Lease;
 use App\Domain\Lease\Models\LeaseTemplate;
@@ -107,6 +108,18 @@ class DemoDataSeeder extends Seeder
             ]
         );
         $agent->assignRole('Agent');
+
+        // Locataire citoyen test
+        $locataireUser = User::firstOrCreate(
+            ['email' => 'locataire@easyimmob.com'],
+            [
+                'agency_id'         => null,
+                'name'              => 'David Yao',
+                'password'          => $passwordHash,
+                'email_verified_at' => now(),
+            ]
+        );
+        $locataireUser->assignRole('Locataire');
 
         // Second agency admin
         $adminPrestige = User::firstOrCreate(
@@ -490,12 +503,17 @@ class DemoDataSeeder extends Seeder
 
         $tenants = [];
         foreach ($tenantsData as $tData) {
+            $extraData = ['status' => 'active'];
+            if ($tData['reference'] === 'LOC-0001') {
+                $extraData['user_id'] = $locataireUser->id;
+            }
+
             $tenants[$tData['reference']] = Tenant::withoutGlobalScopes()->firstOrCreate(
                 [
                     'agency_id' => $primaryAgency->id,
                     'reference' => $tData['reference'],
                 ],
-                array_merge($tData, ['status' => 'active'])
+                array_merge($tData, $extraData)
             );
         }
 
@@ -907,6 +925,43 @@ class DemoDataSeeder extends Seeder
                 'new_values' => ['reference' => 'PAY-00001', 'amount' => 1250000.00],
                 'ip_address' => '127.0.0.1',
                 'user_agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+            ]
+        );
+
+        // 11. Incidents & Réparations
+        Incident::withoutGlobalScopes()->firstOrCreate(
+            ['reference' => 'INC-0001'],
+            [
+                'agency_id'      => $primaryAgency->id,
+                'property_id'    => $properties['BIE-0001']->id,
+                'lease_id'       => $leases['CON-0001']->id,
+                'tenant_id'      => $tenants['LOC-0001']->id,
+                'title'          => 'Fuite d\'eau sous évier cuisine',
+                'description'    => 'Le tuyau sous l\'évier goutte abondamment depuis ce matin.',
+                'priority'       => 'high',
+                'status'         => 'resolved',
+                'repair_details' => 'Remplacement du joint de siphon et serrage des raccordements par le plombier partenaire.',
+                'repair_cost'    => 35000.00,
+                'resolved_at'    => now()->subDays(2),
+            ]
+        );
+
+        Incident::withoutGlobalScopes()->firstOrCreate(
+            ['reference' => 'INC-0002'],
+            [
+                'agency_id'                 => $primaryAgency->id,
+                'property_id'               => $properties['BIE-0001']->id,
+                'lease_id'                  => $leases['CON-0001']->id,
+                'tenant_id'                 => $tenants['LOC-0001']->id,
+                'title'                     => 'Dysfonctionnement Climatiseur Salon',
+                'description'               => 'Le climatiseur du grand salon ne souffle plus d\'air frais.',
+                'priority'                  => 'medium',
+                'status'                    => 'closed',
+                'repair_details'            => 'Recharge en gaz R410A et nettoyage complet des filtres.',
+                'repair_cost'               => 45000.00,
+                'tenant_confirmation_note' => 'Climatisation réparée parfaitement, merci !',
+                'resolved_at'               => now()->subDays(10),
+                'closed_at'                 => now()->subDays(8),
             ]
         );
     }

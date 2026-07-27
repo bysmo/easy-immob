@@ -42,11 +42,12 @@ class RolesAndPermissionsSeederTest extends TestCase
         $this->assertTrue($gestionnaire->hasPermissionTo('arrears.manage'));
     }
 
-    public function test_proprietaire_and_locataire_have_no_internal_permissions_yet(): void
+    public function test_role_permissions_assignment(): void
     {
         $this->seed(RolesAndPermissionsSeeder::class);
 
         $this->assertSame(0, Role::findByName('Propriétaire')->permissions()->count());
-        $this->assertSame(0, Role::findByName('Locataire')->permissions()->count());
+        $this->assertTrue(Role::findByName('Locataire')->hasPermissionTo('incidents.create'));
+        $this->assertTrue(Role::findByName('Locataire')->hasPermissionTo('rents.view'));
     }
 }

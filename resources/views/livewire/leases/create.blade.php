@@ -48,6 +48,25 @@
                     </div>
                 </div>
 
+                <!-- Saisie directe du Code Locataire -->
+                <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-3">
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                        Ou rechercher un locataire par son Code Locataire (ex: LOC-849201) :
+                    </span>
+                    <div class="flex gap-2">
+                        <x-input wire:model="tenant_code_input" type="text" placeholder="Entrez le code LOC-XXXXXX" icon="user" class="uppercase" />
+                        <button type="button" wire:click="searchTenantByCode" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shrink-0 transition shadow-sm">
+                            Rechercher & Rattacher
+                        </button>
+                    </div>
+                    @if ($tenant_code_message)
+                        <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">{{ $tenant_code_message }}</p>
+                    @endif
+                    @if ($tenant_code_error)
+                        <p class="text-xs text-rose-500 font-semibold">{{ $tenant_code_error }}</p>
+                    @endif
+                </div>
+
                 <div>
                     <x-label for="template_id">Modèle de contrat généré <span class="normal-case font-normal text-slate-400">(Facultatif)</span></x-label>
                     <x-select wire:model="template_id" id="template_id" icon="document" :error="$errors->first('template_id')">
