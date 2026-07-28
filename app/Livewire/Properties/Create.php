@@ -3,6 +3,7 @@
 namespace App\Livewire\Properties;
 
 use App\Application\Services\ReferenceGenerator;
+use App\Domain\Agency\Models\Agency;
 use App\Domain\Owner\Models\Owner;
 use App\Domain\Property\Enums\PropertyStatus;
 use App\Domain\Property\Models\Property;
@@ -69,6 +70,17 @@ class Create extends Component
     public string $new_video_url = '';
     public $photo_file;
     public $video_file;
+
+    public bool $hasReachedLimit = false;
+
+    public function mount(): void
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if ($user && $user->agency) {
+            $this->hasReachedLimit = $user->agency->hasReachedPropertyLimit();
+        }
+    }
 
     public function addPhotoUrl(): void
     {
@@ -154,6 +166,14 @@ class Create extends Component
     {
         $this->authorize('create', Property::class);
 
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->agency && $user->agency->hasReachedPropertyLimit()) {
+            $this->addError('quota', 'Votre agence a atteint la limite de biens autorisés par votre forfait d\'abonnement actuel. Veuillez surclasser votre offre dans l\'espace Mon Abonnement.');
+            return;
+        }
+
         if (count($this->photos) > 10) {
             $this->addError('photos', 'Le nombre de photos est limité à 10 maximum.');
             return;
@@ -165,9 +185,6 @@ class Create extends Component
         }
 
         $this->validate();
-
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
 
         $reference = $generator->generate(Property::class, $user->agency_id, 'BIE');
 

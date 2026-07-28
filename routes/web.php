@@ -9,17 +9,34 @@ Route::get('/', fn () => redirect()->route('login'));
 Route::middleware('auth')->group(function () {
 
     // Dashboard
-    Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
+    Route::get('/dashboard', function () {
+        /** @var \App\Models\User $user */
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user && $user->isSuperAdmin()) {
+            return redirect()->route('admin.saas-dashboard');
+        }
+        return view('dashboard');
+    })->name('dashboard');
 
     // Profil & Sécurité
     Route::get('/profile', fn () => view('profile'))->name('profile.edit');
 
-    // Catalogue & Recherche de biens (Locataires / Public)
+    // Catalogue & Recherche de biens (Réservé aux Locataires)
     Route::prefix('catalog')
         ->name('catalog.')
         ->group(function () {
-            Route::get('/',             fn () => view('catalog.index'))->name('index');
-            Route::get('/{propertyId}', fn (int $propertyId) => view('catalog.show', compact('propertyId')))->name('show');
+            Route::get('/', function () {
+                /** @var \App\Models\User $user */
+                $user = \Illuminate\Support\Facades\Auth::user();
+                if (!$user->isTenant()) {
+                    return redirect()->route('dashboard');
+                }
+                return view('catalog.index');
+            })->name('index');
+
+            Route::get('/{propertyId}', function (int $propertyId) {
+                return view('catalog.show', compact('propertyId'));
+            })->name('show');
         });
 
     // Messagerie & Echanges Locataire - Agence
@@ -164,8 +181,23 @@ Route::middleware('auth')->group(function () {
     Route::get('/modules/{module}', fn (string $module) => view('coming-soon', compact('module')))
         ->name('modules.coming-soon');
 
-    // Administration des utilisateurs et référentiels
+    // Mon Abonnement (Agences Immobilières)
+    Route::get('/subscription', \App\Livewire\Subscription\Index::class)->name('subscription.index');
+
+    // Administration des utilisateurs, référentiels & Espace SaaS Super Admin
     Route::prefix('admin')->name('admin.')->group(function () {
+        // Espace Admin SaaS (Réservé exclusivement au Super Admin SaaS)
+        Route::middleware('can:saas.admin')->group(function () {
+            Route::get('/saas-dashboard', \App\Livewire\Admin\SaasDashboard::class)->name('saas-dashboard');
+            Route::get('/agencies', \App\Livewire\Admin\Agencies\Index::class)->name('agencies.index');
+            Route::get('/saas-invoices', \App\Livewire\Admin\SaasInvoices\Index::class)->name('saas-invoices.index');
+            Route::get('/plans', \App\Livewire\Admin\Plans\Index::class)->name('plans.index');
+            Route::get('/saas-invoices/{invoiceId}/print', function (int $invoiceId) {
+                $invoice = \App\Domain\Subscription\Models\SaasInvoice::with(['agency', 'subscriptionPlan'])->findOrFail($invoiceId);
+                return view('admin.saas-invoices.print', compact('invoice'));
+            })->name('saas-invoices.print');
+        });
+
         // Modèles de contrat
         Route::prefix('lease-templates')
             ->name('lease-templates.')

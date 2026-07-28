@@ -2,52 +2,50 @@
 
 namespace Tests\Unit\Support\Navigation;
 
+use App\Models\User;
 use App\Support\Navigation\SidebarMenu;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class SidebarMenuTest extends TestCase
 {
-    public function test_it_returns_exactly_fourteen_entries(): void
+    public function test_agency_user_does_not_see_saas_admin_nor_catalog(): void
     {
-        $this->assertCount(16, SidebarMenu::items());
-    }
+        $this->actingAs(new User());
 
-    public function test_each_entry_has_the_expected_keys(): void
-    {
-        foreach (SidebarMenu::items() as $item) {
-            $this->assertSame(
-                ['label', 'icon', 'route', 'params'],
-                array_keys($item)
-            );
-        }
-    }
-
-    public function test_it_only_references_the_expected_route_names(): void
-    {
         $routes = array_map(static fn (array $item) => $item['route'], SidebarMenu::items());
 
-        $counts = array_count_values($routes);
+        $this->assertNotContains('catalog.index', $routes);
+        $this->assertNotContains('admin.saas-dashboard', $routes);
+        $this->assertNotContains('admin.agencies.index', $routes);
+        $this->assertNotContains('admin.saas-invoices.index', $routes);
+        $this->assertNotContains('admin.plans.index', $routes);
+    }
+
+    public function test_super_admin_user_only_sees_saas_admin_items(): void
+    {
+        $superAdminRole = Role::findOrCreate('Super Admin');
+        $superAdminUser = new User();
+        $superAdminUser->setRelation('roles', collect([$superAdminRole]));
+        $this->actingAs($superAdminUser);
+
+        $routes = array_map(static fn (array $item) => $item['route'], SidebarMenu::items());
 
         $this->assertSame(
-            [
-                'dashboard' => 1,
-                'catalog.index' => 1,
-                'inquiries.index' => 1,
-                'owners.index' => 1,
-                'properties.index' => 1,
-                'tenants.index' => 1,
-                'leases.index' => 1,
-                'incidents.index' => 1,
-                'rents.index' => 1,
-                'deposits.index' => 1,
-                'arrears.index' => 1,
-                'notifications.index' => 1,
-                'reports.index' => 1,
-                'admin.lease-templates.index' => 1,
-                'admin.property-types.index' => 1,
-                'admin.users.index' => 1,
-            ],
-            $counts
+            ['admin.saas-dashboard', 'admin.agencies.index', 'admin.saas-invoices.index', 'admin.plans.index'],
+            $routes
         );
+    }
+
+    public function test_tenant_user_sees_catalog(): void
+    {
+        $tenantRole = Role::findOrCreate('Locataire');
+        $tenantUser = new User();
+        $tenantUser->setRelation('roles', collect([$tenantRole]));
+        $this->actingAs($tenantUser);
+
+        $routes = array_map(static fn (array $item) => $item['route'], SidebarMenu::items());
+
+        $this->assertContains('catalog.index', $routes);
     }
 }

@@ -12,23 +12,34 @@ class RolesAndPermissionsSeederTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_it_creates_the_six_roles(): void
+    public function test_it_creates_the_expected_roles(): void
     {
         $this->seed(RolesAndPermissionsSeeder::class);
 
         $this->assertSame(
-            ['Administrateur', 'Gestionnaire', 'Comptable', 'Agent', 'Propriétaire', 'Locataire'],
+            ['Super Admin', 'Administrateur', 'Gestionnaire', 'Comptable', 'Agent', 'Propriétaire', 'Locataire'],
             Role::orderBy('id')->pluck('name')->all(),
         );
     }
 
-    public function test_administrateur_has_every_permission(): void
+    public function test_super_admin_has_every_permission(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        $superAdmin = Role::findByName('Super Admin');
+
+        $this->assertSame(Permission::count(), $superAdmin->permissions()->count());
+    }
+
+    public function test_administrateur_has_agency_permissions(): void
     {
         $this->seed(RolesAndPermissionsSeeder::class);
 
         $admin = Role::findByName('Administrateur');
 
-        $this->assertSame(Permission::count(), $admin->permissions()->count());
+        $this->assertTrue($admin->hasPermissionTo('users.view'));
+        $this->assertTrue($admin->hasPermissionTo('properties.view'));
+        $this->assertFalse($admin->hasPermissionTo('saas.admin'));
     }
 
     public function test_gestionnaire_cannot_manage_users(): void

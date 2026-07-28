@@ -62,9 +62,21 @@ class DemoDataSeeder extends Seeder
             LeaseSeeder::class,
         ]);
 
-        // 2. Utilisateurs de test pour l'agence principale
+        // 2. Utilisateur Super Admin SaaS (Plateforme)
         $passwordHash = Hash::make('password');
 
+        $superAdmin = User::firstOrCreate(
+            ['email' => 'saasadmin@easyimmob.com'],
+            [
+                'agency_id'         => null,
+                'name'              => 'Administrateur SaaS',
+                'password'          => $passwordHash,
+                'email_verified_at' => now(),
+            ]
+        );
+        $superAdmin->assignRole('Super Admin');
+
+        // 3. Utilisateurs de test pour l'agence principale
         $admin = User::firstOrCreate(
             ['email' => 'admin@easyimmob.com'], //LOC-501409
             [

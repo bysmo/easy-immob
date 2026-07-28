@@ -11,6 +11,23 @@
         </div>
     </div>
 
+    @if($hasReachedLimit || $errors->has('quota'))
+        <div class="p-5 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-rose-800 dark:text-rose-200">
+            <div class="flex items-start gap-3">
+                <x-icon name="bell" class="w-6 h-6 text-rose-600 shrink-0 mt-0.5" />
+                <div>
+                    <h3 class="text-sm font-bold">Quota de biens atteint pour votre agence !</h3>
+                    <p class="text-xs text-rose-700 dark:text-rose-300 mt-0.5">
+                        {{ $errors->first('quota') ?: 'Vous avez atteint le nombre maximal de biens autorisés par votre forfait d\'abonnement actuel.' }}
+                    </p>
+                </div>
+            </div>
+            <a href="{{ route('subscription.index') }}" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs shrink-0 transition">
+                Mettre à niveau mon abonnement &rarr;
+            </a>
+        </div>
+    @endif
+
     <form wire:submit="save" class="space-y-6">
         
         <!-- Section 1 : Caractéristiques Principales -->

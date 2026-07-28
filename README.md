@@ -5,7 +5,7 @@
 <h1 align="center">🏢 EasyImmob - Plateforme SaaS de Gestion Immobilière & Locative Multi-Agences</h1>
 
 <p align="center">
-  <strong>Solution professionnelle de gestion immobilière moderne, puissante et hautement sécurisée pour agences et gestionnaires locatifs.</strong>
+  <strong>Solution professionnelle de gestion immobilière moderne, puissante et hautement sécurisée pour agences, gestionnaires locatifs et administrateurs SaaS.</strong>
 </p>
 
 <p align="center">
@@ -14,6 +14,7 @@
   <img src="https://img.shields.io/badge/Livewire-3.x-4E5BA6?style=for-the-badge&logo=livewire&logoColor=white" alt="Livewire 3">
   <img src="https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
   <img src="https://img.shields.io/badge/MySQL-8.0%2B-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL 8+">
+  <img src="https://img.shields.io/badge/Tests-98%20Passed-emerald?style=for-the-badge&logo=phpunit&logoColor=white" alt="98 Tests Passed">
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License MIT">
 </p>
 
@@ -22,6 +23,7 @@
 ## 📌 Sommaire
 
 - [À propos du projet](#-à-propos-du-projet)
+- [Espace Admin SaaS & Abonnements Agences](#-espace-admin-saas--abonnements-agences)
 - [Fonctionnalités Principales](#-fonctionnalités-principales)
 - [Architecture Technique & Stack](#-architecture-technique--stack)
 - [Structure du Code (Modular Monolith)](#-structure-du-code-modular-monolith)
@@ -29,7 +31,7 @@
 - [Guide d'Installation](#-guide-dinstallation)
 - [Comptes de Démonstration](#-comptes-de-démonstration)
 - [Commandes Utiles & Tests](#-commandes-utiles--tests)
-- [Sécurité & Rôles (RBAC)](#-sécurité--rôles-rbac)
+- [Sécurité & Isolation des Rôles (RBAC)](#-sécurité--isolation-des-rôles-rbac)
 - [Roadmap & Évolutions](#-roadmap--évolutions)
 - [Licence](#-licence)
 
@@ -37,62 +39,69 @@
 
 ## 🚀 À propos du projet
 
-**EasyImmob** est une application SaaS de gestion locative et immobilière conçue spécifiquement pour les agences immobilières, les administrateurs de biens et les propriétaires indépendants. 
+**EasyImmob** est une solution **SaaS Multi-Agences** de gestion locative et immobilière conçue pour les agences immobilières, les administrateurs de biens et les propriétaires indépendants. 
 
-L'application automatise et simplifie le cycle de vie complet de la gestion locative : de la mise en valeur des biens à la gestion des propriétaires, la contractualisation des baux, le suivi rigoureux des loyers et des encaissements, la détection automatisée des impayés, jusqu'à la résolution des incidents et l'édition des quittances et comptes de gestion.
+L'application automatise l'ensemble du cycle de vie immobilier : de la gestion du parc immobilier et des baux à la facturation des loyers, le quittancement automatique, la gestion des impayés et des incidents, jusqu'à la gestion des abonnements SaaS des agences et l'administration générale de la plateforme.
 
 ### 🌟 Points forts
 
-- **Multi-Agences (Multi-Tenancy)** : Isolation stricte des données et des ressources par agence immobilière.
-- **Gestion Complète des Échéances** : Génération automatique des loyers, calcul des soldes et gestion des acomptes/paiements partiels.
-- **Système Anti-Impayés Intelligent** : Détection automatique des retards, relances graduelles et suivi des dossiers de recouvrement.
-- **Expérience Utilisateur Interactive** : Interfaces dynamiques sous Livewire 3 & Alpine.js sans rechargement de page.
-- **Rapports & Quittances Pro** : Génération et impression d'états financiers pour propriétaires et quittances de loyer.
-- **Signalement d'Incidents Enrichi** : Suivi des dégradations/réparations avec possibilité de joindre des notes vocales audio et des photos.
-- **Vitrine & Messagerie intégrée** : Catalogue public des logements et système de messagerie (Chat) en direct avec les locataires.
+- **Architecture SaaS & Isolation Strict (Multi-Tenancy)** : Isolation hermétique des données inter-agences avec droits réservés au **Super Admin SaaS**.
+- **Gestion des Formules d'Abonnement SaaS** : Essai gratuit 3 mois offert à l'inscription, forfaits évolutifs selon le nombre de biens à louer (*Starter*, *Pro Business*, *Enterprise*).
+- **Contrôle Strict des Quotas & Modales Tailwind CSS** : Modales interactives modernes pour la confirmation de changement de forfait et validation stricte des capacités de biens gérés à la rétrogradation.
+- **Notification Instantanée Administrateur SaaS** : Alertes automatiques transmises au Super Admin à chaque inscription d'une nouvelle agence.
+- **Vitrine Locataire & Catalogue Réservé** : Recherche de biens accessible exclusivement aux locataires, messagerie instantanée agence-locataire.
+- **Signalement d'Incidents Enrichi** : Déclaration d'incidents avec enregistrement audio vocal et captures photos.
+- **Reporting Financier & Export CSV** : Relevés de gestion propriétaires, factures SaaS imprimables et rapports d'impayés.
+
+---
+
+## 💎 Espace Admin SaaS & Abonnements Agences
+
+### 👑 1. Espace Admin SaaS (Super Admin)
+L'Espace Admin SaaS est réservé **exclusivement au Super Admin de la plateforme** (`saasadmin@easyimmob.com`). Les utilisateurs d'agences immobilières n'ont aucun accès à cet espace.
+
+- **Dashboard Global SaaS** : Statistiques consolidées de la plateforme (Revenu mensuel récurrent MRR, nombre d'agences actives/suspendues, total de biens gérés, facturation globale).
+- **Gestion des Agences Clients** : Consultation du catalogue des agences, statut des abonnements, quota de biens consommés et actions de gestion (activation/suspension).
+- **Factures SaaS Agences** : Vue et génération des factures d'abonnement SaaS d'agences, avec option d'impression PDF grand format.
+- **Forfaits & Offres SaaS** : Paramétrage des formules d'abonnement (nom, tarif mensuel/annuel, limite de biens, avantages).
+
+### 📦 2. Offres & Formules d'Abonnement Agences
+- **Essai Gratuit (3 mois)** : Offre d'essai de 3 mois attribuée automatiquement à l'inscription initiale d'une agence (`0 FCFA`, jusqu'à 10 biens).
+- **Starter** : Pour petites agences (10 biens max, facturation mensuelle ou annuelle avec 2 mois offerts).
+- **Pro Business** : Solution complète pour agences en croissance (50 biens max).
+- **Enterprise** : Capacité illimitée pour réseaux et grandes agences.
+
+### 🔒 3. Rôles de Rétrogradation & Contrôle de Quota
+- **Interdiction de rétrograder vers l'Essai Gratuit** : Une fois sur un plan payant, une agence ne peut plus souscrire à l'essai gratuit initial.
+- **Vérification de la Capacité de Biens** : Toute tentative de passer à une formule inférieure avec une capacité inférieure au nombre actuel de biens gérés est bloquée par une modale d'erreur explicite.
 
 ---
 
 ## ⚡ Fonctionnalités Principales
 
-### 📊 1. Tableau de Bord Analytique (Dashboard)
-- Synthèse des indicateurs clés de performance (KPIs) : Taux d'occupation, total encaissements du mois, montant des impayés, baux à renouveler, incidents ouverts.
-- Alertes dynamiques et accès rapide aux actions stratégiques.
+### 📊 1. Tableaux de Bord Analytiques
+- **Vue Agence** : Taux d'occupation, encaissements du mois, impayés, baux à renouveler, incidents en cours.
+- **Vue Super Admin** : KPIs financiers globaux, répartition des packages SaaS et suivi des dernières agences inscrites.
 
 ### 🏢 2. Gestion du Parc Immobilier & Propriétaires
-- **Propriétaires** : Répertoire complet, pièces d'identité, historique des biens, comptes de reversement et commissions.
-- **Biens & Lots** : Appartements, villas, immeubles, locaux commerciaux, boutiques. Suivi de l'équipement, des loyers hors charges, charges, cautions et statut d'occupation.
+- **Propriétaires** : Répertoire complet, comptes de reversement et commissions.
+- **Biens & Lots** : Appartements, villas, immeubles, locaux commerciaux. Suivi des loyers, charges, cautions et statut d'occupation.
 
 ### 📜 3. Contrats de Location & Modèles (Leases)
-- Création de baux (habitation, professionnel, commercial).
-- Modèles de contrat configurables (`LeaseTemplates`) avec injection automatique des variables dynamiques (Locataire, Bien, Loyers, Agence).
-- Impression et export au format contrat standard.
+- Modèles de contrat configurables (`LeaseTemplates`) avec injection automatique des variables dynamiques.
+- Quittancement automatisé à l'échéance.
 
-### 💶 4. Loyers, Encaissements & Quittances
-- Échéancier de loyer automatisé mensuel (`RentSchedule`).
-- Modes de règlement multiples : Espèces, Virement, Chèque, Mobile Money (Orange Money, MTN MoMo, Wave).
-- Génération et impression automatique des **quittances de loyer** avec statut de règlement.
+### 💶 4. Loyers, Encaissements & Impayés
+- Échéanciers de loyers mensuels automatisés (`RentSchedule`).
+- Modes de paiement : Espèces, Virement, Chèque, Mobile Money (Orange Money, MTN MoMo, Wave).
+- Dossiers d'impayés classés par sévérité (Faible, Moyenne, Élevée, Critique) avec historique de relances.
 
-### 🔒 5. Dépôts de Garantie & Cautions
-- Enregistrement des cautions encaissées à l'entrée du locataire.
-- Suivi du statut (Encaissé, Restitué, Retenu pour dégradations/impayés).
+### 🛠️ 5. Incidents & Signalements Vocaulx/Photos
+- Interface de déclaration d'incidents par le locataire avec enregistrement audio vocal et photos jointes.
 
-### 🚨 6. Recouvrement & Impayés (Arrears)
-- Détection automatique dès dépassement de la date d'échéance non soldée.
-- Dossiers d'impayés classés par niveau de sévérité (Faible, Moyenne, Élevée, Critique).
-- Historique des relances (Rappel amiable, Mise en demeure, Procédure contentieuse).
-
-### 🛠️ 7. Incidents & Maintenance
-- Signalement par le locataire ou le gestionnaire avec détails, niveau d'urgence et pièces jointes (enregistrement audio vocal / photos).
-- Suivi de la résolution, artisan assigné et coût des réparations.
-
-### 💬 8. Catalogue Public & Messagerie (Chat)
-- Consultation du catalogue de biens disponibles à la location.
-- Espace de discussion / messagerie interactive en temps réel entre locataire et agence.
-
-### 📈 9. Reporting Financier & Exports
-- **Owner Statements** : États de reversement propriétaires paramétrables (déduction des frais de gestion et commissions agence) avec mise en page d'impression professionnelle.
-- **Export CSV** : Exportation de l'historique complet des paiements et encaissements.
+### 💬 6. Recherche de Biens & Messagerie Locataire
+- **Catalogue de Biens** : Accessible exclusivement aux locataires pour rechercher un logement disponible.
+- **Messagerie en Direct** : Fil de discussion interactif entre locataires et agences.
 
 ---
 
@@ -103,61 +112,57 @@ L'application automatise et simplifie le cycle de vie complet de la gestion loca
 | **Langage** | PHP 8.3+ | Typage strict et performances modernes |
 | **Framework Backend** | Laravel 12.x | Socle applicatif, ORM Eloquent, Queues, Scheduler |
 | **Architecture** | Modular Monolith (`app/Domain/...`) | Découpage DDD clean et maintenable par domaine métier |
-| **Frontend Reactive** | Livewire 3.x & Alpine.js | Interfaces interactives réactives côté serveur/client |
-| **Styling & UI** | Tailwind CSS & DaisyUI | Design responsive, moderne et élégant |
-| **Authentification** | Laravel Fortify | Authentification sécurisée, réinitialisation, profil |
+| **Frontend Reactive** | Livewire 3.x & Alpine.js | Interfaces interactives réactives et modales Tailwind |
+| **Styling & UI** | Tailwind CSS & DaisyUI | Design responsive, mode sombre, glassmorphism |
+| **Authentification** | Laravel Fortify | Authentification sécurisée, profil & réinitialisation |
 | **Gestion des Droits** | Spatie Laravel Permission | Rôles et permissions granulaires (RBAC) |
-| **Tests Automatisés** | PHPUnit 12 / Pest | Suite de tests unitaires et d'intégration |
+| **Tests Automatisés** | PHPUnit 12 (98 Tests Passed) | Suite de tests d'intégration et unitaires complète |
 
 ---
 
 ## 📁 Structure du Code (Modular Monolith)
 
-L'application suit une architecture **Modular Monolith (DDD)** claire et maintenable située dans `app/Domain/` :
+L'application suit une architecture **Modular Monolith (DDD)** située dans `app/Domain/` :
 
 ```text
 easy-immob/
 ├── app/
 │   ├── Domain/                      # Domaines Métier Découpés
-│   │   ├── Agency/                  # Gestion Multi-Agences
+│   │   ├── Agency/                  # Gestion Multi-Agences & Paramètres
 │   │   ├── Arrears/                 # Impayés & Relances
 │   │   ├── Audit/                   # Logs d'activités & Audit
 │   │   ├── Deposit/                 # Dépôts de Garantie / Cautions
 │   │   ├── Incident/                # Signalement & Gestion d'Incidents
 │   │   ├── Lease/                   # Baux & Modèles de Contrat
-│   │   ├── Notification/            # Centre de Notifications Multi-Canal
+│   │   ├── Notification/            # Centre de Notifications & Alertes Super Admin
 │   │   ├── Owner/                   # Propriétaires & États de gestion
 │   │   ├── Payment/                 # Modes de Paiement & Règlements
 │   │   ├── Property/                # Parc Immobilier & Types de Biens
 │   │   ├── Rent/                    # Échéanciers de Loyers & Quittances
 │   │   ├── Report/                  # Reporting Financier & Exports CSV/PDF
+│   │   ├── Subscription/            # Forfaits SaaS, Factures SaaS & Abonnements Agences
 │   │   └── Tenant/                  # Locataires & Dossiers
-│   ├── Application/                 # Services applicatifs, DTOs & Actions
+│   ├── Application/                 # Services applicatifs, DTOs & Actions (RegisterAgencyAction)
 │   ├── Infrastructure/              # Implémentations techniques (Sms, PDF, Mail)
-│   ├── Livewire/                    # Composants Frontend Livewire 3
-│   └── Models/                      # Modèle Utilisateur principal & Trait AgencyScoped
+│   ├── Livewire/                    # Composants Frontend Livewire 3 (Admin SaaS & Agence)
+│   ├── Models/                      # Modèle Utilisateur principal & Trait AgencyScoped
+│   └── Support/                     # Menu latéral dynamique (SidebarMenu)
 ├── database/
 │   ├── migrations/                  # Migrations structurées
 │   └── seeders/                     # Données de référence & Démonstration
 ├── docs/                            # Spécifications & Documentation fonctionnelle
-├── resources/
-│   ├── views/                       # Vues Blade, Layouts & Modèles d'impression
-│   └── css/ js/                     # Styles Tailwind & Scripts Alpine
 └── routes/
-    └── web.php                      # Routes sécurisées et groupées par module
+    └── web.php                      # Routes sécurisées et groupées par middleware/rôle
 ```
 
 ---
 
 ## 💻 Prérequis
 
-Assurez-vous de disposer des éléments suivants sur votre environnement de développement ou serveur :
-
-- **PHP** >= 8.3 avec les extensions requises : `pdo_mysql`, `mbstring`, `openssl`, `bcmath`, `fileinfo`, `ctype`, `xml`, `json`.
+- **PHP** >= 8.3 (`pdo_mysql`, `mbstring`, `openssl`, `bcmath`, `fileinfo`, `xml`, `json`).
 - **Composer** >= 2.6
 - **Node.js** >= 18.x & **NPM** >= 9.x
-- **MySQL** >= 8.0 (ou MariaDB 10.5+) / SQLite pour les tests rapide.
-- **Redis** (recommandé en production pour les files d'attente et le cache).
+- **MySQL** >= 8.0 (ou SQLite pour le développement/test).
 
 ---
 
@@ -169,20 +174,19 @@ git clone https://github.com/votre-org/easy-immob.git
 cd easy-immob
 ```
 
-### 2. Installer les dépendances PHP & JS
+### 2. Installer les dépendances
 ```bash
 composer install
 npm install
 ```
 
 ### 3. Configurer l'environnement
-Copiez le fichier de configuration exemple et gérez la clé d'application :
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-Modifiez le fichier `.env` pour configurer l'accès à votre base de données MySQL :
+Définissez la connexion dans votre fichier `.env` :
 ```ini
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -192,105 +196,69 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-### 4. Exécuter les migrations & charger les données de démonstration
+### 4. Migrer et alimenter la base de données
 ```bash
 php artisan migrate:fresh --seed
 ```
 
-### 5. Compiler les assets & lancer le serveur de développement
-
-Vous pouvez lancer l'ensemble des services (Artisan Serve, Queue Worker, Log Pail, Vite) via la commande prédéfinie :
+### 5. Lancer l'application
 ```bash
 composer run dev
+# ou séparément : php artisan serve & npm run dev
 ```
 
-*Ou séparément :*
-```bash
-# Dans un terminal :
-php artisan serve
-
-# Dans un second terminal :
-npm run dev
-```
-
-L'application sera accessible sur : **`http://localhost:8000`** (ou `http://127.0.0.1:8000`).
+L'application est disponible sur : **`http://127.0.0.1:8000`**
 
 ---
 
 ## 🔑 Comptes de Démonstration
 
-Après l'exécution des seeders (`DemoDataSeeder`), plusieurs comptes pré-configurés sont immédiatement utilisables avec le mot de passe unique : **`password`**
+Après l'exécution des seeders, tous les comptes sont prêts à l'emploi avec le mot de passe unique : **`password`**
 
-| Rôle | Email | Agence | Périmètre d'Accès |
-| :--- | :--- | :--- | :--- |
-| **Administrateur** | `admin@easyimmob.com` | Horizon Immobilier | Accès complet & Paramétrages |
-| **Gestionnaire** | `gestionnaire@easyimmob.com` | Horizon Immobilier | Gestion Biens, Baux, Incidents, Impayés |
-| **Comptable** | `comptable@easyimmob.com` | Horizon Immobilier | Encaisser Loyers, Cautions, Rapports |
-| **Agent** | `agent@easyimmob.com` | Horizon Immobilier | Consultation Biens & Incidents terrain |
-| **Locataire** | `locataire@easyimmob.com` | - | Espace locataire, Mes Loyers, Signalement |
-| **Admin Agence 2** | `admin.prestige@easyimmob.com` | Prestige Habitat | Démonstration Multi-Agence (Données isolées) |
+| Rôle | Email | Périmètre & Droits d'Accès |
+| :--- | :--- | :--- |
+| **Super Admin SaaS** | `saasadmin@easyimmob.com` | **Administrateur Plateforme SaaS** (Stats globales, Agences, Factures SaaS, Plans) |
+| **Administrateur Agence** | `admin@easyimmob.com` | **Directeur Agence (Horizon Immobilier)** - Gestion globale de l'agence |
+| **Gestionnaire** | `gestionnaire@easyimmob.com` | Gestion des Biens, Baux, Locataires, Incidents et Impayés |
+| **Comptable** | `comptable@easyimmob.com` | Encaissements des loyers, Cautions, Reporting financier |
+| **Agent** | `agent@easyimmob.com` | Visites, consultation du parc et suivi des incidents |
+| **Locataire** | `locataire@easyimmob.com` | Espace locataire, Quittances, Recherche de biens, Déclaration d'incidents |
+| **Admin Agence 2** | `admin.prestige@easyimmob.com` | **Directeur Agence (Prestige Habitat)** - Démonstration multi-agences isolées |
 
 ---
 
 ## ⚡ Commandes Utiles & Tests
 
-### Lancer la suite de tests automatisés
+### Lancer la suite de tests PHPUnit (98 Tests Passed)
 ```bash
-composer test
+vendor/bin/phpunit
 # ou
 php artisan test
 ```
 
-### Formater et nettoyer le code (Pint)
+### Nettoyage et formatage du code (Pint)
 ```bash
 vendor/bin/pint
 ```
 
-### Exécuter le Worker de Queue (Notification & Relances)
+### Worker de Queue (Notifications & Alerte Super Admin)
 ```bash
 php artisan queue:work
 ```
 
-### Planificateur de tâches (Détection automatique des impayés)
-```bash
-php artisan schedule:run
-```
-
 ---
 
-## 🛡️ Sécurité & Rôles (RBAC)
+## 🛡️ Sécurité & Isolation des Rôles (RBAC)
 
-L'accès aux fonctionnalités est rigoureusement encadré par des **Policies Laravel** et la gestion des permissions Spatie (`Spatie\Permission`) :
-
-- `users.*` : Administration des collaborateurs et gestion des rôles.
-- `owners.*` : Consultation, création et modification des propriétaires.
-- `properties.*` : Gestion du catalogue immobilier.
-- `tenants.*` : Gestion des dossiers locataires.
-- `leases.*` : Contractualisation des baux et modèles de contrats.
-- `rents.*` : Gestion des échéanciers et enregistrement des réglements.
-- `arrears.*` : Suivi et relances des dossiers d'impayés.
-- `incidents.*` : Traitement des déclarations d'incidents.
-- `reports.*` : Génération des états financiers et d'impression.
-
-Toutes les données sont automatiquement scopées par `agency_id` afin d'empêcher toute fuite d'informations inter-agences.
-
----
-
-## 🗺️ Roadmap & Évolutions
-
-- [x] **Phase 1 : Fondations** (Multi-agences, Auth, Biens, Propriétaires, Locataires, Baux)
-- [x] **Phase 2 : Loyers & Encaissements** (Échéanciers, Quittances, Modes de règlement)
-- [x] **Phase 3 : Impayés & Incidents** (Détection auto, Relances, Signalement audio/photo)
-- [x] **Phase 4 : Dashboard & Reporting** (États de versement propriétaires, Exports CSV)
-- [ ] **Phase 5 : Intégrations Mobile Money (API Gateway)** (Paiement automatique via API Mobile Money)
-- [ ] **Phase 6 : Signature Électronique des Baux** (Intégration Yousign / DocuSign)
-- [ ] **Phase 7 : Application Mobile React Native / Flutter** (Espace Dédié Locataire & Agent)
+- `can:saas.admin` : Middleware protégeant l'Espace Admin SaaS pour le rôle `Super Admin`.
+- `agency_id` : Scoping automatique de toutes les entités agence via le trait `AgencyScoped`.
+- **Catalogue & Recherche de biens** : Réservé aux utilisateurs ayant le rôle `Locataire`.
 
 ---
 
 ## 📄 Licence
 
-Ce projet est sous licence **MIT**. Vous êtes libre de l'utiliser, le modifier et le distribuer dans le cadre de vos projets commerciaux ou personnels.
+Ce projet est sous licence **MIT**.
 
 <p align="center">
   Développé avec ❤️ par l'équipe <strong>EasyImmob</strong>.

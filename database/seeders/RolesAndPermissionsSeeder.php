@@ -27,10 +27,11 @@ class RolesAndPermissionsSeeder extends Seeder
         'documents.view', 'documents.upload',
         'reports.view',
         'audit.view',
+        'saas.admin',
     ];
 
     /**
-     * Permissions granted per role, beyond Administrateur (which gets everything).
+     * Permissions granted per role, beyond Administrateur (which gets everything except saas.admin).
      *
      * @var array<string, array<int, string>>
      */
@@ -70,8 +71,14 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::findOrCreate($permission);
         }
 
+        // Super Admin SaaS : Accès complet à la plateforme et à l'espace Admin SaaS
+        $superAdmin = Role::findOrCreate('Super Admin');
+        $superAdmin->syncPermissions(self::PERMISSIONS);
+
+        // Administrateur Agence : Accès complet à la gestion locative de son agence (sans saas.admin)
+        $agencyPermissions = array_filter(self::PERMISSIONS, fn ($p) => $p !== 'saas.admin');
         $administrateur = Role::findOrCreate('Administrateur');
-        $administrateur->syncPermissions(self::PERMISSIONS);
+        $administrateur->syncPermissions($agencyPermissions);
 
         foreach (self::ROLE_PERMISSIONS as $roleName => $permissions) {
             Role::findOrCreate($roleName)->syncPermissions($permissions);

@@ -17,6 +17,22 @@ class SidebarMenu
         /** @var \App\Models\User|null $user */
         $user = Auth::hasUser() ? Auth::user() : null;
 
+        // 1. Le Super Admin SaaS voit EXCLUSIVEMENT les outils d'administration SaaS
+        if ($user && $user->isSuperAdmin()) {
+            return [
+                [
+                    'section' => 'Espace Admin SaaS',
+                    'items' => [
+                        ['label' => 'Dashboard SaaS', 'icon' => 'dashboard', 'route' => 'admin.saas-dashboard', 'params' => []],
+                        ['label' => 'Agences Clients', 'icon' => 'owners', 'route' => 'admin.agencies.index', 'params' => []],
+                        ['label' => 'Factures SaaS Agences', 'icon' => 'rents', 'route' => 'admin.saas-invoices.index', 'params' => []],
+                        ['label' => 'Forfaits & Offres SaaS', 'icon' => 'building', 'route' => 'admin.plans.index', 'params' => []],
+                    ],
+                ],
+            ];
+        }
+
+        // 2. Le Locataire voit son espace dédié
         if ($user && $user->isTenant()) {
             return [
                 [
@@ -37,12 +53,12 @@ class SidebarMenu
             ];
         }
 
+        // 3. L'Agence Immobilière voit la gestion locative
         return [
             [
                 'section' => 'Pilotage',
                 'items' => [
                     ['label' => 'Dashboard', 'icon' => 'dashboard', 'route' => 'dashboard', 'params' => []],
-                    ['label' => 'Recherche de Biens', 'icon' => 'building', 'route' => 'catalog.index', 'params' => []],
                     ['label' => 'Messagerie Locataires', 'icon' => 'notifications', 'route' => 'inquiries.index', 'params' => []],
                 ],
             ],
@@ -72,11 +88,12 @@ class SidebarMenu
                 ],
             ],
             [
-                'section' => 'Administration',
+                'section' => 'Administration Agence',
                 'items' => [
+                    ['label' => 'Mon Abonnement', 'icon' => 'rents', 'route' => 'subscription.index', 'params' => []],
                     ['label' => 'Modèles de contrat', 'icon' => 'lease-templates', 'route' => 'admin.lease-templates.index', 'params' => []],
                     ['label' => 'Types de biens', 'icon' => 'property-types', 'route' => 'admin.property-types.index', 'params' => []],
-                    ['label' => 'Paramètres Agence', 'icon' => 'admin', 'route' => 'admin.users.index', 'params' => []],
+                    ['label' => 'Utilisateurs Agence', 'icon' => 'admin', 'route' => 'admin.users.index', 'params' => []],
                 ],
             ],
         ];
