@@ -103,9 +103,15 @@
                                     @endcan
 
                                     @can('tenants.delete')
-                                        <button wire:click="delete({{ $tenant->id }})"
-                                                wire:confirm="Êtes-vous sûr de vouloir supprimer ce locataire ?"
-                                                class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                                        <button type="button"
+                                                @click="$dispatch('open-confirm', {
+                                                    title: 'Supprimer la fiche locataire',
+                                                    message: 'Êtes-vous sûr de vouloir supprimer le locataire {{ $tenant->full_name }} ({{ $tenant->reference }}) ? Cette action est irréversible.',
+                                                    confirmText: 'Supprimer le locataire',
+                                                    variant: 'danger',
+                                                    onConfirm: () => $wire.delete({{ $tenant->id }})
+                                                })"
+                                                class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                                                 title="Supprimer">
                                             <x-icon name="trash" class="w-4 h-4" />
                                         </button>

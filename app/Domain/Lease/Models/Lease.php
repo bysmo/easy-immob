@@ -79,4 +79,9 @@ class Lease extends Model
     {
         return $this->hasMany(Deposit::class);
     }
+
+    public function rentHistories(): HasMany
+    {
+        return $this->hasMany(\App\Domain\Rent\Models\RentHistory::class)->orderBy('created_at', 'desc');
+    }
 }

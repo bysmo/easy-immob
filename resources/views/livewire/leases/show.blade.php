@@ -31,14 +31,28 @@
 
             @if($lease->status->value === 'draft' || $lease->status->value === 'pending_signature')
                 @can('leases.update')
-                    <x-button variant="primary" size="sm" wire:click="activate" wire:confirm="Activer ce contrat ? Le bien passera en 'Occupé' et les échéances seront créées.">
+                    <x-button variant="primary" size="sm" type="button"
+                              @click="$dispatch('open-confirm', {
+                                  title: 'Activer le contrat de location',
+                                  message: 'Voulez-vous vraiment activer ce contrat ? Le bien passera en status Occupé et les échéances de loyers seront créées.',
+                                  confirmText: 'Activer le contrat',
+                                  variant: 'success',
+                                  onConfirm: () => $wire.activate()
+                              })">
                         <x-icon name="check" class="w-4 h-4" />
                         <span>Activer le contrat</span>
                     </x-button>
                 @endcan
             @elseif($lease->status->value === 'active')
                 @can('leases.update')
-                    <x-button variant="danger" size="sm" wire:click="terminate" wire:confirm="Résilier ce contrat ?">
+                    <x-button variant="danger" size="sm" type="button"
+                              @click="$dispatch('open-confirm', {
+                                  title: 'Résilier le contrat de location',
+                                  message: 'Êtes-vous sûr de vouloir résilier le contrat {{ $lease->reference }} ? Cette action est irréversible.',
+                                  confirmText: 'Résilier le contrat',
+                                  variant: 'danger',
+                                  onConfirm: () => $wire.terminate()
+                              })">
                         <x-icon name="alert" class="w-4 h-4" />
                         <span>Résilier le contrat</span>
                     </x-button>

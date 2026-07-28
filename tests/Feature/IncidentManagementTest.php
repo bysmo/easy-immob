@@ -174,4 +174,27 @@ class IncidentManagementTest extends TestCase
         $this->assertNotNull($incident->tenant_confirmation_photo);
         $this->assertEquals('Robinet neuf et fonctionnel, merci !', $incident->tenant_confirmation_note);
     }
+
+    public function test_tenant_can_view_property_info_and_upload_recorded_audio(): void
+    {
+        $this->actingAs($this->tenantUser);
+
+        $audioFile = UploadedFile::fake()->create('note_vocale.webm', 500, 'video/webm');
+
+        $component = Livewire::test(\App\Livewire\Incidents\Create::class)
+            ->assertSee('Appartement 3 Pièces')
+            ->set('lease_id', $this->lease->id)
+            ->set('title', 'Serrure bloquée')
+            ->set('description', 'La porte d entrée ne s ouvre plus avec la clé.')
+            ->set('priority', 'urgent')
+            ->set('audio', $audioFile)
+            ->call('save');
+
+        $component->assertHasNoErrors();
+
+        $incident = Incident::where('title', 'Serrure bloquée')->first();
+        $this->assertNotNull($incident);
+        $this->assertNotNull($incident->audio_path);
+        Storage::disk('public')->assertExists($incident->audio_path);
+    }
 }

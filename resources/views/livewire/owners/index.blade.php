@@ -102,9 +102,15 @@
                                     @endcan
 
                                     @can('owners.delete')
-                                        <button wire:click="delete({{ $owner->id }})"
-                                                wire:confirm="Êtes-vous sûr de vouloir supprimer ce propriétaire ?"
-                                                class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                                        <button type="button"
+                                                @click="$dispatch('open-confirm', {
+                                                    title: 'Supprimer le propriétaire',
+                                                    message: 'Êtes-vous sûr de vouloir supprimer le propriétaire {{ $owner->full_name }} ({{ $owner->reference }}) ? Cette action est irréversible.',
+                                                    confirmText: 'Supprimer le propriétaire',
+                                                    variant: 'danger',
+                                                    onConfirm: () => $wire.delete({{ $owner->id }})
+                                                })"
+                                                class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                                                 title="Supprimer">
                                             <x-icon name="trash" class="w-4 h-4" />
                                         </button>

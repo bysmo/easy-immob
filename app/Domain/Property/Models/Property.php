@@ -66,6 +66,11 @@ class Property extends Model
         return $this->hasMany(Incident::class);
     }
 
+    public function rentHistories(): HasMany
+    {
+        return $this->hasMany(\App\Domain\Rent\Models\RentHistory::class)->orderBy('created_at', 'desc');
+    }
+
     /**
      * Calcule le coût réel d'entretien du bien (somme des coûts de réparation des incidents résolus ou clôturés).
      */

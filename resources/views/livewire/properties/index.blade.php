@@ -97,9 +97,15 @@
                                     @endcan
 
                                     @can('properties.delete')
-                                        <button wire:click="delete({{ $property->id }})"
-                                                wire:confirm="Êtes-vous sûr de vouloir supprimer ce bien ?"
-                                                class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                                        <button type="button"
+                                                @click="$dispatch('open-confirm', {
+                                                    title: 'Supprimer le bien immobilier',
+                                                    message: 'Êtes-vous sûr de vouloir supprimer le bien {{ $property->reference }} ({{ $property->title }}) ? Cette action est irréversible.',
+                                                    confirmText: 'Supprimer le bien',
+                                                    variant: 'danger',
+                                                    onConfirm: () => $wire.delete({{ $property->id }})
+                                                })"
+                                                class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                                                 title="Supprimer">
                                             <x-icon name="trash" class="w-4 h-4" />
                                         </button>

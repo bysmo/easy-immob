@@ -267,6 +267,9 @@
             </footer>
         </div>
     </div>
+    <!-- Global Confirmation Modal -->
+    <x-confirm-dialog />
+
     @livewireScripts
 </body>
 </html>

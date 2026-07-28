@@ -3,6 +3,8 @@
 namespace App\Livewire\Incidents;
 
 use App\Domain\Incident\Models\Incident;
+use App\Domain\Notification\Models\SystemNotification;
+use App\Domain\Tenant\Models\Tenant;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -42,12 +44,26 @@ class Show extends Component
 
     public function takeInCharge(): void
     {
-        $incident = Incident::findOrFail($this->incidentId);
+        $incident = Incident::with(['property', 'tenant'])->findOrFail($this->incidentId);
         $this->authorize('update', $incident);
 
         $incident->update([
             'status' => 'in_progress',
         ]);
+
+        if ($incident->tenant_id) {
+            SystemNotification::create([
+                'agency_id'      => $incident->agency_id ?? 1,
+                'recipient_type' => Tenant::class,
+                'recipient_id'   => $incident->tenant_id,
+                'type'           => 'incident_in_progress',
+                'channel'        => 'database',
+                'subject'        => "Incident pris en charge : {$incident->reference}",
+                'content'        => "Votre incident '{$incident->title}' pour le bien " . ($incident->property?->title ?? 'Bien') . " a été pris en charge par l'agence et est désormais en cours de traitement.",
+                'sent_at'        => now(),
+                'status'         => 'unread',
+            ]);
+        }
 
         session()->flash('success', "L'incident {$incident->reference} est maintenant en cours de traitement.");
     }

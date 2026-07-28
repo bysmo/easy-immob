@@ -52,10 +52,15 @@
                             </label>
 
                             @if($user->avatar_path)
-                                <button type="button" 
-                                        wire:click="removeAvatar"
-                                        wire:confirm="Supprimer votre photo de profil ?"
-                                        class="px-3 py-1.5 rounded-xl border border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-xs font-semibold transition inline-flex items-center gap-1.5">
+                                <button type="button"
+                                        @click="$dispatch('open-confirm', {
+                                            title: 'Supprimer la photo de profil',
+                                            message: 'Êtes-vous sûr de vouloir supprimer votre photo de profil ?',
+                                            confirmText: 'Supprimer la photo',
+                                            variant: 'danger',
+                                            onConfirm: () => $wire.removeAvatar()
+                                        })"
+                                        class="px-3 py-1.5 rounded-xl border border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-xs font-semibold transition inline-flex items-center gap-1.5 cursor-pointer">
                                     <x-icon name="trash" class="w-3.5 h-3.5" />
                                     <span>Supprimer</span>
                                 </button>

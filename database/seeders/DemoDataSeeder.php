@@ -66,7 +66,7 @@ class DemoDataSeeder extends Seeder
         $passwordHash = Hash::make('password');
 
         $admin = User::firstOrCreate(
-            ['email' => 'admin@easyimmob.com'],
+            ['email' => 'admin@easyimmob.com'], //LOC-111749
             [
                 'agency_id'         => $primaryAgency->id,
                 'name'              => 'Jean-Luc Koffi',

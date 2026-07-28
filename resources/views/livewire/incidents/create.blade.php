@@ -20,7 +20,7 @@
                 <option value="">-- Sélectionnez votre logement --</option>
                 @foreach ($leases as $lease)
                     <option value="{{ $lease->id }}">
-                        {{ $lease->property?->title }} ({{ $lease->property?->address }}) — Bail {{ $lease->reference }}
+                        {{ $lease->property?->title ?? 'Bien loué' }}@if($lease->property?->address) ({{ $lease->property->address }})@endif — Bail {{ $lease->reference }}
                     </option>
                 @endforeach
             </select>
@@ -61,23 +61,46 @@
                 audioChunks: [],
                 timer: 0,
                 timerInterval: null,
+                mimeType: '',
                 async startRecording() {
                     try {
                         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        this.mediaRecorder = new MediaRecorder(stream);
+                        
+                        const types = [
+                            'audio/webm;codecs=opus',
+                            'audio/webm',
+                            'audio/mp4',
+                            'audio/aac',
+                            'audio/ogg',
+                            'audio/wav'
+                        ];
+                        this.mimeType = types.find(t => typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(t)) || '';
+                        
+                        const options = this.mimeType ? { mimeType: this.mimeType } : {};
+                        this.mediaRecorder = new MediaRecorder(stream, options);
                         this.audioChunks = [];
                         
                         this.mediaRecorder.ondataavailable = (e) => {
-                            if (e.data.size > 0) this.audioChunks.push(e.data);
+                            if (e.data && e.data.size > 0) this.audioChunks.push(e.data);
                         };
 
                         this.mediaRecorder.onstop = () => {
-                            const blob = new Blob(this.audioChunks, { type: 'audio/webm' });
+                            const actualType = this.mediaRecorder.mimeType || this.mimeType || 'audio/webm';
+                            const blob = new Blob(this.audioChunks, { type: actualType });
                             this.recordedBlob = blob;
+                            if (this.audioUrl) URL.revokeObjectURL(this.audioUrl);
                             this.audioUrl = URL.createObjectURL(blob);
 
-                            // Upload to Livewire
-                            const file = new File([blob], 'note_vocale_' + Date.now() + '.webm', { type: 'audio/webm' });
+                            let ext = 'webm';
+                            if (actualType.includes('mp4') || actualType.includes('aac')) {
+                                ext = 'm4a';
+                            } else if (actualType.includes('ogg')) {
+                                ext = 'ogg';
+                            } else if (actualType.includes('wav')) {
+                                ext = 'wav';
+                            }
+
+                            const file = new File([blob], 'note_vocale_' + Date.now() + '.' + ext, { type: actualType });
                             $wire.upload('audio', file, 
                                 () => console.log('Audio uploaded to Livewire successfully'), 
                                 (err) => console.error('Audio upload error:', err)
@@ -95,7 +118,9 @@
                 stopRecording() {
                     if (this.mediaRecorder && this.recording) {
                         this.mediaRecorder.stop();
-                        this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                        if (this.mediaRecorder.stream) {
+                            this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                        }
                         this.recording = false;
                         clearInterval(this.timerInterval);
                     }
@@ -140,7 +165,7 @@
             <!-- Alternative Fichier Fixe -->
             <div class="pt-2 border-t border-slate-200/50 dark:border-slate-700/50">
                 <span class="text-[11px] text-slate-400 block mb-1">Ou choisissez un fichier audio existant :</span>
-                <input type="file" wire:model="audio" id="audio" accept="audio/*" class="text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer" />
+                <input type="file" wire:model="audio" id="audio" accept="audio/*,video/webm,video/mp4" class="text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer" />
             </div>
 
             @error('audio') <p class="mt-1 text-xs text-rose-500 font-medium">{{ $message }}</p> @enderror

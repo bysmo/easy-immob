@@ -41,7 +41,13 @@ class RegisterTenantAction
                 'password'  => Hash::make($input['password']),
             ]);
 
-            $user->assignRole('Locataire');
+            $role = \Spatie\Permission\Models\Role::findOrCreate('Locataire');
+            $tenantPermissions = ['incidents.view', 'incidents.create', 'rents.view', 'leases.view'];
+            foreach ($tenantPermissions as $perm) {
+                \Spatie\Permission\Models\Permission::findOrCreate($perm);
+            }
+            $role->givePermissionTo($tenantPermissions);
+            $user->assignRole($role);
 
             // Générer un code locataire unique à 6 chiffres (ex: LOC-849201)
             do {

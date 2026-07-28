@@ -99,9 +99,15 @@
                                     </a>
                                     @if($arrear->status->value === 'open')
                                         @can('arrears.manage')
-                                            <button wire:click="sendReminder({{ $arrear->id }})"
-                                                    wire:confirm="Envoyer une relance e-mail ?"
-                                                    class="px-2 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition">
+                                            <button type="button"
+                                                    @click="$dispatch('open-confirm', {
+                                                        title: 'Envoyer une relance pour impayé',
+                                                        message: 'Voulez-vous envoyer une notification de relance e-mail au locataire pour le dossier {{ $arrear->reference }} ?',
+                                                        confirmText: 'Envoyer la relance',
+                                                        variant: 'warning',
+                                                        onConfirm: () => $wire.sendReminder({{ $arrear->id }})
+                                                    })"
+                                                    class="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition cursor-pointer">
                                                 Relancer
                                             </button>
                                         @endcan
