@@ -66,7 +66,7 @@ class DemoDataSeeder extends Seeder
         $passwordHash = Hash::make('password');
 
         $admin = User::firstOrCreate(
-            ['email' => 'admin@easyimmob.com'], //LOC-111749
+            ['email' => 'admin@easyimmob.com'], //LOC-501409
             [
                 'agency_id'         => $primaryAgency->id,
                 'name'              => 'Jean-Luc Koffi',
@@ -223,10 +223,20 @@ class DemoDataSeeder extends Seeder
                 'address'          => 'Rue des Jardins, Cité CIRA',
                 'city'             => 'Abidjan',
                 'neighborhood'     => 'Cocody Riviera 3',
+                'latitude'         => 5.359951,
+                'longitude'        => -4.008256,
+                'google_maps_url'  => 'https://maps.google.com/?q=5.359951,-4.008256',
                 'surface_area'     => 350.00,
                 'bedrooms'         => 4,
                 'bathrooms'        => 4,
                 'rent_amount'      => 1200000.00,
+                'photos'           => [
+                    'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1000&q=80',
+                    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1000&q=80'
+                ],
+                'videos'           => [
+                    'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+                ],
                 'status'           => PropertyStatus::Occupied,
             ],
             [
@@ -238,10 +248,17 @@ class DemoDataSeeder extends Seeder
                 'address'          => 'Avenue Nogues, Résidence Lagune B',
                 'city'             => 'Abidjan',
                 'neighborhood'     => 'Plateau',
+                'latitude'         => 5.326111,
+                'longitude'        => -4.021111,
+                'google_maps_url'  => 'https://maps.google.com/?q=5.326111,-4.021111',
                 'surface_area'     => 110.00,
                 'bedrooms'         => 2,
                 'bathrooms'        => 2,
                 'rent_amount'      => 450000.00,
+                'photos'           => [
+                    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1000&q=80'
+                ],
+                'videos'           => [],
                 'status'           => PropertyStatus::Occupied,
             ],
             [

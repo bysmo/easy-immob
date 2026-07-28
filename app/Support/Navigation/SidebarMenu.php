@@ -23,6 +23,8 @@ class SidebarMenu
                     'section' => 'Mon Espace Locataire',
                     'items' => [
                         ['label' => 'Tableau de bord', 'icon' => 'dashboard', 'route' => 'dashboard', 'params' => []],
+                        ['label' => 'Rechercher un bien', 'icon' => 'building', 'route' => 'catalog.index', 'params' => []],
+                        ['label' => 'Messagerie & Échanges', 'icon' => 'notifications', 'route' => 'inquiries.index', 'params' => []],
                     ],
                 ],
                 [
@@ -40,6 +42,8 @@ class SidebarMenu
                 'section' => 'Pilotage',
                 'items' => [
                     ['label' => 'Dashboard', 'icon' => 'dashboard', 'route' => 'dashboard', 'params' => []],
+                    ['label' => 'Recherche de Biens', 'icon' => 'building', 'route' => 'catalog.index', 'params' => []],
+                    ['label' => 'Messagerie Locataires', 'icon' => 'notifications', 'route' => 'inquiries.index', 'params' => []],
                 ],
             ],
             [

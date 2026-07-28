@@ -14,6 +14,22 @@ Route::middleware('auth')->group(function () {
     // Profil & Sécurité
     Route::get('/profile', fn () => view('profile'))->name('profile.edit');
 
+    // Catalogue & Recherche de biens (Locataires / Public)
+    Route::prefix('catalog')
+        ->name('catalog.')
+        ->group(function () {
+            Route::get('/',             fn () => view('catalog.index'))->name('index');
+            Route::get('/{propertyId}', fn (int $propertyId) => view('catalog.show', compact('propertyId')))->name('show');
+        });
+
+    // Messagerie & Echanges Locataire - Agence
+    Route::prefix('inquiries')
+        ->name('inquiries.')
+        ->group(function () {
+            Route::get('/',            fn () => view('inquiries.index'))->name('index');
+            Route::get('/{inquiryId}', fn (int $inquiryId) => view('inquiries.chat', compact('inquiryId')))->name('chat');
+        });
+
     // Propriétaires
     Route::prefix('owners')
         ->name('owners.')

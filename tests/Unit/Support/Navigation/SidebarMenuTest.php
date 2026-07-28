@@ -9,7 +9,7 @@ class SidebarMenuTest extends TestCase
 {
     public function test_it_returns_exactly_fourteen_entries(): void
     {
-        $this->assertCount(14, SidebarMenu::items());
+        $this->assertCount(16, SidebarMenu::items());
     }
 
     public function test_each_entry_has_the_expected_keys(): void
@@ -31,6 +31,8 @@ class SidebarMenuTest extends TestCase
         $this->assertSame(
             [
                 'dashboard' => 1,
+                'catalog.index' => 1,
+                'inquiries.index' => 1,
                 'owners.index' => 1,
                 'properties.index' => 1,
                 'tenants.index' => 1,
