@@ -76,6 +76,7 @@ class SidebarMenu
                 'section' => 'Finances & Recouvrement',
                 'items' => [
                     ['label' => 'Loyers & Échéances', 'icon' => 'rents', 'route' => 'rents.index', 'params' => []],
+                    ['label' => 'Reversements Bailleurs', 'icon' => 'owners', 'route' => 'owners.payouts.index', 'params' => []],
                     ['label' => 'Cautions & Dépôts', 'icon' => 'deposits', 'route' => 'deposits.index', 'params' => []],
                     ['label' => 'Gestion des Impayés', 'icon' => 'arrears', 'route' => 'arrears.index', 'params' => []],
                 ],

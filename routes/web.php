@@ -52,9 +52,14 @@ Route::middleware('auth')->group(function () {
         ->name('owners.')
         ->middleware('can:owners.view')
         ->group(function () {
-            Route::get('/',          fn () => view('owners.index'))->name('index');
-            Route::get('/create',    fn () => view('owners.create'))->name('create')->middleware('can:owners.create');
-            Route::get('/{ownerId}', fn (int $ownerId) => view('owners.edit', compact('ownerId')))->name('edit')->middleware('can:owners.update');
+            Route::get('/',                     fn () => view('owners.index'))->name('index');
+            Route::get('/create',               fn () => view('owners.create'))->name('create')->middleware('can:owners.create');
+            Route::get('/payouts',              fn () => view('owners.payouts'))->name('payouts.index');
+            Route::get('/payouts/{payoutId}/print', function (int $payoutId) {
+                $payout = \App\Domain\Owner\Models\OwnerPayout::with(['owner', 'items.property', 'settlements'])->findOrFail($payoutId);
+                return view('owners.payout-print', compact('payout'));
+            })->name('payouts.print');
+            Route::get('/{ownerId}',            fn (int $ownerId) => view('owners.edit', compact('ownerId')))->name('edit')->middleware('can:owners.update');
         });
 
     // Biens immobiliers

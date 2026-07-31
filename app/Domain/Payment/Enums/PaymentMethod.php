@@ -6,6 +6,7 @@ enum PaymentMethod: string
 {
     case Cash         = 'cash';
     case BankTransfer = 'bank_transfer';
+    case BankDeposit  = 'bank_deposit';
     case MobileMoney  = 'mobile_money';
     case Card         = 'card';
     case Check        = 'check';
@@ -16,6 +17,7 @@ enum PaymentMethod: string
         return match ($this) {
             self::Cash         => 'Espèces',
             self::BankTransfer => 'Virement bancaire',
+            self::BankDeposit  => 'Versement bancaire',
             self::MobileMoney  => 'Mobile Money (Orange/MTN/Wave)',
             self::Card         => 'Carte bancaire',
             self::Check        => 'Chèque',

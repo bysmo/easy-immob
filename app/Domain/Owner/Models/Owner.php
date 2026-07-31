@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
@@ -49,5 +50,15 @@ class Owner extends Model
     public function properties(): HasMany
     {
         return $this->hasMany(Property::class);
+    }
+
+    public function payouts(): HasMany
+    {
+        return $this->hasMany(OwnerPayout::class)->orderBy('created_at', 'desc');
+    }
+
+    public function payoutSettlements(): HasManyThrough
+    {
+        return $this->hasManyThrough(OwnerPayoutSettlement::class, OwnerPayout::class)->orderBy('payment_date', 'desc');
     }
 }
