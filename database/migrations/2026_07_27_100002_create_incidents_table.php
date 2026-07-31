@@ -14,7 +14,8 @@ return new class extends Migration
             $table->foreignId('property_id')->constrained()->cascadeOnDelete();
             $table->foreignId('lease_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('tenant_id')->constrained()->cascadeOnDelete();
-            $table->string('reference')->unique();
+            $table->string('reference');
+            $table->unique(['agency_id', 'reference']);
             $table->string('title');
             $table->text('description');
             $table->string('audio_path')->nullable()->comment('Enregistrement audio vocal du locataire');

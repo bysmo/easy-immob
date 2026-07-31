@@ -28,18 +28,23 @@ class ReferenceGenerator
 
             $table = $instance->getTable();
 
-            // Récupérer le numéro le plus élevé déjà utilisé pour cette agence
-            $lastReference = DB::table($table)
+            // Récupérer toutes les références existantes pour cette agence et ce préfixe
+            $references = DB::table($table)
                 ->where('agency_id', $agencyId)
                 ->where('reference', 'like', "{$prefix}-%")
                 ->lockForUpdate()
-                ->max('reference');
+                ->pluck('reference');
 
             $nextNumber = 1;
 
-            if ($lastReference) {
-                $parts = explode('-', $lastReference, 2);
-                $nextNumber = (int) ($parts[1] ?? 0) + 1;
+            foreach ($references as $ref) {
+                $parts = explode('-', $ref, 2);
+                if (isset($parts[1]) && is_numeric($parts[1])) {
+                    $num = (int) $parts[1];
+                    if ($num >= $nextNumber) {
+                        $nextNumber = $num + 1;
+                    }
+                }
             }
 
             return sprintf('%s-%0' . $padding . 'd', $prefix, $nextNumber);

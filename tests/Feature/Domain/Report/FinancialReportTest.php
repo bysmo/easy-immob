@@ -26,8 +26,14 @@ class FinancialReportTest extends TestCase
     public function test_financial_report_service_calculates_summary(): void
     {
         $agency = Agency::factory()->create();
+        $user   = \App\Models\User::factory()->for($agency, 'agency')->create();
+        $lease  = Lease::factory()->for($agency, 'agency')->create();
+        $this->actingAs($user);
 
-        RentSchedule::factory()->for($agency, 'agency')->create([
+        RentSchedule::factory()->create([
+            'agency_id'        => $agency->id,
+            'lease_id'         => $lease->id,
+            'period'           => '2026-01',
             'expected_amount'  => 200000,
             'paid_amount'      => 200000,
             'remaining_amount' => 0,
@@ -35,7 +41,10 @@ class FinancialReportTest extends TestCase
             'due_date'         => now()->format('Y-m-d'),
         ]);
 
-        RentSchedule::factory()->for($agency, 'agency')->create([
+        RentSchedule::factory()->create([
+            'agency_id'        => $agency->id,
+            'lease_id'         => $lease->id,
+            'period'           => '2026-02',
             'expected_amount'  => 100000,
             'paid_amount'      => 0,
             'remaining_amount' => 100000,

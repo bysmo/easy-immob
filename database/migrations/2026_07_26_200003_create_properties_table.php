@@ -11,7 +11,8 @@ return new class extends Migration
         Schema::create('properties', function (Blueprint $table) {
             $table->id();
             $table->foreignId('agency_id')->constrained()->restrictOnDelete();
-            $table->string('reference')->unique();
+            $table->string('reference');
+            $table->unique(['agency_id', 'reference']);
             $table->foreignId('owner_id')->constrained('owners')->restrictOnDelete();
             $table->foreignId('property_type_id')->constrained('property_types')->restrictOnDelete();
             $table->string('title');

@@ -11,7 +11,8 @@ return new class extends Migration
         Schema::create('leases', function (Blueprint $table) {
             $table->id();
             $table->foreignId('agency_id')->constrained()->restrictOnDelete();
-            $table->string('reference')->unique();
+            $table->string('reference');
+            $table->unique(['agency_id', 'reference']);
             $table->foreignId('property_id')->constrained('properties')->restrictOnDelete();
             $table->foreignId('tenant_id')->constrained('tenants')->restrictOnDelete();
             $table->foreignId('template_id')->nullable()->constrained('lease_templates')->nullOnDelete();

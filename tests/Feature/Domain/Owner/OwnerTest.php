@@ -95,6 +95,39 @@ class OwnerTest extends TestCase
             ->assertDontSee('OwnerB');
     }
 
+    public function test_multiple_agencies_can_create_owners_with_same_reference_prefix(): void
+    {
+        $agencyA = Agency::factory()->create();
+        $agencyB = Agency::factory()->create();
+
+        $userA = $this->createAuthorizedUser($agencyA);
+        $userB = $this->createAuthorizedUser($agencyB);
+
+        Livewire::actingAs($userA)
+            ->test(Create::class)
+            ->set('first_name', 'Owner')
+            ->set('last_name', 'AgencyA')
+            ->call('save');
+
+        Livewire::actingAs($userB)
+            ->test(Create::class)
+            ->set('first_name', 'Owner')
+            ->set('last_name', 'AgencyB')
+            ->call('save');
+
+        $this->assertDatabaseHas('owners', [
+            'agency_id' => $agencyA->id,
+            'reference' => 'PRO-0001',
+            'last_name' => 'AgencyA',
+        ]);
+
+        $this->assertDatabaseHas('owners', [
+            'agency_id' => $agencyB->id,
+            'reference' => 'PRO-0001',
+            'last_name' => 'AgencyB',
+        ]);
+    }
+
     private function createAuthorizedUser(Agency $agency): User
     {
         $user = User::factory()->for($agency, 'agency')->create();
