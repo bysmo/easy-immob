@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'rent_amount',
     'charges_amount',
     'payment_due_day',
+    'is_tacit_renewal',
     'deposit_amount',
     'status',
     'signed_at',
@@ -39,14 +40,15 @@ class Lease extends Model
     protected function casts(): array
     {
         return [
-            'start_date'     => 'date',
-            'end_date'       => 'date',
-            'rent_amount'    => 'decimal:2',
-            'charges_amount' => 'decimal:2',
-            'deposit_amount' => 'decimal:2',
-            'status'         => LeaseStatus::class,
-            'signed_at'      => 'datetime',
-            'terminated_at'  => 'datetime',
+            'start_date'        => 'date',
+            'end_date'          => 'date',
+            'rent_amount'       => 'decimal:2',
+            'charges_amount'    => 'decimal:2',
+            'deposit_amount'    => 'decimal:2',
+            'is_tacit_renewal'  => 'boolean',
+            'status'            => LeaseStatus::class,
+            'signed_at'         => 'datetime',
+            'terminated_at'     => 'datetime',
         ];
     }
 

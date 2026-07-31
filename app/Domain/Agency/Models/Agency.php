@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'email',
     'phone',
     'address',
+    'commission_rate',
+    'is_subject_to_tva',
     'status',
     'subscription_plan_id',
     'billing_cycle',
@@ -31,6 +33,8 @@ class Agency extends Model
     protected function casts(): array
     {
         return [
+            'commission_rate'      => 'float',
+            'is_subject_to_tva'    => 'boolean',
             'subscription_ends_at' => 'datetime',
             'trial_ends_at'        => 'datetime',
         ];

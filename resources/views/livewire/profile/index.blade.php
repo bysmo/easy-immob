@@ -101,7 +101,57 @@
         </div>
     </div>
 
-    <!-- Section 2: Modification de mot de passe -->
+    <!-- Section 2: Paramètres Financiers de l'Agence -->
+    @if(auth()->user()->agency_id)
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div class="p-6 sm:p-8 space-y-6">
+                <div>
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white">Paramètres Financiers de l'Agence</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Définissez le taux de commission perçu sur les encaissements et la déclaration TVA.</p>
+                </div>
+
+                @if(session('success_agency'))
+                    <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-3">
+                        <x-icon name="check" class="w-4 h-4 text-emerald-600" />
+                        <span>{{ session('success_agency') }}</span>
+                    </div>
+                @endif
+
+                <form wire:submit="updateAgencySettings" class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <x-label for="agency_commission_rate" :required="true">Taux de commission de l'agence (%)</x-label>
+                            <x-input id="agency_commission_rate" type="number" step="0.1" min="0" max="100" wire:model="agency_commission_rate" placeholder="10.0" required />
+                            <p class="text-[11px] text-slate-500 mt-1">Pourcentage d'honoraires prélevé par l'agence sur les loyers encaissés.</p>
+                            @error('agency_commission_rate') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="flex flex-col justify-center">
+                            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 space-y-2">
+                                <label class="relative flex items-start gap-3 cursor-pointer">
+                                    <input type="checkbox" wire:model="agency_is_subject_to_tva" class="mt-1 w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                                    <div>
+                                        <span class="text-xs font-bold text-slate-900 dark:text-white block">Agence soumise à la TVA (18%)</span>
+                                        <span class="text-[11px] text-slate-500 block">Cochez si votre agence collecte et reverse la TVA de 18% sur sa commission perçue.</span>
+                                    </div>
+                                </label>
+                            </div>
+                            @error('agency_is_subject_to_tva') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-2">
+                        <x-button type="submit" variant="primary">
+                            <x-icon name="check" class="w-4 h-4" />
+                            <span>Enregistrer les paramètres de l'agence</span>
+                        </x-button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    <!-- Section 3: Modification de mot de passe -->
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
         <div class="p-6 sm:p-8 space-y-6">
             <div>

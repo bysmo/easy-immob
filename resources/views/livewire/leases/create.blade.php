@@ -91,15 +91,28 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div>
-                    <x-label for="start_date" :required="true">Date de prise d'effet (Début)</x-label>
-                    <x-input wire:model="start_date" type="date" id="start_date" :error="$errors->first('start_date')" />
+            <div class="space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <x-label for="start_date" :required="true">Date de prise d'effet (Début)</x-label>
+                        <x-input wire:model="start_date" type="date" id="start_date" :error="$errors->first('start_date')" />
+                    </div>
+
+                    <div>
+                        <x-label for="end_date" :required="true">Date d'échéance (Fin)</x-label>
+                        <x-input wire:model="end_date" type="date" id="end_date" :error="$errors->first('end_date')" />
+                    </div>
                 </div>
 
-                <div>
-                    <x-label for="end_date" :required="true">Date d'échéance (Fin)</x-label>
-                    <x-input wire:model="end_date" type="date" id="end_date" :error="$errors->first('end_date')" />
+                <!-- Option Tacite Reconduction -->
+                <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60">
+                    <label class="relative flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" wire:model="is_tacit_renewal" class="mt-0.5 w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                        <div>
+                            <span class="text-xs font-bold text-slate-900 dark:text-white block">Tacite reconduction</span>
+                            <span class="text-[11px] text-slate-500 block">Renouvellement automatique du contrat de bail à la date d'échéance pour une période équivalente.</span>
+                        </div>
+                    </label>
                 </div>
             </div>
         </x-card>

@@ -354,43 +354,113 @@
             </div>
         </div>
 
-        <!-- Navigation rapide par Modules -->
-        <x-card>
-            <div class="flex items-center justify-between mb-5">
+        <!-- Statistiques Financières & Recouvrement de l'Agence -->
+        <x-card class="space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
                 <div>
-                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Modules de Gestion Immobilier</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Accès rapide aux fonctionnalités et suivi des demandes.</p>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <x-icon name="wallet" class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                        <span>Statistiques Financières & Commissions</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Suivi consolidé des loyers attendus, encaissements, impayés, commissions et TVA à reverser.</p>
+                </div>
+
+                <!-- Selecteur de période -->
+                <div class="flex items-center gap-2 shrink-0">
+                    <label for="financialPeriod" class="text-xs font-semibold text-slate-600 dark:text-slate-400">Période :</label>
+                    <select wire:model.live="financialPeriod" id="financialPeriod" class="rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-xs font-bold focus:ring-emerald-500 py-1.5 px-3">
+                        <option value="all">Toutes les périodes</option>
+                        <option value="current_month">Mois en cours ({{ now()->format('m/Y') }})</option>
+                        @foreach($availablePeriods ?? [] as $period)
+                            <option value="{{ $period }}">{{ \Carbon\Carbon::createFromFormat('Y-m', $period)->translatedFormat('F Y') }} ({{ $period }})</option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                @php
-                $modules = [
-                    ['label' => 'Bailleurs',        'icon' => 'owners',      'route' => 'owners.index',     'status' => 'Disponible',   'variant' => 'success'],
-                    ['label' => 'Biens Immobiliers','icon' => 'properties',  'route' => 'properties.index', 'status' => 'Disponible',   'variant' => 'success'],
-                    ['label' => 'Locataires',       'icon' => 'tenants',     'route' => 'tenants.index',    'status' => 'Disponible',   'variant' => 'success'],
-                    ['label' => 'Contrats de Bail', 'icon' => 'leases',      'route' => 'leases.index',     'status' => 'Disponible',   'variant' => 'success'],
-                    ['label' => 'Incidents & Travaux','icon' => 'bell',      'route' => 'incidents.index',  'status' => 'Nouveau',      'variant' => 'success'],
-                    ['label' => 'Loyers & Échéances','icon' => 'rents',     'route' => 'rents.index',      'status' => 'Disponible',   'variant' => 'success'],
-                    ['label' => 'Cautions & Dépôts','icon' => 'deposits',    'route' => 'deposits.index',   'status' => 'Disponible',   'variant' => 'success'],
-                    ['label' => 'Gestion Impayés',  'icon' => 'arrears',     'route' => 'arrears.index',    'status' => 'Disponible',   'variant' => 'success'],
-                ];
-                @endphp
-
-                @foreach($modules as $m)
-                    @php
-                        $routeUrl = \Illuminate\Support\Facades\Route::has($m['route']) ? route($m['route']) : '#';
-                    @endphp
-                    <a href="{{ $routeUrl }}" class="flex items-center justify-between p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-800 hover:border-emerald-500/40 hover:shadow-xs transition-all duration-150 group">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                                <x-icon :name="$m['icon']" class="w-5 h-5" />
-                            </div>
-                            <span class="text-sm font-semibold text-slate-800 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white">{{ $m['label'] }}</span>
+            <!-- Grille des 5 cartes financières -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- 1. Total Loyers Attendus -->
+                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">Loyers Attendus</span>
+                        <div class="w-8 h-8 rounded-xl bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                            <x-icon name="reports" class="w-4 h-4" />
                         </div>
-                        <x-badge :variant="$m['variant']">{{ $m['status'] }}</x-badge>
-                    </a>
-                @endforeach
+                    </div>
+                    <p class="text-xl font-extrabold font-mono tracking-tight text-slate-900 dark:text-white">
+                        {{ number_format((float)($totalExpectedRent ?? 0), 0, ',', ' ') }} <span class="text-xs font-normal">FCFA</span>
+                    </p>
+                    <p class="text-[11px] text-slate-500">Total échéanciers émises</p>
+                </div>
+
+                <!-- 2. Total Payés -->
+                <div class="p-5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/60 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">Loyers Payés</span>
+                        <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                            <x-icon name="check" class="w-4 h-4" />
+                        </div>
+                    </div>
+                    <p class="text-xl font-extrabold font-mono tracking-tight text-emerald-700 dark:text-emerald-300">
+                        {{ number_format((float)($totalPaidRent ?? 0), 0, ',', ' ') }} <span class="text-xs font-normal">FCFA</span>
+                    </p>
+                    <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Encaissements perçus</p>
+                </div>
+
+                <!-- 3. Total Impayés -->
+                <div class="p-5 rounded-2xl bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200/70 dark:border-rose-800/60 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-rose-800 dark:text-rose-300">Total Impayés</span>
+                        <div class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-xs">
+                            <x-icon name="arrears" class="w-4 h-4" />
+                        </div>
+                    </div>
+                    <p class="text-xl font-extrabold font-mono tracking-tight text-rose-700 dark:text-rose-300">
+                        {{ number_format((float)($totalUnpaidRent ?? 0), 0, ',', ' ') }} <span class="text-xs font-normal">FCFA</span>
+                    </p>
+                    <p class="text-[11px] text-rose-600 dark:text-rose-400 font-medium">Reste à recouvrir</p>
+                </div>
+
+                <!-- 4. Total Commission Agence -->
+                <div class="p-5 rounded-2xl bg-teal-50/70 dark:bg-teal-950/40 border border-teal-200/70 dark:border-teal-800/60 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-teal-800 dark:text-teal-300">Commission Agence</span>
+                        <div class="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center shadow-xs">
+                            <x-icon name="chart" class="w-4 h-4" />
+                        </div>
+                    </div>
+                    <p class="text-xl font-extrabold font-mono tracking-tight text-teal-800 dark:text-teal-200">
+                        {{ number_format((float)($totalCommission ?? 0), 0, ',', ' ') }} <span class="text-xs font-normal">FCFA</span>
+                    </p>
+                    <p class="text-[11px] text-teal-600 dark:text-teal-400 font-medium">
+                        Taux agence : <strong>{{ number_format((float)($commissionRate ?? 10), 1, ',', ' ') }} %</strong>
+                    </p>
+                </div>
+
+                <!-- 5. Total TVA à Reverser -->
+                <div class="p-5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-800/60 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-300">TVA à Reverser</span>
+                        <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-xs">
+                            <x-icon name="document" class="w-4 h-4" />
+                        </div>
+                    </div>
+                    <p class="text-xl font-extrabold font-mono tracking-tight text-amber-800 dark:text-amber-300">
+                        @if($isSubjectToTva ?? true)
+                            {{ number_format((float)($totalTva ?? 0), 0, ',', ' ') }} <span class="text-xs font-normal">FCFA</span>
+                        @else
+                            0 <span class="text-xs font-normal">FCFA</span>
+                        @endif
+                    </p>
+                    <p class="text-[11px] text-amber-700 dark:text-amber-400 font-medium">
+                        @if($isSubjectToTva ?? true)
+                            TVA 18% sur commission
+                        @else
+                            Non assujetti à la TVA
+                        @endif
+                    </p>
+                </div>
             </div>
         </x-card>
 

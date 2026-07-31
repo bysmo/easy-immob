@@ -22,6 +22,8 @@ class Index extends Component
     public ?int $newPlanId = null;
     public string $newBillingCycle = 'monthly';
     public string $newStatus = 'active';
+    public float $newCommissionRate = 10.0;
+    public bool $newIsSubjectToTva = true;
 
     public function mount(): void
     {
@@ -36,15 +38,19 @@ class Index extends Component
         $this->newPlanId = $agency->subscription_plan_id;
         $this->newBillingCycle = $agency->billing_cycle ?? 'monthly';
         $this->newStatus = $agency->status ?? 'active';
+        $this->newCommissionRate = (float) ($agency->commission_rate ?? 10.0);
+        $this->newIsSubjectToTva = (bool) ($agency->is_subject_to_tva ?? true);
         $this->showEditModal = true;
     }
 
     public function updateAgencySubscription(): void
     {
         $this->validate([
-            'newPlanId'       => 'required|exists:subscription_plans,id',
-            'newBillingCycle' => 'required|in:monthly,yearly',
-            'newStatus'       => 'required|in:active,suspended',
+            'newPlanId'         => 'required|exists:subscription_plans,id',
+            'newBillingCycle'   => 'required|in:monthly,yearly',
+            'newStatus'         => 'required|in:active,suspended',
+            'newCommissionRate' => 'required|numeric|min:0|max:100',
+            'newIsSubjectToTva' => 'required|boolean',
         ]);
 
         if (!$this->selectedAgencyId) {
@@ -58,6 +64,8 @@ class Index extends Component
             'subscription_plan_id' => $this->newPlanId,
             'billing_cycle'        => $this->newBillingCycle,
             'status'               => $this->newStatus,
+            'commission_rate'      => $this->newCommissionRate,
+            'is_subject_to_tva'    => $this->newIsSubjectToTva,
         ]);
 
         // Si le forfait a été changé, on génère une nouvelle facture SaaS pour l'agence

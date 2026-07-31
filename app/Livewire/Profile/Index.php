@@ -24,6 +24,10 @@ class Index extends Component
     public string $password = '';
     public string $password_confirmation = '';
 
+    // Paramètres de l'agence
+    public ?float $agency_commission_rate = 10.0;
+    public bool $agency_is_subject_to_tva = true;
+
     public function mount(): void
     {
         /** @var User $user */
@@ -32,6 +36,33 @@ class Index extends Component
         $this->name  = $user->name ?? '';
         $this->email = $user->email ?? '';
         $this->phone = $user->phone ?? '';
+
+        if ($user->agency) {
+            $this->agency_commission_rate = (float) ($user->agency->commission_rate ?? 10.0);
+            $this->agency_is_subject_to_tva = (bool) ($user->agency->is_subject_to_tva ?? true);
+        }
+    }
+
+    public function updateAgencySettings(): void
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if (! $user->agency) {
+            return;
+        }
+
+        $validated = $this->validate([
+            'agency_commission_rate'   => 'required|numeric|min:0|max:100',
+            'agency_is_subject_to_tva' => 'required|boolean',
+        ]);
+
+        $user->agency->update([
+            'commission_rate'   => $validated['agency_commission_rate'],
+            'is_subject_to_tva' => $validated['agency_is_subject_to_tva'],
+        ]);
+
+        session()->flash('success_agency', 'Les paramètres financiers de l\'agence ont été enregistrés avec succès.');
     }
 
     public function updateProfileInformation(): void

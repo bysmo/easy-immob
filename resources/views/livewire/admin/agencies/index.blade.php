@@ -152,6 +152,19 @@
                             <option value="suspended">Suspendu</option>
                         </select>
                     </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <div>
+                            <x-label value="Taux Commission (%)" />
+                            <x-input type="number" step="0.1" min="0" max="100" wire:model="newCommissionRate" class="mt-1" />
+                        </div>
+                        <div class="flex items-end">
+                            <label class="flex items-center gap-2 cursor-pointer pb-2">
+                                <input type="checkbox" wire:model="newIsSubjectToTva" class="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                                <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">Soumis TVA (18%)</span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">

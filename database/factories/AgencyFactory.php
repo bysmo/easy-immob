@@ -19,8 +19,10 @@ class AgencyFactory extends Factory
             'legal_name' => fake()->company().' SARL',
             'email' => fake()->unique()->companyEmail(),
             'phone' => fake()->phoneNumber(),
-            'address' => fake()->address(),
-            'status' => 'active',
+            'address'           => fake()->address(),
+            'commission_rate'   => 10.00,
+            'is_subject_to_tva' => true,
+            'status'            => 'active',
         ];
     }
 }

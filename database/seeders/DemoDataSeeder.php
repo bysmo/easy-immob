@@ -37,22 +37,26 @@ class DemoDataSeeder extends Seeder
         $primaryAgency = Agency::firstOrCreate(
             ['email' => 'contact@horizon-immo.ci'],
             [
-                'name'       => 'Horizon Immobilier SARL',
-                'legal_name' => 'Horizon Immobilier Côte d\'Ivoire SARL',
-                'phone'      => '+225 07 08 09 10 11',
-                'address'    => 'Cocody Ambassades, Rue des Ambassades, Abidjan',
-                'status'     => 'active',
+                'name'              => 'Horizon Immobilier SARL',
+                'legal_name'        => 'Horizon Immobilier Côte d\'Ivoire SARL',
+                'phone'             => '+225 07 08 09 10 11',
+                'address'           => 'Cocody Ambassades, Rue des Ambassades, Abidjan',
+                'commission_rate'   => 10.00,
+                'is_subject_to_tva' => true,
+                'status'            => 'active',
             ]
         );
 
         $secondaryAgency = Agency::firstOrCreate(
             ['email' => 'contact@prestige-habitat.ci'],
             [
-                'name'       => 'Prestige Habitat SA',
-                'legal_name' => 'Prestige Habitat SA',
-                'phone'      => '+225 05 04 03 02 01',
-                'address'    => 'Plateau, Avenue Chardy, Abidjan',
-                'status'     => 'active',
+                'name'              => 'Prestige Habitat SA',
+                'legal_name'        => 'Prestige Habitat SA',
+                'phone'             => '+225 05 04 03 02 01',
+                'address'           => 'Plateau, Avenue Chardy, Abidjan',
+                'commission_rate'   => 12.00,
+                'is_subject_to_tva' => false,
+                'status'            => 'active',
             ]
         );
 

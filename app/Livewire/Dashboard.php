@@ -18,6 +18,9 @@ class Dashboard extends Component
     public int $tenantsCount = 0;
     public int $activeLeasesCount = 0;
 
+    // Filtre période financière agence
+    public string $financialPeriod = 'all';
+
     // Tenant data
     public ?Tenant $tenant = null;
     public $tenantLeases;
@@ -66,10 +69,59 @@ class Dashboard extends Component
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        return view('livewire.dashboard', [
+        $financialData = [];
+
+        if (!$user->isTenant()) {
+            $agency = $user->agency;
+            $commissionRate = (float) ($agency?->commission_rate ?? 10.0);
+            $isSubjectToTva = (bool) ($agency?->is_subject_to_tva ?? true);
+
+            $availablePeriods = RentSchedule::select('period')
+                ->distinct()
+                ->orderBy('period', 'desc')
+                ->pluck('period')
+                ->toArray();
+
+            $schedulesQuery = RentSchedule::query();
+
+            if ($this->financialPeriod === 'current_month') {
+                $schedulesQuery->where('period', now()->format('Y-m'));
+            } elseif ($this->financialPeriod !== 'all' && !empty($this->financialPeriod)) {
+                $schedulesQuery->where('period', $this->financialPeriod);
+            }
+
+            $schedules = $schedulesQuery->get();
+
+            $totalExpectedRent = (float) $schedules->sum('expected_amount');
+            $totalPaidRent     = (float) $schedules->sum('paid_amount');
+
+            // Impayés : somme de remaining_amount pour les échéances non annulées et non totalement payées
+            $totalUnpaidRent   = (float) $schedules
+                ->whereIn('status.value', ['pending', 'partially_paid', 'overdue'])
+                ->sum('remaining_amount');
+
+            // Commission agence (% sur loyers encaissés)
+            $totalCommission   = round(($totalPaidRent * $commissionRate) / 100, 2);
+
+            // TVA 18% sur commission perçue si assujetti
+            $totalTva          = $isSubjectToTva ? round(($totalCommission * 18) / 100, 2) : 0.0;
+
+            $financialData = [
+                'commissionRate'    => $commissionRate,
+                'isSubjectToTva'    => $isSubjectToTva,
+                'availablePeriods'  => $availablePeriods,
+                'totalExpectedRent' => $totalExpectedRent,
+                'totalPaidRent'     => $totalPaidRent,
+                'totalUnpaidRent'   => $totalUnpaidRent,
+                'totalCommission'   => $totalCommission,
+                'totalTva'          => $totalTva,
+            ];
+        }
+
+        return view('livewire.dashboard', array_merge([
             'agencyName' => $user->agency?->name ?? '—',
             'userName'   => $user->name,
             'roleName'   => $user->getRoleNames()->first() ?? '—',
-        ]);
+        ], $financialData));
     }
 }

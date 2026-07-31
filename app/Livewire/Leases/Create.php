@@ -33,6 +33,9 @@ class Create extends Component
     #[Validate('required|date|after:start_date')]
     public string $end_date = '';
 
+    #[Validate('boolean')]
+    public bool $is_tacit_renewal = true;
+
     #[Validate('required|numeric|min:0')]
     public float $rent_amount = 0;
 
@@ -108,8 +111,9 @@ class Create extends Component
             'end_date'        => $this->end_date,
             'rent_amount'     => $this->rent_amount,
             'charges_amount'  => $this->charges_amount,
-            'payment_due_day' => $this->payment_due_day,
-            'deposit_amount'  => $this->deposit_amount,
+            'payment_due_day'  => $this->payment_due_day,
+            'is_tacit_renewal' => $this->is_tacit_renewal,
+            'deposit_amount'   => $this->deposit_amount,
             'status'          => LeaseStatus::Draft,
         ]);
 

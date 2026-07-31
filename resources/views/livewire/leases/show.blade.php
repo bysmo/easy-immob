@@ -139,6 +139,12 @@
                     <span class="text-slate-400">Jour d'échéance :</span>
                     <span class="font-bold text-indigo-600 dark:text-indigo-400">Le {{ $lease->payment_due_day }} du mois</span>
                 </div>
+                <div class="flex justify-between pt-1 border-t border-slate-100 dark:border-slate-800">
+                    <span class="text-slate-400">Tacite reconduction :</span>
+                    <span class="font-semibold {{ $lease->is_tacit_renewal ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500' }}">
+                        {{ $lease->is_tacit_renewal ? 'Oui (Automatique)' : 'Non' }}
+                    </span>
+                </div>
             </div>
         </x-card>
     </div>
