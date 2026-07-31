@@ -13,7 +13,7 @@
             <p class="text-xs text-slate-500 dark:text-slate-400">Gestion des informations contractuelles, des biens et de l'historique financier des reversements.</p>
         </div>
         <div>
-            <a href="{{ route('owners.payouts.index') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold hover:bg-emerald-100 transition-colors">
+            <a href="{{ \Illuminate\Support\Facades\Route::has('owners.payouts.index') ? route('owners.payouts.index') : '#' }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold hover:bg-emerald-100 transition-colors">
                 <x-icon name="rents" class="w-4 h-4" />
                 <span>Gestion Globale des Reversements</span>
             </a>
@@ -274,7 +274,7 @@
                                                 <span>Régler</span>
                                             </x-button>
                                         @endif
-                                        <a href="{{ route('owners.payouts.print', $po->id) }}" target="_blank" class="inline-flex items-center justify-center p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 transition" title="Imprimer le décompte">
+                                        <a href="{{ \Illuminate\Support\Facades\Route::has('owners.payouts.print') ? route('owners.payouts.print', $po->id) : '#' }}" target="_blank" class="inline-flex items-center justify-center p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 transition" title="Imprimer le décompte">
                                             <x-icon name="reports" class="w-4 h-4" />
                                         </a>
                                     </td>

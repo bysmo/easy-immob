@@ -86,6 +86,8 @@ class Edit extends Component
         ]);
 
         session()->flash('success', "Le bailleur {$this->owner->full_name} a été mis à jour.");
+
+        $this->redirect(route('owners.index'), navigate: false);
     }
 
     public function openSettlementModal(int $payoutId): void
