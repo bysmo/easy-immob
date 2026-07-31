@@ -26,9 +26,35 @@
         </button>
     </div>
 
-    <div class="header">
-        <div class="title">Quittance de Loyer</div>
-        <div class="subtitle">Période du loyer : {{ $schedule->period }}</div>
+    @php $agency = $schedule->lease?->agency; @endphp
+    <div class="header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #059669; padding-bottom: 15px; margin-bottom: 25px;">
+        <div style="text-align: left;">
+            @if($agency?->logo_url)
+                <img src="{{ $agency->logo_url }}" alt="Logo {{ $agency->name }}" style="max-height: 60px; max-width: 200px; margin-bottom: 8px;">
+            @endif
+            <div style="font-size: 20px; font-weight: bold; color: #059669;">{{ $agency?->name ?? 'EasyImmob' }}</div>
+            @if($agency?->legal_name)
+                <div style="font-size: 11px; color: #64748b; font-style: italic;">{{ $agency->legal_name }}</div>
+            @endif
+            @if($agency?->address)
+                <div style="font-size: 11px; color: #475569;">{{ $agency->address }}</div>
+            @endif
+            <div style="font-size: 11px; color: #475569;">
+                @if($agency?->phone) Tél: {{ $agency->phone }} @endif
+                @if($agency?->email) | Email: {{ $agency->email }} @endif
+            </div>
+            @if($agency?->nif_rccm)
+                <div style="font-size: 10px; color: #64748b;">N° Immat. / NIF : {{ $agency->nif_rccm }}</div>
+            @endif
+            @if($agency?->is_subject_to_tva)
+                <div style="font-size: 10px; color: #059669; font-weight: bold;">Assujetti à la TVA ({{ $agency->tva_rate }}%)</div>
+            @endif
+        </div>
+        <div style="text-align: right;">
+            <div class="title" style="font-size: 22px; font-weight: bold; color: #059669; text-transform: uppercase;">Quittance de Loyer</div>
+            <div class="subtitle" style="font-size: 13px; color: #64748b; margin-top: 5px;">Période du loyer : <strong>{{ $schedule->period }}</strong></div>
+            <div style="font-size: 11px; color: #64748b;">N° Quittance : #Q-{{ $schedule->id }}</div>
+        </div>
     </div>
 
     <div class="box">

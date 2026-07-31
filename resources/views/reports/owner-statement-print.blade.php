@@ -23,9 +23,21 @@
         </button>
     </div>
 
+    @php $agency = auth()->user()?->agency ?? $statement['owner']->agency; @endphp
     <div class="header">
-        <div class="title">Relevé de Compte Bailleur</div>
-        <div>Agence EasyImmob &mdash; Période : {{ $period ?: 'Toutes les périodes' }}</div>
+        @if($agency?->logo_url)
+            <img src="{{ $agency->logo_url }}" alt="Logo {{ $agency->name }}" style="max-height: 65px; max-width: 220px; margin-bottom: 8px;">
+        @endif
+        <div class="title">{{ $agency?->name ?? 'EasyImmob' }} &mdash; Relevé de Compte Bailleur</div>
+        <div style="font-size: 12px; color: #64748b;">
+            @if($agency?->address) {{ $agency->address }} | @endif
+            @if($agency?->phone) Tél: {{ $agency->phone }} | @endif
+            @if($agency?->email) Email: {{ $agency->email }} @endif
+        </div>
+        @if($agency?->nif_rccm)
+            <div style="font-size: 11px; color: #64748b;">N° Immat. / NIF : {{ $agency->nif_rccm }}</div>
+        @endif
+        <div style="font-size: 13px; font-weight: bold; color: #2563eb; margin-top: 5px;">Période : {{ $period ?: 'Toutes les périodes' }}</div>
     </div>
 
     <div class="box">

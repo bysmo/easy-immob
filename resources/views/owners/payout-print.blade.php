@@ -31,11 +31,27 @@
         </button>
     </div>
 
+    @php $agency = $payout->agency; @endphp
     <div class="header">
         <div>
-            <div class="agency-name">{{ $payout->agency?->name ?? 'EasyImmob' }}</div>
-            <div style="font-size: 12px; color: #64748b;">{{ $payout->agency?->address ?? 'Gestion Locative Professionnelle' }}</div>
-            <div style="font-size: 12px; color: #64748b;">Tel: {{ $payout->agency?->phone }} | Email: {{ $payout->agency?->email }}</div>
+            @if($agency?->logo_url)
+                <img src="{{ $agency->logo_url }}" alt="Logo {{ $agency->name }}" style="max-height: 60px; max-width: 220px; margin-bottom: 8px;">
+            @endif
+            <div class="agency-name">{{ $agency?->name ?? 'EasyImmob' }}</div>
+            @if($agency?->legal_name)
+                <div style="font-size: 11px; color: #64748b; font-style: italic;">{{ $agency->legal_name }}</div>
+            @endif
+            <div style="font-size: 12px; color: #64748b;">{{ $agency?->address ?? 'Gestion Locative Professionnelle' }}</div>
+            <div style="font-size: 12px; color: #64748b;">
+                @if($agency?->phone) Tel: {{ $agency->phone }} @endif
+                @if($agency?->email) | Email: {{ $agency->email }} @endif
+            </div>
+            @if($agency?->nif_rccm)
+                <div style="font-size: 11px; color: #64748b;">N° Immat. / NIF : {{ $agency->nif_rccm }}</div>
+            @endif
+            @if($agency?->is_subject_to_tva)
+                <div style="font-size: 10px; color: #059669; font-weight: bold; margin-top: 2px;">Assujetti à la TVA ({{ $agency->tva_rate }}%)</div>
+            @endif
         </div>
         <div>
             <div class="doc-title">Décompte de Reversement</div>

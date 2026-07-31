@@ -22,9 +22,24 @@
         </button>
     </div>
 
-    <div class="header">
-        <div class="title">{{ $lease->agency?->name ?? 'EasyImmob' }}</div>
-        <div>Contrat de location N° {{ $lease->reference }}</div>
+    @php $agency = $lease->agency; @endphp
+    <div class="header" style="text-align: center;">
+        @if($agency?->logo_url)
+            <img src="{{ $agency->logo_url }}" alt="Logo {{ $agency->name }}" style="max-height: 75px; max-width: 250px; margin-bottom: 10px;">
+        @endif
+        <div class="title" style="font-size: 22px; font-weight: bold; text-transform: uppercase;">{{ $agency?->name ?? 'EasyImmob' }}</div>
+        @if($agency?->legal_name)
+            <div style="font-size: 12px; color: #64748b; font-style: italic;">{{ $agency->legal_name }}</div>
+        @endif
+        <div style="font-size: 12px; color: #475569; margin-top: 3px;">
+            @if($agency?->address) {{ $agency->address }} @endif
+            @if($agency?->phone) | Tél: {{ $agency->phone }} @endif
+            @if($agency?->email) | Email: {{ $agency->email }} @endif
+        </div>
+        @if($agency?->nif_rccm)
+            <div style="font-size: 11px; color: #64748b;">N° Immat. / NIF : {{ $agency->nif_rccm }}</div>
+        @endif
+        <div style="font-size: 14px; font-weight: bold; margin-top: 10px; color: #059669; text-transform: uppercase;">Contrat de location N° {{ $lease->reference }}</div>
     </div>
 
     <div class="content">

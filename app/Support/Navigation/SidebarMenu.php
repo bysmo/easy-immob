@@ -91,6 +91,7 @@ class SidebarMenu
             [
                 'section' => 'Administration Agence',
                 'items' => [
+                    ['label' => 'Informations Agence', 'icon' => 'building', 'route' => 'agency.settings', 'params' => []],
                     ['label' => 'Mon Abonnement', 'icon' => 'rents', 'route' => 'subscription.index', 'params' => []],
                     ['label' => 'Modèles de contrat', 'icon' => 'lease-templates', 'route' => 'admin.lease-templates.index', 'params' => []],
                     ['label' => 'Types de biens', 'icon' => 'property-types', 'route' => 'admin.property-types.index', 'params' => []],

@@ -186,7 +186,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/modules/{module}', fn (string $module) => view('coming-soon', compact('module')))
         ->name('modules.coming-soon');
 
-    // Mon Abonnement (Agences Immobilières)
+    // Mon Abonnement & Configuration Agence (Agences Immobilières)
+    Route::get('/agency/settings', \App\Livewire\Agency\Settings::class)->name('agency.settings');
     Route::get('/subscription', \App\Livewire\Subscription\Index::class)->name('subscription.index');
 
     // Administration des utilisateurs, référentiels & Espace SaaS Super Admin

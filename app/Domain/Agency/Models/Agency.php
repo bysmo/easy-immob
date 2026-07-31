@@ -11,14 +11,19 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use Illuminate\Support\Facades\Storage;
+
 #[Fillable([
     'name',
     'legal_name',
     'email',
     'phone',
     'address',
+    'logo_path',
     'commission_rate',
     'is_subject_to_tva',
+    'tva_rate',
+    'nif_rccm',
     'status',
     'subscription_plan_id',
     'billing_cycle',
@@ -35,9 +40,19 @@ class Agency extends Model
         return [
             'commission_rate'      => 'float',
             'is_subject_to_tva'    => 'boolean',
+            'tva_rate'             => 'float',
             'subscription_ends_at' => 'datetime',
             'trial_ends_at'        => 'datetime',
         ];
+    }
+
+    public function getLogoUrlAttribute(): ?string
+    {
+        if ($this->logo_path && Storage::disk('public')->exists($this->logo_path)) {
+            return Storage::disk('public')->url($this->logo_path);
+        }
+
+        return null;
     }
 
     public function subscriptionPlan(): BelongsTo
