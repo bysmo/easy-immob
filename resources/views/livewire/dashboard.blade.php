@@ -245,7 +245,7 @@
                         <a href="{{ route('owners.create') }}">
                             <x-button variant="primary" class="shadow-lg shadow-emerald-600/30">
                                 <x-icon name="plus" class="w-4 h-4" />
-                                <span>Nouveau propriétaire</span>
+                                <span>Nouveau bailleur</span>
                             </x-button>
                         </a>
                     @endcan
@@ -289,11 +289,11 @@
                     </div>
                 </x-card>
 
-                <!-- KPI Propriétaires -->
+                <!-- KPI Bailleurs -->
                 <x-card class="relative overflow-hidden group hover:border-emerald-500/40 transition-all duration-200">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Propriétaires</p>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Bailleurs</p>
                             <p class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                                 {{ $ownersCount }}
                             </p>
@@ -366,7 +366,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 @php
                 $modules = [
-                    ['label' => 'Propriétaires',   'icon' => 'owners',      'route' => 'owners.index',     'status' => 'Disponible',   'variant' => 'success'],
+                    ['label' => 'Bailleurs',        'icon' => 'owners',      'route' => 'owners.index',     'status' => 'Disponible',   'variant' => 'success'],
                     ['label' => 'Biens Immobiliers','icon' => 'properties',  'route' => 'properties.index', 'status' => 'Disponible',   'variant' => 'success'],
                     ['label' => 'Locataires',       'icon' => 'tenants',     'route' => 'tenants.index',    'status' => 'Disponible',   'variant' => 'success'],
                     ['label' => 'Contrats de Bail', 'icon' => 'leases',      'route' => 'leases.index',     'status' => 'Disponible',   'variant' => 'success'],

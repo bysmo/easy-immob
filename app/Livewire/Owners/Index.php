@@ -28,7 +28,7 @@ class Index extends Component
 
         $owner->delete();
 
-        session()->flash('success', "Le propriétaire {$owner->full_name} a été supprimé.");
+        session()->flash('success', "Le bailleur {$owner->full_name} a été supprimé.");
     }
 
     public function render(): \Illuminate\View\View

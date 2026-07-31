@@ -88,7 +88,7 @@
                     <span class="block text-slate-500">{{ $lease->tenant?->phone ?? 'Aucun téléphone' }}</span>
                 </div>
                 <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
-                    <span class="text-slate-400 block">Propriétaire Bailleur</span>
+                    <span class="text-slate-400 block">Bailleur</span>
                     <span class="font-semibold text-slate-800 dark:text-slate-200">{{ $lease->property?->owner?->full_name }}</span>
                 </div>
             </div>

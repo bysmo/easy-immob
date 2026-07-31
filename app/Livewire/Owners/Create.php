@@ -52,7 +52,7 @@ class Create extends Component
             'status'       => $this->status,
         ]);
 
-        session()->flash('success', "Le propriétaire {$owner->full_name} a été créé avec la référence {$owner->reference}.");
+        session()->flash('success', "Le bailleur {$owner->full_name} a été créé avec la référence {$owner->reference}.");
 
         $this->redirect(route('owners.index'), navigate: false);
     }

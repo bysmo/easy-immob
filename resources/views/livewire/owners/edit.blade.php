@@ -4,10 +4,10 @@
         <div>
             <a href="{{ route('owners.index') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 mb-1 transition-colors">
                 <x-icon name="arrow-left" class="w-3.5 h-3.5" />
-                <span>Retour à la liste des propriétaires</span>
+                <span>Retour à la liste des bailleurs</span>
             </a>
             <div class="flex items-center gap-3">
-                <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Modifier la fiche propriétaire</h1>
+                <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Modifier la fiche bailleur</h1>
                 <x-badge color="indigo" class="font-mono text-xs">{{ $owner->reference }}</x-badge>
             </div>
             <p class="text-xs text-slate-500 dark:text-slate-400">Mettre à jour les coordonnées et informations contractuelles de {{ $owner->full_name }}.</p>
@@ -23,7 +23,7 @@
                     <x-icon name="user" class="w-5 h-5" />
                 </div>
                 <div>
-                    <h2 class="text-base font-bold text-slate-900 dark:text-white">Identité du Propriétaire</h2>
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white">Identité du Bailleur</h2>
                     <p class="text-xs text-slate-500">Personne physique ou personne morale (entreprise/SCI).</p>
                 </div>
             </div>
@@ -84,7 +84,7 @@
                 </div>
                 <div>
                     <h2 class="text-base font-bold text-slate-900 dark:text-white">Statut du Compte</h2>
-                    <p class="text-xs text-slate-500">Définissez l'état d'activité du propriétaire.</p>
+                    <p class="text-xs text-slate-500">Définissez l'état d'activité du bailleur.</p>
                 </div>
             </div>
 

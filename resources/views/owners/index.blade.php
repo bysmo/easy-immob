@@ -1,3 +1,3 @@
-<x-layouts.app title="Propriétaires — EasyImmob">
+<x-layouts.app title="Bailleurs — EasyImmob">
     <livewire:owners.index />
 </x-layouts.app>

@@ -4,9 +4,9 @@
         <div>
             <a href="{{ route('owners.index') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 mb-1 transition-colors">
                 <x-icon name="arrow-left" class="w-3.5 h-3.5" />
-                <span>Retour à la liste des propriétaires</span>
+                <span>Retour à la liste des bailleurs</span>
             </a>
-            <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Créer un nouveau propriétaire</h1>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Créer un nouveau bailleur</h1>
             <p class="text-xs text-slate-500 dark:text-slate-400">Saisissez les coordonnées complètes du bailleur ou de la société représentée.</p>
         </div>
     </div>
@@ -20,7 +20,7 @@
                     <x-icon name="user" class="w-5 h-5" />
                 </div>
                 <div>
-                    <h2 class="text-base font-bold text-slate-900 dark:text-white">Identité du Propriétaire</h2>
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white">Identité du Bailleur</h2>
                     <p class="text-xs text-slate-500">Personne physique ou personne morale (entreprise/SCI).</p>
                 </div>
             </div>
@@ -81,7 +81,7 @@
                 </div>
                 <div>
                     <h2 class="text-base font-bold text-slate-900 dark:text-white">Statut du Compte</h2>
-                    <p class="text-xs text-slate-500">Définissez l'état d'activité du propriétaire.</p>
+                    <p class="text-xs text-slate-500">Définissez l'état d'activité du bailleur.</p>
                 </div>
             </div>
 

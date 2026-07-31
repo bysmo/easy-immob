@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="utf-8">
-    <title>Relevé de compte Propriétaire - {{ $statement['owner']->full_name }}</title>
+    <title>Relevé de compte Bailleur - {{ $statement['owner']->full_name }}</title>
     <style>
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 40px; color: #333; line-height: 1.6; }
         .header { text-align: center; border-bottom: 2px solid #2563eb; padding-bottom: 15px; margin-bottom: 30px; }
@@ -24,12 +24,12 @@
     </div>
 
     <div class="header">
-        <div class="title">Relevé de Compte Propriétaire</div>
+        <div class="title">Relevé de Compte Bailleur</div>
         <div>Agence EasyImmob &mdash; Période : {{ $period ?: 'Toutes les périodes' }}</div>
     </div>
 
     <div class="box">
-        <p><strong>Propriétaire :</strong> {{ $statement['owner']->full_name }} ({{ $statement['owner']->reference }})</p>
+        <p><strong>Bailleur :</strong> {{ $statement['owner']->full_name }} ({{ $statement['owner']->reference }})</p>
         <p><strong>Adresse :</strong> {{ $statement['owner']->address ?? '—' }}</p>
         <p><strong>Contact :</strong> {{ $statement['owner']->email }} / {{ $statement['owner']->phone }}</p>
         <p><strong>Nombre de biens gérés :</strong> {{ $statement['properties_count'] }}</p>

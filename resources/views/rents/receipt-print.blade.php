@@ -33,7 +33,7 @@
 
     <div class="box">
         <p><strong>Agence :</strong> {{ $schedule->lease?->agency?->name }}</p>
-        <p><strong>Bailleur (Propriétaire) :</strong> {{ $schedule->lease?->property?->owner?->full_name }}</p>
+        <p><strong>Bailleur :</strong> {{ $schedule->lease?->property?->owner?->full_name }}</p>
         <p><strong>Locataire :</strong> {{ $schedule->lease?->tenant?->full_name }}</p>
         <p><strong>Adresse du bien loué :</strong> {{ $schedule->lease?->property?->title }} - {{ $schedule->lease?->property?->address }}, {{ $schedule->lease?->property?->city }}</p>
     </div>

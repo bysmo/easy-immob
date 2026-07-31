@@ -7,7 +7,7 @@
                 <span>Retour à la liste des contrats</span>
             </a>
             <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Nouveau contrat de location</h1>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Établissez un nouveau bail entre un propriétaire et un locataire.</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Établissez un nouveau bail entre un bailleur et un locataire.</p>
         </div>
     </div>
 

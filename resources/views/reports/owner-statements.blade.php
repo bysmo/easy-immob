@@ -1,3 +1,3 @@
-<x-layouts.app title="Relevés propriétaires — EasyImmob">
+<x-layouts.app title="Relevés bailleurs — EasyImmob">
     <livewire:reports.owner-statements />
 </x-layouts.app>

@@ -206,7 +206,7 @@
                         <x-input type="search" 
                                  disabled 
                                  icon="search" 
-                                 placeholder="Rechercher propriétaire, bien, locataire..." 
+                                 placeholder="Rechercher bailleur, bien, locataire..." 
                                  class="w-64 md:w-80 !py-1.5 opacity-80" />
                     </div>
                 </div>

@@ -50,11 +50,11 @@
         </x-card>
 
         <x-card>
-            <h3 class="text-xs font-semibold uppercase text-gray-500 mb-2">Statut du bail & propriétaire</h3>
+            <h3 class="text-xs font-semibold uppercase text-gray-500 mb-2">Statut du bail & bailleur</h3>
             <div class="space-y-1 text-sm">
                 <p><strong>Réf contrat :</strong> {{ $arrear->lease?->reference }}</p>
-                <p><strong>Propriétaire :</strong> {{ $arrear->lease?->property?->owner?->full_name }}</p>
-                <p><strong>Tél propriétaire :</strong> {{ $arrear->lease?->property?->owner?->phone ?? '—' }}</p>
+                <p><strong>Bailleur :</strong> {{ $arrear->lease?->property?->owner?->full_name }}</p>
+                <p><strong>Tél bailleur :</strong> {{ $arrear->lease?->property?->owner?->phone ?? '—' }}</p>
             </div>
         </x-card>
     </div>

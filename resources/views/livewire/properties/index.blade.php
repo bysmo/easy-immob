@@ -71,7 +71,7 @@
                                     {{ $property->title }}
                                 </div>
                                 <div class="text-xs text-slate-400 font-medium">
-                                    Propriétaire: {{ $property->owner?->full_name ?? 'Non assigné' }}
+                                    Bailleur: {{ $property->owner?->full_name ?? 'Non assigné' }}
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-xs">

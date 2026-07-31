@@ -4,9 +4,9 @@
         <div>
             <div class="flex items-center gap-2">
                 <a href="{{ route('reports.index') }}" class="text-sm text-gray-500 hover:text-primary-600">← Retour</a>
-                <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Relevés de compte propriétaires</h1>
+                <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Relevés de compte bailleurs</h1>
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Calcul des encaissements par propriétaire, déduction des honoraires agence et net à reverser.</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Calcul des encaissements par bailleur, déduction des honoraires agence et net à reverser.</p>
         </div>
 
         @if($statement && $selectedOwnerId)
@@ -20,10 +20,10 @@
     <x-card>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
             <div>
-                <x-label for="selectedOwnerId">Propriétaire</x-label>
+                <x-label for="selectedOwnerId">Bailleur</x-label>
                 <select wire:model.live="selectedOwnerId" id="selectedOwnerId"
                         class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500">
-                    <option value="">— Sélectionner un propriétaire —</option>
+                    <option value="">— Sélectionner un bailleur —</option>
                     @foreach($owners as $owner)
                         <option value="{{ $owner->id }}">{{ $owner->full_name }} ({{ $owner->reference }})</option>
                     @endforeach
@@ -67,7 +67,7 @@
             </x-card>
         </div>
 
-        {{-- Détail des échéances du propriétaire --}}
+        {{-- Détail des échéances du bailleur --}}
         <div class="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
             <table class="w-full text-sm">
                 <thead class="bg-gray-50 dark:bg-gray-700/50 text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
@@ -97,7 +97,7 @@
                     @empty
                         <tr>
                             <td colspan="6" class="px-5 py-10 text-center text-gray-400">
-                                Aucun encaissement pour ce propriétaire sur la période sélectionnée.
+                                Aucun encaissement pour ce bailleur sur la période sélectionnée.
                             </td>
                         </tr>
                     @endforelse

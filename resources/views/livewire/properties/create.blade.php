@@ -37,7 +37,7 @@
                     <x-icon name="building" class="w-5 h-5" />
                 </div>
                 <div>
-                    <h2 class="text-base font-bold text-slate-900 dark:text-white">Désignation du Bien & Propriétaire</h2>
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white">Désignation du Bien & Bailleur</h2>
                     <p class="text-xs text-slate-500">Informations générales de présentation et attribution du bailleur.</p>
                 </div>
             </div>
@@ -50,9 +50,9 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                        <x-label for="owner_id" :required="true">Propriétaire (Bailleur)</x-label>
+                        <x-label for="owner_id" :required="true">Bailleur</x-label>
                         <x-select wire:model="owner_id" id="owner_id" icon="owners" :error="$errors->first('owner_id')">
-                            <option value="">— Sélectionner un propriétaire —</option>
+                            <option value="">— Sélectionner un bailleur —</option>
                             @foreach($owners as $owner)
                                 <option value="{{ $owner->id }}">{{ $owner->full_name }} ({{ $owner->reference }})</option>
                             @endforeach

@@ -31,9 +31,9 @@ class FinancialReportService
             $query->whereBetween('due_date', [$startDate, $endDate]);
         }
 
-        $expectedTotal  = (float) $query->sum('expected_amount');
-        $collectedTotal = (float) $query->sum('paid_amount');
-        $remainingTotal = (float) $query->sum('remaining_amount');
+        $expectedTotal  = (float) (clone $query)->sum('expected_amount');
+        $collectedTotal = (float) (clone $query)->sum('paid_amount');
+        $remainingTotal = (float) (clone $query)->sum('remaining_amount');
 
         $collectionRate = $expectedTotal > 0
             ? round(($collectedTotal / $expectedTotal) * 100, 2)

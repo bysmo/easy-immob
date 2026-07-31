@@ -6,6 +6,7 @@ use App\Domain\Agency\Models\Agency;
 use App\Domain\Owner\Models\Owner;
 use App\Domain\Property\Models\Property;
 
+use App\Domain\Lease\Models\Lease;
 use App\Domain\Report\Services\FinancialReportService;
 use App\Domain\Report\Services\OwnerStatementService;
 use App\Domain\Rent\Enums\RentScheduleStatus;
@@ -38,7 +39,7 @@ class FinancialReportTest extends TestCase
             'paid_amount'      => 200000,
             'remaining_amount' => 0,
             'status'           => RentScheduleStatus::Paid,
-            'due_date'         => now()->format('Y-m-d'),
+            'due_date'         => now()->day(15)->format('Y-m-d'),
         ]);
 
         RentSchedule::factory()->create([
@@ -49,7 +50,7 @@ class FinancialReportTest extends TestCase
             'paid_amount'      => 0,
             'remaining_amount' => 100000,
             'status'           => RentScheduleStatus::Overdue,
-            'due_date'         => now()->format('Y-m-d'),
+            'due_date'         => now()->day(15)->format('Y-m-d'),
         ]);
 
         /** @var FinancialReportService $service */

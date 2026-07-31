@@ -65,7 +65,7 @@ class SidebarMenu
             [
                 'section' => 'Gestion Locative',
                 'items' => [
-                    ['label' => 'Propriétaires', 'icon' => 'owners', 'route' => 'owners.index', 'params' => []],
+                    ['label' => 'Bailleurs', 'icon' => 'owners', 'route' => 'owners.index', 'params' => []],
                     ['label' => 'Biens Immobiliers', 'icon' => 'properties', 'route' => 'properties.index', 'params' => []],
                     ['label' => 'Locataires', 'icon' => 'tenants', 'route' => 'tenants.index', 'params' => []],
                     ['label' => 'Contrats de Bail', 'icon' => 'leases', 'route' => 'leases.index', 'params' => []],

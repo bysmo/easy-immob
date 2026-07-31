@@ -8,7 +8,7 @@
 
         <div class="flex items-center gap-2">
             <a href="{{ route('reports.owner-statements') }}">
-                <x-button variant="secondary">👤 Relevés Propriétaires</x-button>
+                <x-button variant="secondary">👤 Relevés Bailleurs</x-button>
             </a>
             <a href="{{ route('reports.export.payments') }}">
                 <x-button>📊 Exporter Encaissements (CSV)</x-button>

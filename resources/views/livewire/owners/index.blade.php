@@ -4,7 +4,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800 pb-4">
         <div>
             <div class="flex items-center gap-3">
-                <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Propriétaires</h1>
+                <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Bailleurs</h1>
                 <x-badge color="indigo">{{ $owners->total() }} au total</x-badge>
             </div>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gérez l'ensemble des bailleurs et mandataires enregistrés dans l'agence.</p>
@@ -14,7 +14,7 @@
             <a href="{{ route('owners.create') }}">
                 <x-button variant="primary" class="shadow-md shadow-emerald-600/20">
                     <x-icon name="plus" class="w-4 h-4" />
-                    <span>Nouveau propriétaire</span>
+                    <span>Nouveau bailleur</span>
                 </x-button>
             </a>
         @endcan
@@ -50,7 +50,7 @@
                 <thead class="bg-slate-50/80 dark:bg-slate-800/50 border-b border-slate-200/80 dark:border-slate-800">
                     <tr>
                         <x-datatable.th field="reference" :sortField="$sortField" :sortDirection="$sortDirection">Référence</x-datatable.th>
-                        <x-datatable.th field="first_name" :sortField="$sortField" :sortDirection="$sortDirection">Propriétaire</x-datatable.th>
+                        <x-datatable.th field="first_name" :sortField="$sortField" :sortDirection="$sortDirection">Bailleur</x-datatable.th>
                         <x-datatable.th field="email" :sortField="$sortField" :sortDirection="$sortDirection">Coordonnées</x-datatable.th>
                         <x-datatable.th field="status" :sortField="$sortField" :sortDirection="$sortDirection">Statut</x-datatable.th>
                         <x-datatable.th align="right">Actions</x-datatable.th>
@@ -104,9 +104,9 @@
                                     @can('owners.delete')
                                         <button type="button"
                                                 @click="$dispatch('open-confirm', {
-                                                    title: 'Supprimer le propriétaire',
-                                                    message: 'Êtes-vous sûr de vouloir supprimer le propriétaire {{ $owner->full_name }} ({{ $owner->reference }}) ? Cette action est irréversible.',
-                                                    confirmText: 'Supprimer le propriétaire',
+                                                    title: 'Supprimer le bailleur',
+                                                    message: 'Êtes-vous sûr de vouloir supprimer le bailleur {{ $owner->full_name }} ({{ $owner->reference }}) ? Cette action est irréversible.',
+                                                    confirmText: 'Supprimer le bailleur',
                                                     variant: 'danger',
                                                     onConfirm: () => $wire.delete({{ $owner->id }})
                                                 })"
@@ -121,7 +121,7 @@
                     @empty
                         <tr>
                             <td colspan="5" class="px-6 py-12 text-center text-slate-400">
-                                Aucun propriétaire trouvé.
+                                Aucun bailleur trouvé.
                             </td>
                         </tr>
                     @endforelse

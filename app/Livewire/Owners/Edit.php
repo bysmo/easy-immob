@@ -60,7 +60,7 @@ class Edit extends Component
             'status'       => $this->status,
         ]);
 
-        session()->flash('success', "Le propriétaire {$this->owner->full_name} a été mis à jour.");
+        session()->flash('success', "Le bailleur {$this->owner->full_name} a été mis à jour.");
 
         $this->redirect(route('owners.index'), navigate: false);
     }
