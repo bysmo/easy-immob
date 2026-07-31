@@ -15,6 +15,7 @@ class Index extends Component
     use WithDataTable;
 
     public string $statusFilter = '';
+    public string $periodFilter = '';
 
     // Modal de paiement
     public bool $showPaymentModal = false;
@@ -35,11 +36,17 @@ class Index extends Component
     public function mount(): void
     {
         $this->payment_date = now()->format('Y-m-d');
+        $this->periodFilter = now()->format('Y-m');
         $this->sortField = 'due_date';
         $this->sortDirection = 'desc';
     }
 
     public function updatedStatusFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedPeriodFilter(): void
     {
         $this->resetPage();
     }
@@ -82,7 +89,16 @@ class Index extends Component
 
     public function render(): \Illuminate\View\View
     {
+        $availablePeriods = RentSchedule::select('period')
+            ->distinct()
+            ->orderBy('period', 'desc')
+            ->pluck('period')
+            ->toArray();
+
         $query = RentSchedule::with(['lease.property', 'lease.tenant'])
+            ->when($this->periodFilter && $this->periodFilter !== 'all', function ($q) {
+                $q->where('period', $this->periodFilter);
+            })
             ->when($this->search, function ($q) {
                 $q->where(function ($query) {
                     $query->where('period', 'like', '%' . $this->search . '%')
@@ -102,9 +118,10 @@ class Index extends Component
         $schedules = $this->applySorting($query, 'due_date', 'desc')->paginate($this->perPage);
 
         return view('livewire.rents.index', [
-            'schedules'      => $schedules,
-            'statusOptions'  => RentScheduleStatus::options(),
-            'paymentMethods' => PaymentMethod::options(),
+            'schedules'        => $schedules,
+            'availablePeriods' => $availablePeriods,
+            'statusOptions'    => RentScheduleStatus::options(),
+            'paymentMethods'   => PaymentMethod::options(),
         ]);
     }
 }

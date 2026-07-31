@@ -313,6 +313,110 @@
             </div>
         </x-card>
 
+        <!-- Section 4.5 : Fiscalité IRF, Commission Agence & Récapitulatif Financier -->
+        <x-card>
+            <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-100 dark:border-slate-800">
+                <div class="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400">
+                    <x-icon name="document" class="w-5 h-5" />
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white">Fiscalité (IRF) & Commission Agence</h2>
+                    <p class="text-xs text-slate-500">Paramétrez l'IRF (Burkina Faso) et la part de commission spécifique à ce bien.</p>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Grille d'options -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <!-- Option IRF -->
+                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 flex flex-col justify-center">
+                        <label class="relative flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" wire:model.live="is_subject_to_irf" class="mt-1 w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                            <div>
+                                <span class="text-xs font-bold text-slate-900 dark:text-white block">Soumis à l'IRF (Impôt sur le Revenu Foncier - BF)</span>
+                                <span class="text-[11px] text-slate-500 block">Applique le barème par tranches (18% jusqu'à 100 000 FCFA + 25% au-delà).</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Option Commission Agence -->
+                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-3">
+                        <span class="text-xs font-bold text-slate-900 dark:text-white block">Mode de commission de l'agence :</span>
+                        <div class="flex items-center gap-4 text-xs font-medium">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" wire:model.live="agency_fee_type" value="percentage" class="text-emerald-600 focus:ring-emerald-500">
+                                <span>Pourcentage (%)</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" wire:model.live="agency_fee_type" value="fixed" class="text-emerald-600 focus:ring-emerald-500">
+                                <span>Forfait fixe (FCFA)</span>
+                            </label>
+                        </div>
+
+                        <div>
+                            <x-label for="agency_fee_value">
+                                @if($agency_fee_type === 'percentage')
+                                    Taux de commission spécifique (%) <span class="normal-case font-normal text-slate-400">(Laissez vide pour utiliser le taux agence de {{ auth()->user()->agency?->commission_rate ?? 10 }}%)</span>
+                                @else
+                                    Montant du forfait mensuel (FCFA)
+                                @endif
+                            </x-label>
+                            <x-input wire:model.live="agency_fee_value" type="number" step="{{ $agency_fee_type === 'percentage' ? '0.1' : '1000' }}" id="agency_fee_value" placeholder="{{ $agency_fee_type === 'percentage' ? '10.0' : '25000' }}" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Récapitulatif Financier Prévisionnel -->
+                @php
+                    $computedRent = (float) ($rent_amount ?? 0);
+                    $computedIrf  = 0.0;
+                    if ($is_subject_to_irf && $computedRent > 0) {
+                        $computedIrf = $computedRent <= 100000
+                            ? round($computedRent * 0.18, 2)
+                            : round((100000 * 0.18) + (($computedRent - 100000) * 0.25), 2);
+                    }
+                    $computedFee = 0.0;
+                    if ($agency_fee_type === 'fixed') {
+                        $computedFee = (float) ($agency_fee_value ?? 0);
+                    } else {
+                        $rate = $agency_fee_value !== null ? (float) $agency_fee_value : (float) (auth()->user()->agency?->commission_rate ?? 10.0);
+                        $computedFee = round(($computedRent * $rate) / 100, 2);
+                    }
+                    $computedNet = max(0, round($computedRent - $computedIrf - $computedFee, 2));
+                @endphp
+
+                <div class="p-5 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 text-white space-y-4 shadow-md">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400">Récapitulatif Financier Prévisionnel</h3>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+                        <div class="p-3 rounded-xl bg-white/10 border border-white/10">
+                            <span class="text-slate-300 block text-[11px]">Loyer Mensuel Total (HC)</span>
+                            <span class="font-mono font-bold text-sm text-white block mt-0.5">{{ number_format($computedRent, 0, ',', ' ') }} FCFA</span>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-white/10 border border-white/10">
+                            <span class="text-slate-300 block text-[11px]">
+                                Impôt IRF (BF) {{ $is_subject_to_irf ? '(Appliqué)' : '(Exonéré)' }}
+                            </span>
+                            <span class="font-mono font-bold text-sm {{ $is_subject_to_irf ? 'text-amber-300' : 'text-slate-400' }} block mt-0.5">
+                                {{ number_format($computedIrf, 0, ',', ' ') }} FCFA
+                            </span>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-white/10 border border-white/10">
+                            <span class="text-slate-300 block text-[11px]">Commission Agence</span>
+                            <span class="font-mono font-bold text-sm text-sky-300 block mt-0.5">{{ number_format($computedFee, 0, ',', ' ') }} FCFA</span>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/30">
+                            <span class="text-emerald-200 block text-[11px] font-bold">Revenu Net Bailleur</span>
+                            <span class="font-mono font-extrabold text-base text-emerald-300 block mt-0.5">{{ number_format($computedNet, 0, ',', ' ') }} FCFA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </x-card>
+
         <!-- Section 5 : Historique des révisions et augmentations de loyer -->
         <x-card>
             <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-100 dark:border-slate-800">

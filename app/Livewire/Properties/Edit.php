@@ -64,6 +64,15 @@ class Edit extends Component
     #[Validate('required|numeric|min:1000')]
     public float $rent_amount = 0;
 
+    #[Validate('boolean')]
+    public bool $is_subject_to_irf = false;
+
+    #[Validate('required|in:percentage,fixed')]
+    public string $agency_fee_type = 'percentage';
+
+    #[Validate('nullable|numeric|min:0')]
+    public ?float $agency_fee_value = null;
+
     #[Validate('required')]
     public string $status = 'available';
 
@@ -87,23 +96,26 @@ class Edit extends Component
         $this->property = Property::with(['rentHistories.user'])->where('id', $propertyId)->first() ?? abort(404);
         $this->authorize('update', $this->property);
 
-        $this->owner_id         = $this->property->owner_id;
-        $this->property_type_id = $this->property->property_type_id;
-        $this->title            = $this->property->title;
-        $this->description      = $this->property->description;
-        $this->address          = $this->property->address;
-        $this->city             = $this->property->city;
-        $this->neighborhood     = $this->property->neighborhood;
-        $this->latitude         = $this->property->latitude ? (float) $this->property->latitude : null;
-        $this->longitude        = $this->property->longitude ? (float) $this->property->longitude : null;
-        $this->google_maps_url  = $this->property->google_maps_url;
-        $this->surface_area     = $this->property->surface_area ? (float) $this->property->surface_area : null;
-        $this->bedrooms         = $this->property->bedrooms;
-        $this->bathrooms        = $this->property->bathrooms;
-        $this->rent_amount      = (float) $this->property->rent_amount;
-        $this->photos           = $this->property->photos ?? [];
-        $this->videos           = $this->property->videos ?? [];
-        $this->status           = $this->property->status->value;
+        $this->owner_id          = $this->property->owner_id;
+        $this->property_type_id  = $this->property->property_type_id;
+        $this->title             = $this->property->title;
+        $this->description       = $this->property->description;
+        $this->address           = $this->property->address;
+        $this->city              = $this->property->city;
+        $this->neighborhood      = $this->property->neighborhood;
+        $this->latitude          = $this->property->latitude ? (float) $this->property->latitude : null;
+        $this->longitude         = $this->property->longitude ? (float) $this->property->longitude : null;
+        $this->google_maps_url   = $this->property->google_maps_url;
+        $this->surface_area      = $this->property->surface_area ? (float) $this->property->surface_area : null;
+        $this->bedrooms          = $this->property->bedrooms;
+        $this->bathrooms         = $this->property->bathrooms;
+        $this->rent_amount       = (float) $this->property->rent_amount;
+        $this->is_subject_to_irf = (bool) $this->property->is_subject_to_irf;
+        $this->agency_fee_type   = $this->property->agency_fee_type ?? 'percentage';
+        $this->agency_fee_value  = $this->property->agency_fee_value ? (float) $this->property->agency_fee_value : null;
+        $this->photos            = $this->property->photos ?? [];
+        $this->videos            = $this->property->videos ?? [];
+        $this->status            = $this->property->status->value;
     }
 
     public function addPhotoUrl(): void
@@ -283,23 +295,26 @@ class Edit extends Component
         $this->validate();
 
         $this->property->update([
-            'owner_id'         => $this->owner_id,
-            'property_type_id' => $this->property_type_id,
-            'title'            => $this->title,
-            'description'      => $this->description,
-            'address'          => $this->address,
-            'city'             => $this->city,
-            'neighborhood'     => $this->neighborhood,
-            'latitude'         => $this->latitude,
-            'longitude'        => $this->longitude,
-            'google_maps_url'  => $this->google_maps_url,
-            'surface_area'     => $this->surface_area,
-            'bedrooms'         => $this->bedrooms,
-            'bathrooms'        => $this->bathrooms,
-            'rent_amount'      => $this->rent_amount,
-            'photos'           => array_slice(array_values(array_filter($this->photos)), 0, 10),
-            'videos'           => array_slice(array_values(array_filter($this->videos)), 0, 3),
-            'status'           => $this->status,
+            'owner_id'          => $this->owner_id,
+            'property_type_id'  => $this->property_type_id,
+            'title'             => $this->title,
+            'description'       => $this->description,
+            'address'           => $this->address,
+            'city'              => $this->city,
+            'neighborhood'      => $this->neighborhood,
+            'latitude'          => $this->latitude,
+            'longitude'         => $this->longitude,
+            'google_maps_url'   => $this->google_maps_url,
+            'surface_area'      => $this->surface_area,
+            'bedrooms'          => $this->bedrooms,
+            'bathrooms'         => $this->bathrooms,
+            'rent_amount'       => $this->rent_amount,
+            'is_subject_to_irf' => $this->is_subject_to_irf,
+            'agency_fee_type'   => $this->agency_fee_type,
+            'agency_fee_value'  => $this->agency_fee_value,
+            'photos'            => array_slice(array_values(array_filter($this->photos)), 0, 10),
+            'videos'            => array_slice(array_values(array_filter($this->videos)), 0, 3),
+            'status'            => $this->status,
         ]);
 
         session()->flash('success', "Le bien {$this->property->title} a été mis à jour.");

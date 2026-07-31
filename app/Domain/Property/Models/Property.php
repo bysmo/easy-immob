@@ -30,6 +30,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'bedrooms',
     'bathrooms',
     'rent_amount',
+    'is_subject_to_irf',
+    'agency_fee_type',
+    'agency_fee_value',
     'photos',
     'videos',
     'status',
@@ -46,13 +49,15 @@ class Property extends Model
     protected function casts(): array
     {
         return [
-            'surface_area' => 'decimal:2',
-            'rent_amount'  => 'decimal:2',
-            'latitude'     => 'float',
-            'longitude'    => 'float',
-            'photos'       => 'array',
-            'videos'       => 'array',
-            'status'       => PropertyStatus::class,
+            'surface_area'      => 'decimal:2',
+            'rent_amount'       => 'decimal:2',
+            'is_subject_to_irf' => 'boolean',
+            'agency_fee_value'  => 'decimal:2',
+            'latitude'          => 'float',
+            'longitude'         => 'float',
+            'photos'            => 'array',
+            'videos'            => 'array',
+            'status'            => PropertyStatus::class,
         ];
     }
 
@@ -114,5 +119,52 @@ class Property extends Model
     {
         $vids = $this->videos && is_array($this->videos) ? $this->videos : [];
         return array_slice($vids, 0, 3);
+    }
+
+    /**
+     * Calcule le montant de l'IRF (Impôt sur le Revenu Foncier - Burkina Faso) selon le barème par tranches :
+     * 0 — 100 000 FCFA => 18%
+     * 100 001 FCFA et plus => 18% sur les 100k + 25% sur l'excédent.
+     */
+    public function getIrfAmountAttribute(): float
+    {
+        if (! $this->is_subject_to_irf || (float) $this->rent_amount <= 0) {
+            return 0.0;
+        }
+
+        $rent = (float) $this->rent_amount;
+
+        if ($rent <= 100000) {
+            return round($rent * 0.18, 2);
+        }
+
+        return round((100000 * 0.18) + (($rent - 100000) * 0.25), 2);
+    }
+
+    /**
+     * Calcule le montant de la commission agence réservée sur le bien (taux % sur le loyer HC ou forfait fixe FCFA).
+     */
+    public function getAgencyFeeAmountAttribute(): float
+    {
+        $rent = (float) $this->rent_amount;
+
+        if ($this->agency_fee_type === 'fixed') {
+            return (float) ($this->agency_fee_value ?? 0);
+        }
+
+        $rate = $this->agency_fee_value !== null
+            ? (float) $this->agency_fee_value
+            : (float) ($this->agency?->commission_rate ?? 10.0);
+
+        return round(($rent * $rate) / 100, 2);
+    }
+
+    /**
+     * Calcule le revenu net perçu par le bailleur (Loyer HC - IRF - Commission agence).
+     */
+    public function getNetOwnerIncomeAttribute(): float
+    {
+        $rent = (float) $this->rent_amount;
+        return max(0, round($rent - $this->irf_amount - $this->agency_fee_amount, 2));
     }
 }

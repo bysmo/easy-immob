@@ -60,6 +60,15 @@ class Create extends Component
     #[Validate('required|numeric|min:1000')]
     public float $rent_amount = 150000;
 
+    #[Validate('boolean')]
+    public bool $is_subject_to_irf = false;
+
+    #[Validate('required|in:percentage,fixed')]
+    public string $agency_fee_type = 'percentage';
+
+    #[Validate('nullable|numeric|min:0')]
+    public ?float $agency_fee_value = null;
+
     #[Validate('required')]
     public string $status = 'available';
 
@@ -203,8 +212,11 @@ class Create extends Component
             'surface_area'     => $this->surface_area,
             'bedrooms'         => $this->bedrooms,
             'bathrooms'        => $this->bathrooms,
-            'rent_amount'      => $this->rent_amount,
-            'photos'           => array_slice(array_values(array_filter($this->photos)), 0, 10),
+            'rent_amount'       => $this->rent_amount,
+            'is_subject_to_irf' => $this->is_subject_to_irf,
+            'agency_fee_type'   => $this->agency_fee_type,
+            'agency_fee_value'  => $this->agency_fee_value,
+            'photos'            => array_slice(array_values(array_filter($this->photos)), 0, 10),
             'videos'           => array_slice(array_values(array_filter($this->videos)), 0, 3),
             'status'           => $this->status,
         ]);

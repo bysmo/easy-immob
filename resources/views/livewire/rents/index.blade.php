@@ -38,6 +38,17 @@
     <!-- DataTables Controls Top Bar -->
     <x-datatable.controls placeholder="Rechercher par période, locataire, bien..." :perPage="$perPage" :search="$search">
         <x-slot:filters>
+            <!-- Sélecteur de période mensuelle (par défaut mois en cours) -->
+            <select wire:model.live="periodFilter" class="rounded-xl border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs font-bold py-2 px-3 focus:ring-2 focus:ring-emerald-500 shadow-2xs">
+                <option value="all">Toutes les périodes</option>
+                <option value="{{ now()->format('Y-m') }}">Mois en cours ({{ now()->format('m/Y') }})</option>
+                @foreach($availablePeriods as $period)
+                    @if($period !== now()->format('Y-m'))
+                        <option value="{{ $period }}">{{ \Carbon\Carbon::createFromFormat('Y-m', $period)->translatedFormat('F Y') }} ({{ $period }})</option>
+                    @endif
+                @endforeach
+            </select>
+
             <select wire:model.live="statusFilter" class="rounded-xl border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs font-medium py-2 px-3 focus:ring-2 focus:ring-emerald-500 shadow-2xs">
                 <option value="">Tous les statuts</option>
                 @foreach($statusOptions as $option)
