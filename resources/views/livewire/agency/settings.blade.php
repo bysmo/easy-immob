@@ -106,21 +106,50 @@
 
                     <div>
                         <x-label for="phone">Numéro de téléphone</x-label>
-                        <x-input id="phone" type="text" wire:model="phone" placeholder="+225 27 22 00 00 00 / 07 00 00 00 00" />
+                        <x-input id="phone" type="text" wire:model="phone" placeholder="+226 25 65 92 12 / 05 75 98 25" />
                         @error('phone') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="sm:col-span-2">
                         <x-label for="address">Adresse du siège social</x-label>
-                        <x-input id="address" type="text" wire:model="address" placeholder="Abidjan, Cocody Riviera 3, Bd de France" />
+                        <x-input id="address" type="text" wire:model="address" placeholder="Ouagadougou, Burkina Faso" />
                         @error('address') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="sm:col-span-2">
                         <x-label for="nif_rccm">Identifiant Fiscal / N° RCCM / IFU</x-label>
-                        <x-input id="nif_rccm" type="text" wire:model="nif_rccm" placeholder="Ex: RCCM CI-ABJ-2024-B-99887 | NIF 1928374 A" />
+                        <x-input id="nif_rccm" type="text" wire:model="nif_rccm" placeholder="Ex: IFU N°00086587W | RCCM BF-OUA-2023-B-0192" />
                         <p class="text-[11px] text-slate-500 mt-1">Numéro d'immatriculation légale figurant sur les reçus et factures.</p>
                         @error('nif_rccm') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Séparateur Gérant / Représentant Légal -->
+                    <div class="sm:col-span-2 pt-4 border-t border-slate-200/80 dark:border-slate-800">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-3">Gérant & Représentant Légal de l'Agence</h3>
+                    </div>
+
+                    <div>
+                        <x-label for="manager_name">Nom complet du Gérant / Représentant</x-label>
+                        <x-input id="manager_name" type="text" wire:model="manager_name" placeholder="Ex: CONGO ERIC AMED WENDKUNI" />
+                        @error('manager_name') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <x-label for="manager_title">Qualité / Titre du responsable</x-label>
+                        <x-input id="manager_title" type="text" wire:model="manager_title" placeholder="Ex: Gérant, Directeur Général" />
+                        @error('manager_title') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <x-label for="manager_phone">Téléphone direct du Gérant</x-label>
+                        <x-input id="manager_phone" type="text" wire:model="manager_phone" placeholder="Ex: +226 70 00 00 00" />
+                        @error('manager_phone') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <x-label for="manager_id_card">Pièce d'identité du Gérant</x-label>
+                        <x-input id="manager_id_card" type="text" wire:model="manager_id_card" placeholder="Ex: CNIB N°B15795168 du 03/06/2021 par ONI/Ouaga" />
+                        @error('manager_id_card') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
                     </div>
                 </div>
             </div>

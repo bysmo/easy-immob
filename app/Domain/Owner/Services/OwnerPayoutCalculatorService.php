@@ -3,6 +3,7 @@
 namespace App\Domain\Owner\Services;
 
 use App\Domain\Agency\Models\Agency;
+use App\Domain\Incident\Models\Incident;
 use App\Domain\Owner\Models\Owner;
 use App\Domain\Owner\Models\OwnerPayout;
 use App\Domain\Owner\Models\OwnerPayoutItem;
@@ -39,6 +40,11 @@ class OwnerPayoutCalculatorService
             $owners = $ownersQuery->get();
             $createdPayouts = collect();
 
+            // Dériver les bornes du mois de la période (ex: "2026-07" → 2026-07-01 / 2026-07-31)
+            [$periodYear, $periodMonth] = explode('-', $period);
+            $periodStart = "{$periodYear}-{$periodMonth}-01";
+            $periodEnd   = date('Y-m-t', mktime(0, 0, 0, (int) $periodMonth, 1, (int) $periodYear));
+
             foreach ($owners as $owner) {
                 $propertyIds = $owner->properties()->pluck('id');
                 if ($propertyIds->isEmpty()) {
@@ -73,10 +79,11 @@ class OwnerPayoutCalculatorService
                     $existingPending->delete();
                 }
 
-                $totalGross = 0.0;
+                $totalGross      = 0.0;
                 $totalCommission = 0.0;
-                $totalIrf = 0.0;
-                $itemsData = [];
+                $totalIrf        = 0.0;
+                $totalRepair     = 0.0;
+                $itemsData       = [];
 
                 foreach ($schedules as $schedule) {
                     $property = $schedule->lease?->property;
@@ -110,16 +117,32 @@ class OwnerPayoutCalculatorService
                         $fullRentIrf = $property->irf_amount;
                         // Proportionnel si loyer partiel ou calcul au prorata
                         if ((float) $property->rent_amount > 0) {
-                            $ratio = min(1.0, $grossAmount / (float) $property->rent_amount);
+                            $ratio     = min(1.0, $grossAmount / (float) $property->rent_amount);
                             $irfAmount = round($fullRentIrf * $ratio, 2);
                         }
                     }
 
-                    $netAmount = max(0, round($grossAmount - $commissionAmount - $irfAmount, 2));
+                    // Réparations : incidents resolved ou closed sur ce bien dans la période
+                    // On prend les incidents dont la date de résolution (resolved_at ou closed_at)
+                    // tombe dans le mois de la période, avec un coût de réparation > 0.
+                    $repairAmount = (float) Incident::where('agency_id', $agency->id)
+                        ->where('property_id', $property->id)
+                        ->where('repair_cost', '>', 0)
+                        ->where(function ($q) use ($periodStart, $periodEnd) {
+                            $q->whereBetween('resolved_at', [$periodStart, $periodEnd . ' 23:59:59'])
+                              ->orWhereBetween('closed_at', [$periodStart, $periodEnd . ' 23:59:59']);
+                        })
+                        ->whereIn('status', ['resolved', 'closed'])
+                        ->sum('repair_cost');
 
-                    $totalGross += $grossAmount;
+                    $repairAmount = round($repairAmount, 2);
+
+                    $netAmount = max(0, round($grossAmount - $commissionAmount - $irfAmount - $repairAmount, 2));
+
+                    $totalGross      += $grossAmount;
                     $totalCommission += $commissionAmount;
-                    $totalIrf += $irfAmount;
+                    $totalIrf        += $irfAmount;
+                    $totalRepair     += $repairAmount;
 
                     $itemsData[] = [
                         'property_id'       => $property->id,
@@ -127,6 +150,7 @@ class OwnerPayoutCalculatorService
                         'gross_amount'      => $grossAmount,
                         'commission_amount' => $commissionAmount,
                         'irf_amount'        => $irfAmount,
+                        'repair_amount'     => $repairAmount,
                         'net_amount'        => $netAmount,
                         'description'       => "Loyer {$period} — Bien : {$property->title}",
                     ];
@@ -136,7 +160,7 @@ class OwnerPayoutCalculatorService
                     continue;
                 }
 
-                $totalNet = max(0, round($totalGross - $totalCommission - $totalIrf, 2));
+                $totalNet  = max(0, round($totalGross - $totalCommission - $totalIrf - $totalRepair, 2));
                 $reference = $this->generatePayoutReference($agency->id);
 
                 /** @var OwnerPayout $payout */
@@ -150,6 +174,7 @@ class OwnerPayoutCalculatorService
                     'commission_rate'         => (float) ($agency->commission_rate ?? 10.0),
                     'commission_amount'       => $totalCommission,
                     'irf_amount'              => $totalIrf,
+                    'repair_amount'           => $totalRepair,
                     'other_deductions_amount' => 0,
                     'net_amount'              => $totalNet,
                     'paid_amount'             => 0,
@@ -174,7 +199,7 @@ class OwnerPayoutCalculatorService
      */
     private function generatePayoutReference(int $agencyId): string
     {
-        $year = date('Y');
+        $year   = date('Y');
         $prefix = "REV-{$year}-";
 
         $lastPayout = OwnerPayout::where('agency_id', $agencyId)

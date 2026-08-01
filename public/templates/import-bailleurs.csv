@@ -1,0 +1,4 @@
+prenom,nom,societe,email,telephone,adresse,statut
+Jean,Dupont,,jean.dupont@email.com,+221771234567,Dakar Plateau,active
+Marie,Diallo,SARL Diallo,,+221789876543,Almadies Dakar,active
+Ibrahima,Sow,,ibrahima.sow@gmail.com,+221706543210,Thiès,inactive

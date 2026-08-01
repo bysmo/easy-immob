@@ -28,12 +28,28 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                     <x-label for="first_name" :required="true">Prénom</x-label>
-                    <x-input wire:model="first_name" type="text" id="first_name" placeholder="Ex: Jean" autofocus :error="$errors->first('first_name')" />
+                    <x-input wire:model="first_name" type="text" id="first_name" placeholder="Ex: Mohamed" autofocus :error="$errors->first('first_name')" />
                 </div>
 
                 <div>
                     <x-label for="last_name" :required="true">Nom de famille</x-label>
-                    <x-input wire:model="last_name" type="text" id="last_name" placeholder="Ex: Dupont" :error="$errors->first('last_name')" />
+                    <x-input wire:model="last_name" type="text" id="last_name" placeholder="Ex: Congo" :error="$errors->first('last_name')" />
+                </div>
+
+                <div>
+                    <x-label for="profession">Profession / Qualité</x-label>
+                    <x-input wire:model="profession" type="text" id="profession" placeholder="Ex: Employé de commerce, Opérateur économique" :error="$errors->first('profession')" />
+                </div>
+
+                <div>
+                    <x-label for="nationality">Nationalité</x-label>
+                    <x-input wire:model="nationality" type="text" id="nationality" placeholder="Ex: Burkinabè" :error="$errors->first('nationality')" />
+                </div>
+
+                <div class="sm:col-span-2">
+                    <x-label for="id_card_number">Pièce d'identité (N° & détails)</x-label>
+                    <x-input wire:model="id_card_number" type="text" id="id_card_number" placeholder="Ex: CNIB N°B15795168 du 03/06/2021 par ONI/Ouaga" :error="$errors->first('id_card_number')" />
+                    <p class="text-[11px] text-slate-500 mt-1">Utilisé pour renseigner automatiquement l'identité du bailleur dans les contrats.</p>
                 </div>
             </div>
 

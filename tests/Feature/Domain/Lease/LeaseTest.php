@@ -145,6 +145,41 @@ class LeaseTest extends TestCase
         $response->assertOk();
     }
 
+    public function test_template_variable_replacer_replaces_all_party_and_manager_variables(): void
+    {
+        $agency = Agency::factory()->create([
+            'name'            => 'KIPRESS ESTATE SARL',
+            'manager_name'    => 'CONGO ERIC AMED WENDKUNI',
+            'manager_title'   => 'Gérant',
+            'manager_phone'   => '+226 25 65 92 12',
+            'manager_id_card' => 'CNIB N°B15795168',
+        ]);
+
+        $tenant = Tenant::factory()->for($agency, 'agency')->create([
+            'first_name'     => 'MARIAM',
+            'last_name'      => 'COMPAORE',
+            'profession'     => 'Secrétaire de Direction',
+            'nationality'    => 'Burkinabè',
+            'id_card_number' => 'CNIB N°B18203984',
+        ]);
+
+        $lease = Lease::factory()->for($agency, 'agency')->create([
+            'tenant_id' => $tenant->id,
+        ]);
+
+        $replacer = app(\App\Domain\Lease\Services\TemplateVariableReplacer::class);
+        $result = $replacer->replaceForLease(
+            'Locataire: {locataire_nom_complet}, Pro: {locataire_profession}, Id: {locataire_piece_identite}, Agence: {agence_nom}, Gerant: {agence_gerant}',
+            $lease
+        );
+
+        $this->assertStringContainsString('COMPAORE MARIAM', $result);
+        $this->assertStringContainsString('Secrétaire de Direction', $result);
+        $this->assertStringContainsString('CNIB N°B18203984', $result);
+        $this->assertStringContainsString('KIPRESS ESTATE SARL', $result);
+        $this->assertStringContainsString('CONGO ERIC AMED WENDKUNI', $result);
+    }
+
     private function createAuthorizedUser(Agency $agency): User
     {
         $user = User::factory()->for($agency, 'agency')->create();

@@ -21,6 +21,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'email',
     'phone',
     'address',
+    'profession',
+    'nationality',
+    'id_card_number',
     'identity_document',
     'status',
 ])]

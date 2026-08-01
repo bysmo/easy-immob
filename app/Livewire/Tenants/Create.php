@@ -26,6 +26,15 @@ class Create extends Component
     public ?string $address = null;
 
     #[Validate('nullable|string|max:255')]
+    public ?string $profession = null;
+
+    #[Validate('nullable|string|max:255')]
+    public string $nationality = 'Burkinabè';
+
+    #[Validate('nullable|string|max:255')]
+    public ?string $id_card_number = null;
+
+    #[Validate('nullable|string|max:255')]
     public ?string $emergency_contact = null;
 
     #[Validate('required|in:active,inactive')]
@@ -48,6 +57,9 @@ class Create extends Component
             'email'             => $this->email,
             'phone'             => $this->phone,
             'address'           => $this->address,
+            'profession'        => $this->profession,
+            'nationality'       => $this->nationality,
+            'id_card_number'    => $this->id_card_number,
             'emergency_contact' => $this->emergency_contact,
             'status'            => $this->status,
         ]);

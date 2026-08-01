@@ -48,9 +48,14 @@ class RolesAndPermissionsSeederTest extends TestCase
 
         $gestionnaire = Role::findByName('Gestionnaire');
 
+        // Le Gestionnaire n'a PAS accès aux finances ni à la gestion des utilisateurs
         $this->assertFalse($gestionnaire->hasPermissionTo('users.manage-roles'));
+        $this->assertFalse($gestionnaire->hasPermissionTo('rents.view'));
+        $this->assertFalse($gestionnaire->hasPermissionTo('arrears.manage'));
+        // Mais il a accès à la gestion locative et aux rapports
         $this->assertTrue($gestionnaire->hasPermissionTo('properties.view'));
-        $this->assertTrue($gestionnaire->hasPermissionTo('arrears.manage'));
+        $this->assertTrue($gestionnaire->hasPermissionTo('tenants.create'));
+        $this->assertTrue($gestionnaire->hasPermissionTo('reports.view'));
     }
 
     public function test_role_permissions_assignment(): void

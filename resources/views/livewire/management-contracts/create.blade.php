@@ -1,165 +1,196 @@
-<div>
-    <div class="mb-6 flex items-center justify-between">
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header with Breadcrumb -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800 pb-4">
         <div>
-            <h1 class="text-2xl font-bold text-base-content">Nouveau Mandat de Gestion</h1>
-            <p class="text-sm text-base-content/70">Établir un contrat de mandat de gestion entre le propriétaire et l'agence.</p>
+            <a href="{{ route('management-contracts.index') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 mb-1 transition-colors">
+                <x-icon name="arrow-left" class="w-3.5 h-3.5" />
+                <span>Retour à la liste des mandats</span>
+            </a>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Nouveau Mandat de Gestion</h1>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Établir un contrat de mandat de gestion entre le propriétaire et l'agence.</p>
         </div>
-        <a href="{{ route('management-contracts.index') }}" class="btn btn-outline btn-sm">
-            ← Retour à la liste
-        </a>
     </div>
 
     <form wire:submit="save" class="space-y-6">
-        <div class="card bg-base-100 shadow">
-            <div class="card-body space-y-4">
-                <h2 class="card-title text-lg border-b pb-2">Informations Générales</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- Section 1 : Informations Générales -->
+        <x-card>
+            <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-100 dark:border-slate-800">
+                <div class="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
+                    <x-icon name="user" class="w-5 h-5" />
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white">Informations Générales & Mandant</h2>
+                    <p class="text-xs text-slate-500">Identification du propriétaire et désignation du contrat.</p>
+                </div>
+            </div>
+
+            <div class="space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                        <label class="label font-semibold text-sm">Propriétaire Mandant <span class="text-error">*</span></label>
-                        <select wire:model.live="owner_id" class="select select-bordered w-full @error('owner_id') select-error @enderror">
-                            <option value="">-- Sélectionner un propriétaire --</option>
+                        <x-label for="owner_id" :required="true">Propriétaire Mandant</x-label>
+                        <x-select wire:model.live="owner_id" id="owner_id" icon="owners" :error="$errors->first('owner_id')">
+                            <option value="">— Sélectionner un propriétaire —</option>
                             @foreach($owners as $owner)
                                 <option value="{{ $owner->id }}">{{ $owner->full_name }} ({{ $owner->reference }})</option>
                             @endforeach
-                        </select>
-                        @error('owner_id') <span class="text-xs text-error mt-1">{{ $message }}</span> @enderror
+                        </x-select>
                     </div>
 
                     <div>
-                        <label class="label font-semibold text-sm">Référence du Mandat <span class="text-error">*</span></label>
-                        <div class="join w-full">
-                            <input type="text" wire:model="reference" class="input input-bordered join-item w-full @error('reference') input-error @enderror" />
-                            <button type="button" wire:click="generateReference" class="btn btn-neutral join-item">Générer</button>
+                        <x-label for="reference" :required="true">Référence du Mandat</x-label>
+                        <div class="flex gap-2">
+                            <x-input wire:model="reference" type="text" id="reference" :error="$errors->first('reference')" class="font-mono text-xs font-bold" />
+                            <button type="button" wire:click="generateReference" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl transition-colors shrink-0">
+                                Générer
+                            </button>
                         </div>
-                        @error('reference') <span class="text-xs text-error mt-1">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <x-label for="title" :required="true">Intitulé du contrat</x-label>
+                        <x-input wire:model="title" type="text" id="title" placeholder="Ex: Mandat de Gestion Immobilière Exclusif" :error="$errors->first('title')" />
                     </div>
 
                     <div>
-                        <label class="label font-semibold text-sm">Intitulé du contrat</label>
-                        <input type="text" wire:model="title" class="input input-bordered w-full" />
-                        @error('title') <span class="text-xs text-error mt-1">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div>
-                        <label class="label font-semibold text-sm">Loyer prévisionnel estimé (FCFA)</label>
-                        <input type="number" step="1000" wire:model="agreed_rent_amount" placeholder="Ex: 250000" class="input input-bordered w-full" />
-                        @error('agreed_rent_amount') <span class="text-xs text-error mt-1">{{ $message }}</span> @enderror
+                        <x-label for="agreed_rent_amount">Loyer prévisionnel estimé (FCFA)</x-label>
+                        <x-input wire:model="agreed_rent_amount" type="number" step="1000" id="agreed_rent_amount" placeholder="Ex: 250000" :error="$errors->first('agreed_rent_amount')" />
                     </div>
                 </div>
             </div>
-        </div>
+        </x-card>
 
-        <div class="card bg-base-100 shadow">
-            <div class="card-body space-y-4">
-                <h2 class="card-title text-lg border-b pb-2">Durée & Honoraires d'Agence</h2>
+        <!-- Section 2 : Durée & Honoraires d'Agence -->
+        <x-card>
+            <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-100 dark:border-slate-800">
+                <div class="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
+                    <x-icon name="rents" class="w-5 h-5" />
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white">Durée & Honoraires d'Agence</h2>
+                    <p class="text-xs text-slate-500">Fixation de la commission agence, de la durée et des conditions fiscales.</p>
+                </div>
+            </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                     <div>
-                        <label class="label font-semibold text-sm">Date de prise d'effet <span class="text-error">*</span></label>
-                        <input type="date" wire:model="start_date" class="input input-bordered w-full @error('start_date') input-error @enderror" />
-                        @error('start_date') <span class="text-xs text-error mt-1">{{ $message }}</span> @enderror
+                        <x-label for="start_date" :required="true">Date de prise d'effet</x-label>
+                        <x-input wire:model="start_date" type="date" id="start_date" :error="$errors->first('start_date')" />
                     </div>
 
                     <div>
-                        <label class="label font-semibold text-sm">Durée initiale (Mois) <span class="text-error">*</span></label>
-                        <input type="number" min="1" wire:model="duration_months" class="input input-bordered w-full" />
-                        @error('duration_months') <span class="text-xs text-error mt-1">{{ $message }}</span> @enderror
+                        <x-label for="duration_months" :required="true">Durée initiale (Mois)</x-label>
+                        <x-input wire:model="duration_months" type="number" min="1" id="duration_months" :error="$errors->first('duration_months')" />
                     </div>
 
                     <div>
-                        <label class="label font-semibold text-sm">Préavis de rupture (Mois)</label>
-                        <input type="number" min="1" wire:model="notice_period_months" class="input input-bordered w-full" />
-                        @error('notice_period_months') <span class="text-xs text-error mt-1">{{ $message }}</span> @enderror
+                        <x-label for="notice_period_months" :required="true">Préavis de rupture (Mois)</x-label>
+                        <x-input wire:model="notice_period_months" type="number" min="1" id="notice_period_months" :error="$errors->first('notice_period_months')" />
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
                     <div>
-                        <label class="label font-semibold text-sm">Type de commission agence</label>
-                        <select wire:model.live="commission_type" class="select select-bordered w-full">
+                        <x-label for="commission_type" :required="true">Type de commission agence</x-label>
+                        <x-select wire:model.live="commission_type" id="commission_type">
                             <option value="percentage">Pourcentage sur les loyers (%)</option>
                             <option value="fixed">Montant forfaitaire fixe (FCFA)</option>
-                        </select>
+                        </x-select>
                     </div>
 
                     <div>
-                        <label class="label font-semibold text-sm">
-                            Valeur de la commission 
-                            <span class="text-xs text-base-content/60">({{ $commission_type === 'percentage' ? '%' : 'FCFA' }})</span>
-                        </label>
-                        <input type="number" step="0.01" wire:model="commission_value" class="input input-bordered w-full @error('commission_value') input-error @enderror" />
-                        @error('commission_value') <span class="text-xs text-error mt-1">{{ $message }}</span> @enderror
+                        <x-label for="commission_value" :required="true">
+                            Valeur de la commission ({{ $commission_type === 'percentage' ? '%' : 'FCFA' }})
+                        </x-label>
+                        <x-input wire:model="commission_value" type="number" step="0.01" id="commission_value" :error="$errors->first('commission_value')" />
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                    <div class="form-control">
-                        <label class="label cursor-pointer justify-start gap-3">
-                            <input type="checkbox" wire:model="irf_paid_by_owner" class="checkbox checkbox-primary" />
-                            <span class="label-text">L'Impôt sur le Revenu Foncier (IRF) est supporté par le mandant</span>
-                        </label>
-                    </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 cursor-pointer hover:bg-slate-100/50 transition-colors">
+                        <input type="checkbox" wire:model="irf_paid_by_owner" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4" />
+                        <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">L'Impôt sur le Revenu Foncier (IRF) est supporté par le mandant</span>
+                    </label>
 
-                    <div class="form-control">
-                        <label class="label cursor-pointer justify-start gap-3">
-                            <input type="checkbox" wire:model="caution_kept_by_agency" class="checkbox checkbox-primary" />
-                            <span class="label-text">L'Agence conserve la caution de garantie jusqu'à la fin du bail</span>
-                        </label>
-                    </div>
+                    <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 cursor-pointer hover:bg-slate-100/50 transition-colors">
+                        <input type="checkbox" wire:model="caution_kept_by_agency" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4" />
+                        <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">L'Agence conserve la caution de garantie jusqu'à la fin du bail</span>
+                    </label>
                 </div>
             </div>
-        </div>
+        </x-card>
 
         @if($owner_id)
-            <div class="card bg-base-100 shadow">
-                <div class="card-body space-y-4">
-                    <h2 class="card-title text-lg border-b pb-2">Biens Immobiliers associés à ce mandat</h2>
-                    <p class="text-xs text-base-content/70">Cochez les biens appartement à ce propriétaire que vous souhaitez rattacher à ce mandat de gestion.</p>
-
-                    @if($ownerProperties->count() > 0)
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            @foreach($ownerProperties as $prop)
-                                <label class="flex items-center p-3 border rounded-lg hover:bg-base-200 cursor-pointer gap-3">
-                                    <input type="checkbox" wire:model="selectedProperties" value="{{ $prop->id }}" class="checkbox checkbox-sm checkbox-primary" />
-                                    <div>
-                                        <div class="font-bold text-sm">{{ $prop->title }}</div>
-                                        <div class="text-xs text-base-content/60">{{ $prop->reference }} - {{ $prop->address }}, {{ $prop->city }}</div>
-                                        <div class="text-xs text-primary font-semibold">{{ number_format((float)$prop->rent_amount, 0, ',', ' ') }} FCFA / mois</div>
-                                    </div>
-                                </label>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="alert alert-info text-sm">
-                            Ce propriétaire n'a encore aucun bien enregistré. Vous pourrez lui attribuer un bien ultérieurement lors de la création ou modification du bien.
-                        </div>
-                    @endif
+            <!-- Section 3 : Biens Immobiliers associés -->
+            <x-card>
+                <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-100 dark:border-slate-800">
+                    <div class="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
+                        <x-icon name="building" class="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900 dark:text-white">Biens Immobiliers à Rattacher</h2>
+                        <p class="text-xs text-slate-500">Sélectionnez les biens appartenant à ce propriétaire rattachés à ce mandat.</p>
+                    </div>
                 </div>
-            </div>
+
+                @if($ownerProperties->count() > 0)
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        @foreach($ownerProperties as $prop)
+                            <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-emerald-500 cursor-pointer transition-all">
+                                <input type="checkbox" wire:model="selectedProperties" value="{{ $prop->id }}" class="mt-0.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4" />
+                                <div>
+                                    <div class="font-bold text-sm text-slate-900 dark:text-white">{{ $prop->title }}</div>
+                                    <div class="text-xs text-slate-400">{{ $prop->reference }} — {{ $prop->address }}, {{ $prop->city }}</div>
+                                    <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-1">{{ number_format((float)$prop->rent_amount, 0, ',', ' ') }} FCFA / mois</div>
+                                </div>
+                            </label>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-xs text-slate-500">
+                        Ce propriétaire n'a encore aucun bien enregistré. Vous pourrez lui attribuer un bien ultérieurement lors de la création ou modification du bien.
+                    </div>
+                @endif
+            </x-card>
         @endif
 
-        <div class="card bg-base-100 shadow">
-            <div class="card-body space-y-4">
-                <h2 class="card-title text-lg border-b pb-2">Règlement & Conditions Spéciales</h2>
-
-                <div>
-                    <label class="label font-semibold text-sm">Coordonnées bancaires du propriétaire (RIB / Compte de reversement)</label>
-                    <textarea wire:model="payment_bank_details" rows="2" placeholder="Ex: Compte N° XXXX-XXXX chez Bank, Clé XX" class="textarea textarea-bordered w-full"></textarea>
+        <!-- Section 4 : Règlement & Conditions Spéciales -->
+        <x-card>
+            <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-100 dark:border-slate-800">
+                <div class="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
+                    <x-icon name="document" class="w-5 h-5" />
                 </div>
-
                 <div>
-                    <label class="label font-semibold text-sm">Clauses ou conditions particulières (optionnel)</label>
-                    <textarea wire:model="terms_and_conditions" rows="3" placeholder="Insérer d'éventuelles clauses spécifiques agreed par les parties..." class="textarea textarea-bordered w-full"></textarea>
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white">Reversement & Conditions Spéciales</h2>
+                    <p class="text-xs text-slate-500">Coordonnées de règlement et clauses spécifiques du contrat.</p>
                 </div>
             </div>
-        </div>
 
-        <div class="flex justify-end gap-3">
-            <a href="{{ route('management-contracts.index') }}" class="btn btn-ghost">Annuler</a>
-            <button type="submit" class="btn btn-primary">
-                💾 Enregistrer & Générer le Mandat
-            </button>
+            <div class="space-y-4">
+                <div>
+                    <x-label for="payment_bank_details">Coordonnées bancaires du propriétaire (RIB / Compte de reversement)</x-label>
+                    <textarea wire:model="payment_bank_details" id="payment_bank_details" rows="2" placeholder="Ex: Compte N° CI092 01001 123456789012 34 chez BOA Burkina" class="w-full rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs p-3 focus:ring-2 focus:ring-emerald-500"></textarea>
+                </div>
+
+                <div>
+                    <x-label for="terms_and_conditions">Clauses ou conditions particulières (optionnel)</x-label>
+                    <textarea wire:model="terms_and_conditions" id="terms_and_conditions" rows="3" placeholder="Insérer d'éventuelles clauses particulières négociées..." class="w-full rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs p-3 focus:ring-2 focus:ring-emerald-500"></textarea>
+                </div>
+            </div>
+        </x-card>
+
+        <!-- Action Bar Footer -->
+        <div class="flex items-center justify-end gap-3 pt-2">
+            <a href="{{ route('management-contracts.index') }}">
+                <x-button type="button" variant="secondary">Annuler</x-button>
+            </a>
+            <x-button type="submit" variant="primary" class="shadow-md shadow-emerald-600/20">
+                <x-icon name="check" class="w-4 h-4" />
+                <span>Enregistrer & Générer le Mandat</span>
+            </x-button>
         </div>
     </form>
 </div>

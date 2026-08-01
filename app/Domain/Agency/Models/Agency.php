@@ -16,6 +16,10 @@ use Illuminate\Support\Facades\Storage;
 #[Fillable([
     'name',
     'legal_name',
+    'manager_name',
+    'manager_title',
+    'manager_phone',
+    'manager_id_card',
     'email',
     'phone',
     'address',

@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'gross_amount',
     'commission_amount',
     'irf_amount',
+    'repair_amount',
     'net_amount',
     'description',
 ])]
@@ -29,6 +30,7 @@ class OwnerPayoutItem extends Model
             'gross_amount'      => 'decimal:2',
             'commission_amount' => 'decimal:2',
             'irf_amount'        => 'decimal:2',
+            'repair_amount'     => 'decimal:2',
             'net_amount'        => 'decimal:2',
         ];
     }

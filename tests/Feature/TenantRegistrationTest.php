@@ -15,7 +15,7 @@ class TenantRegistrationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
+        $this->seedRolesAndPermissions();
     }
 
     public function test_citizen_can_register_as_tenant_and_get_unique_code(): void

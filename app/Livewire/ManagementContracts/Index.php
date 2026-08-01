@@ -2,71 +2,65 @@
 
 namespace App\Livewire\ManagementContracts;
 
+use App\Domain\Owner\Enums\ManagementContractStatus;
 use App\Domain\Owner\Models\ManagementContract;
 use App\Domain\Owner\Models\Owner;
+use App\Livewire\Traits\WithDataTable;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class Index extends Component
 {
-    use WithPagination;
+    use WithDataTable;
 
-    public string $search = '';
     public string $statusFilter = '';
     public ?int $ownerFilter = null;
 
-    protected $queryString = [
-        'search'       => ['except' => ''],
-        'statusFilter' => ['except' => ''],
-        'ownerFilter'  => ['except' => null],
-    ];
-
-    public function updatingSearch(): void
+    public function updatedStatusFilter(): void
     {
         $this->resetPage();
     }
 
-    public function updatingStatusFilter(): void
+    public function updatedOwnerFilter(): void
     {
         $this->resetPage();
     }
 
-    public function updatingOwnerFilter(): void
+    public function delete(int $contractId): void
     {
-        $this->resetPage();
+        $contract = ManagementContract::findOrFail($contractId);
+        $contract->delete();
+
+        session()->flash('success', "Le mandat de gestion {$contract->reference} a été supprimé.");
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         $query = ManagementContract::with(['owner', 'properties'])
-            ->latest();
-
-        if ($this->search !== '') {
-            $query->where(function ($q) {
-                $q->where('reference', 'like', '%' . $this->search . '%')
-                  ->orWhere('title', 'like', '%' . $this->search . '%')
-                  ->orWhereHas('owner', function ($oq) {
-                      $oq->where('first_name', 'like', '%' . $this->search . '%')
-                        ->orWhere('last_name', 'like', '%' . $this->search . '%')
-                        ->orWhere('company_name', 'like', '%' . $this->search . '%');
-                  });
+            ->when($this->search, function ($q) {
+                $q->where(function ($query) {
+                    $query->where('reference', 'like', '%' . $this->search . '%')
+                        ->orWhere('title', 'like', '%' . $this->search . '%')
+                        ->orWhereHas('owner', function ($oq) {
+                            $oq->where('first_name', 'like', '%' . $this->search . '%')
+                                ->orWhere('last_name', 'like', '%' . $this->search . '%')
+                                ->orWhere('company_name', 'like', '%' . $this->search . '%');
+                        });
+                });
+            })
+            ->when($this->statusFilter, function ($q) {
+                $q->where('status', $this->statusFilter);
+            })
+            ->when($this->ownerFilter, function ($q) {
+                $q->where('owner_id', $this->ownerFilter);
             });
-        }
 
-        if ($this->statusFilter !== '') {
-            $query->where('status', $this->statusFilter);
-        }
-
-        if ($this->ownerFilter) {
-            $query->where('owner_id', $this->ownerFilter);
-        }
-
-        $contracts = $query->paginate(10);
-        $owners    = Owner::orderBy('last_name')->get();
+        $contracts = $this->applySorting($query, 'created_at', 'desc')->paginate($this->perPage);
+        $owners = Owner::orderBy('last_name')->get();
 
         return view('livewire.management-contracts.index', [
-            'contracts' => $contracts,
-            'owners'    => $owners,
-        ])->layout('components.layouts.app');
+            'contracts'     => $contracts,
+            'owners'        => $owners,
+            'statusOptions' => ManagementContractStatus::options(),
+        ]);
     }
 }

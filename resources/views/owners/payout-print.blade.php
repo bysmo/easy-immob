@@ -85,6 +85,7 @@
                 <th style="text-align: right;">Loyer Brut</th>
                 <th style="text-align: right;">Commission Agence</th>
                 <th style="text-align: right;">IRF / Taxes</th>
+                <th style="text-align: right;">Réparations</th>
                 <th style="text-align: right;">Montant Net</th>
             </tr>
         </thead>
@@ -98,6 +99,7 @@
                     <td style="text-align: right;">{{ number_format($item->gross_amount, 0, ',', ' ') }} FCFA</td>
                     <td style="text-align: right;">{{ number_format($item->commission_amount, 0, ',', ' ') }} FCFA</td>
                     <td style="text-align: right;">{{ number_format($item->irf_amount, 0, ',', ' ') }} FCFA</td>
+                    <td style="text-align: right;">{{ number_format($item->repair_amount, 0, ',', ' ') }} FCFA</td>
                     <td style="text-align: right; font-weight: bold;">{{ number_format($item->net_amount, 0, ',', ' ') }} FCFA</td>
                 </tr>
             @endforeach
@@ -118,6 +120,12 @@
                 <div class="summary-row" style="color: #b45309;">
                     <span>Impôt Foncier (IRF) :</span>
                     <strong>- {{ number_format($payout->irf_amount, 0, ',', ' ') }} FCFA</strong>
+                </div>
+            @endif
+            @if($payout->repair_amount > 0)
+                <div class="summary-row" style="color: #be123c;">
+                    <span>Réparations & Travaux :</span>
+                    <strong>- {{ number_format($payout->repair_amount, 0, ',', ' ') }} FCFA</strong>
                 </div>
             @endif
             <div class="summary-row summary-total">

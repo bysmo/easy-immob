@@ -37,6 +37,15 @@ class Edit extends Component
     #[Validate('nullable|string')]
     public ?string $address = null;
 
+    #[Validate('nullable|string|max:255')]
+    public ?string $profession = null;
+
+    #[Validate('nullable|string|max:255')]
+    public string $nationality = 'Burkinabè';
+
+    #[Validate('nullable|string|max:255')]
+    public ?string $id_card_number = null;
+
     #[Validate('required|in:active,inactive')]
     public string $status = 'active';
 
@@ -55,14 +64,17 @@ class Edit extends Component
         $this->owner = Owner::where('id', $ownerId)->first() ?? abort(404);
         $this->authorize('update', $this->owner);
 
-        $this->first_name   = $this->owner->first_name;
-        $this->last_name    = $this->owner->last_name;
-        $this->company_name = $this->owner->company_name;
-        $this->email        = $this->owner->email;
-        $this->phone        = $this->owner->phone;
-        $this->address      = $this->owner->address;
-        $this->status       = $this->owner->status;
-        $this->settleDate   = date('Y-m-d');
+        $this->first_name     = $this->owner->first_name;
+        $this->last_name      = $this->owner->last_name;
+        $this->company_name   = $this->owner->company_name;
+        $this->email          = $this->owner->email;
+        $this->phone          = $this->owner->phone;
+        $this->address        = $this->owner->address;
+        $this->profession     = $this->owner->profession;
+        $this->nationality    = $this->owner->nationality ?? 'Burkinabè';
+        $this->id_card_number = $this->owner->id_card_number;
+        $this->status         = $this->owner->status;
+        $this->settleDate     = date('Y-m-d');
     }
 
     public function setTab(string $tab): void
@@ -76,13 +88,16 @@ class Edit extends Component
         $this->validate();
 
         $this->owner->update([
-            'first_name'   => $this->first_name,
-            'last_name'    => $this->last_name,
-            'company_name' => $this->company_name,
-            'email'        => $this->email,
-            'phone'        => $this->phone,
-            'address'      => $this->address,
-            'status'       => $this->status,
+            'first_name'     => $this->first_name,
+            'last_name'      => $this->last_name,
+            'company_name'   => $this->company_name,
+            'email'          => $this->email,
+            'phone'          => $this->phone,
+            'address'        => $this->address,
+            'profession'     => $this->profession,
+            'nationality'    => $this->nationality,
+            'id_card_number' => $this->id_card_number,
+            'status'         => $this->status,
         ]);
 
         session()->flash('success', "Le bailleur {$this->owner->full_name} a été mis à jour.");

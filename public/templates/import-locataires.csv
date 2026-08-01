@@ -1,0 +1,4 @@
+prenom,nom,email,telephone,adresse,contact_urgence,statut
+Fatou,Ndiaye,fatou.ndiaye@email.com,+221771234567,Dakar Medina,Mamadou Ndiaye 0778888888,active
+Cheikh,Ba,,+221789876543,Parcelles Assainies,Aissatou Ba 0770000000,active
+Rokhaya,Fall,rokhaya.fall@gmail.com,+221706543210,Saint-Louis,,inactive

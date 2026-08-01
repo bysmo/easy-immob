@@ -205,4 +205,65 @@ class OwnerPayoutTest extends TestCase
             ->call('runCalculation')
             ->assertStatus(200);
     }
+
+    public function test_calculate_payout_with_irf_and_repairs(): void
+    {
+        // 1. Configurer la propriété avec IRF (ex: IRF = 15000)
+        $this->property->update([
+            'is_subject_to_irf' => true,
+            'irf_amount'        => 15000,
+        ]);
+
+        // 2. Créer une réparation (incident résolu dans la période 2026-07 avec repair_cost = 25000)
+        \App\Domain\Incident\Models\Incident::create([
+            'agency_id'    => $this->agency->id,
+            'property_id'  => $this->property->id,
+            'tenant_id'    => $this->lease->tenant_id,
+            'lease_id'     => $this->lease->id,
+            'reference'    => 'INC-2026-001',
+            'title'        => 'Réparation de la plomberie',
+            'description'  => 'Fuite sous évier',
+            'status'       => 'resolved',
+            'repair_cost'  => 25000,
+            'resolved_at'  => '2026-07-15 10:00:00',
+        ]);
+
+        // 3. Échéance payée de 200 000
+        RentSchedule::create([
+            'agency_id'        => $this->agency->id,
+            'lease_id'         => $this->lease->id,
+            'period'           => '2026-07',
+            'due_date'         => '2026-07-05',
+            'expected_amount'  => 200000,
+            'paid_amount'      => 200000,
+            'remaining_amount' => 0,
+            'status'           => 'paid',
+        ]);
+
+        $service = new OwnerPayoutCalculatorService();
+        $payouts = $service->calculateAndGeneratePayouts(
+            agency: $this->agency,
+            period: '2026-07',
+            calculationType: 'collected',
+            ownerId: $this->owner->id,
+            creator: $this->user
+        );
+
+        $this->assertCount(1, $payouts);
+
+        /** @var OwnerPayout $payout */
+        $payout = $payouts->first();
+        $this->assertEquals(200000, $payout->gross_amount);
+        $this->assertEquals(20000, $payout->commission_amount); // 10%
+        $this->assertEquals(43000, $payout->irf_amount);        // IRF: 18% sur 100k (18k) + 25% sur 100k (25k) = 43k
+        $this->assertEquals(25000, $payout->repair_amount);     // Réparations
+        // Net = 200 000 - 20 000 (com) - 43 000 (irf) - 25 000 (réparations) = 112 000
+        $this->assertEquals(112000, $payout->net_amount);
+
+        // Vérifier aussi le détail (payout item)
+        $item = $payout->items->first();
+        $this->assertEquals(43000, $item->irf_amount);
+        $this->assertEquals(25000, $item->repair_amount);
+        $this->assertEquals(112000, $item->net_amount);
+    }
 }

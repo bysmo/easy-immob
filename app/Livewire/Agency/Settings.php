@@ -14,6 +14,10 @@ class Settings extends Component
 
     public string $name = '';
     public ?string $legal_name = null;
+    public ?string $manager_name = null;
+    public ?string $manager_title = null;
+    public ?string $manager_phone = null;
+    public ?string $manager_id_card = null;
     public string $email = '';
     public ?string $phone = null;
     public ?string $address = null;
@@ -39,6 +43,10 @@ class Settings extends Component
 
         $this->name              = $agency->name ?? '';
         $this->legal_name         = $agency->legal_name;
+        $this->manager_name      = $agency->manager_name;
+        $this->manager_title     = $agency->manager_title;
+        $this->manager_phone     = $agency->manager_phone;
+        $this->manager_id_card   = $agency->manager_id_card;
         $this->email             = $agency->email ?? '';
         $this->phone             = $agency->phone;
         $this->address           = $agency->address;
@@ -68,7 +76,11 @@ class Settings extends Component
 
         $this->validate([
             'name'              => 'required|string|max:255',
-            'legal_name'         => 'nullable|string|max:255',
+            'legal_name'        => 'nullable|string|max:255',
+            'manager_name'      => 'nullable|string|max:255',
+            'manager_title'     => 'nullable|string|max:255',
+            'manager_phone'     => 'nullable|string|max:50',
+            'manager_id_card'   => 'nullable|string|max:255',
             'email'              => 'required|email|max:255',
             'phone'              => 'nullable|string|max:50',
             'address'            => 'nullable|string|max:255',
@@ -92,6 +104,10 @@ class Settings extends Component
 
         $agency->name              = $this->name;
         $agency->legal_name         = $this->legal_name;
+        $agency->manager_name      = $this->manager_name;
+        $agency->manager_title     = $this->manager_title;
+        $agency->manager_phone     = $this->manager_phone;
+        $agency->manager_id_card   = $this->manager_id_card;
         $agency->email             = $this->email;
         $agency->phone             = $this->phone;
         $agency->address           = $this->address;

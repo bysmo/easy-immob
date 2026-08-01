@@ -31,8 +31,18 @@ class Create extends Component
 
     public function mount(): void
     {
-        // Seuls les rôles internes à l'agence sont sélectionnables
-        $this->availableRoles = Role::whereNotIn('name', ['Propriétaire', 'Locataire'])
+        /** @var \App\Models\User $currentUser */
+        $currentUser = Auth::user();
+
+        // Rôles internes à l'agence uniquement.
+        // Un Administrateur d'agence ne peut PAS créer de Super Admin.
+        $excludedRoles = ['Propriétaire', 'Locataire'];
+
+        if (! $currentUser->isSuperAdmin()) {
+            $excludedRoles[] = 'Super Admin';
+        }
+
+        $this->availableRoles = Role::whereNotIn('name', $excludedRoles)
             ->orderBy('name')
             ->pluck('name', 'name')
             ->toArray();
@@ -45,6 +55,12 @@ class Create extends Component
         /** @var \App\Models\User $currentUser */
         $currentUser = Auth::user();
 
+        // Double vérification côté serveur : interdire Super Admin si non-SuperAdmin
+        if ($this->role === 'Super Admin' && ! $currentUser->isSuperAdmin()) {
+            $this->addError('role', 'Vous n\'êtes pas autorisé à assigner le rôle Super Admin.');
+            return;
+        }
+
         $user = User::withoutGlobalScopes()->create([
             'agency_id' => $currentUser->agency_id,
             'name'      => $this->name,
@@ -54,7 +70,7 @@ class Create extends Component
 
         $user->assignRole($this->role);
 
-        session()->flash('success', "L'utilisateur {$user->name} a été créé.");
+        session()->flash('success', "L'utilisateur {$user->name} a été créé avec le rôle {$this->role}.");
 
         $this->redirect(route('admin.users.index'), navigate: false);
     }

@@ -39,7 +39,14 @@ class Edit extends Component
         $this->email = $this->user->email;
         $this->role  = $this->user->getRoleNames()->first() ?? '';
 
-        $this->availableRoles = Role::whereNotIn('name', ['Propriétaire', 'Locataire'])
+        // Rôles disponibles : exclure les rôles non-agence et, pour un non-SuperAdmin, exclure Super Admin
+        $excludedRoles = ['Propriétaire', 'Locataire'];
+
+        if (! $currentUser->isSuperAdmin()) {
+            $excludedRoles[] = 'Super Admin';
+        }
+
+        $this->availableRoles = Role::whereNotIn('name', $excludedRoles)
             ->orderBy('name')
             ->pluck('name', 'name')
             ->toArray();
@@ -53,6 +60,15 @@ class Edit extends Component
             'role'  => 'required|string|exists:roles,name',
         ]);
 
+        /** @var \App\Models\User $currentUser */
+        $currentUser = Auth::user();
+
+        // Double vérification côté serveur : interdire Super Admin si non-SuperAdmin
+        if ($this->role === 'Super Admin' && ! $currentUser->isSuperAdmin()) {
+            $this->addError('role', 'Vous n\'êtes pas autorisé à assigner le rôle Super Admin.');
+            return;
+        }
+
         $this->user->update([
             'name'  => $this->name,
             'email' => $this->email,
@@ -60,7 +76,7 @@ class Edit extends Component
 
         $this->user->syncRoles([$this->role]);
 
-        session()->flash('success', "L'utilisateur {$this->user->name} a été mis à jour.");
+        session()->flash('success', "L'utilisateur {$this->user->name} a été mis à jour avec le rôle {$this->role}.");
 
         $this->redirect(route('admin.users.index'), navigate: false);
     }

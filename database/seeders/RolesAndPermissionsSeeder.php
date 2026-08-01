@@ -14,50 +14,93 @@ class RolesAndPermissionsSeeder extends Seeder
      * @var array<int, string>
      */
     private const PERMISSIONS = [
+        // Utilisateurs
         'users.view', 'users.create', 'users.update', 'users.delete', 'users.manage-roles',
-        'owners.view', 'owners.create', 'owners.update', 'owners.delete',
+        // Bailleurs
+        'owners.view', 'owners.create', 'owners.update', 'owners.delete', 'owners.import',
+        // Biens
         'properties.view', 'properties.create', 'properties.update', 'properties.delete',
-        'tenants.view', 'tenants.create', 'tenants.update', 'tenants.delete',
+        // Locataires
+        'tenants.view', 'tenants.create', 'tenants.update', 'tenants.delete', 'tenants.import',
+        // Baux
         'leases.view', 'leases.create', 'leases.update', 'leases.delete',
+        // Finances
         'rents.view', 'rents.record-payment',
         'deposits.view', 'deposits.manage',
         'arrears.view', 'arrears.manage',
+        // Incidents
         'incidents.view', 'incidents.create', 'incidents.update', 'incidents.manage',
+        // Divers
         'notifications.view',
         'documents.view', 'documents.upload',
         'reports.view',
         'audit.view',
+        // SaaS réservé
         'saas.admin',
     ];
 
     /**
-     * Permissions granted per role, beyond Administrateur (which gets everything except saas.admin).
+     * Permissions par rôle.
+     *
+     * Modules :
+     *   - Gestion Locative  : owners, properties, tenants, leases, incidents
+     *   - Finances          : rents, deposits, arrears
+     *   - Suivi & Rapports  : notifications, documents, reports
+     *   - Administration    : users (Administrateur uniquement)
      *
      * @var array<string, array<int, string>>
      */
     private const ROLE_PERMISSIONS = [
+
+        // -------------------------------------------------------------------
+        // Gestionnaire : Gestion Locative complète + Suivi/Rapports
+        // -------------------------------------------------------------------
         'Gestionnaire' => [
-            'owners.view', 'owners.create', 'owners.update', 'owners.delete',
+            // Gestion Locative
+            'owners.view', 'owners.create', 'owners.update', 'owners.delete', 'owners.import',
             'properties.view', 'properties.create', 'properties.update', 'properties.delete',
-            'tenants.view', 'tenants.create', 'tenants.update', 'tenants.delete',
+            'tenants.view', 'tenants.create', 'tenants.update', 'tenants.delete', 'tenants.import',
             'leases.view', 'leases.create', 'leases.update', 'leases.delete',
-            'rents.view', 'rents.record-payment',
-            'arrears.view', 'arrears.manage',
             'incidents.view', 'incidents.create', 'incidents.update', 'incidents.manage',
-        ],
-        'Comptable' => [
-            'rents.view', 'rents.record-payment',
-            'deposits.view', 'deposits.manage',
-            'incidents.view',
-            'documents.view',
+            // Suivi & Rapports
+            'notifications.view',
+            'documents.view', 'documents.upload',
             'reports.view',
         ],
-        'Agent' => [
-            'properties.view', 'properties.create', 'properties.update', 'properties.delete',
-            'owners.view',
-            'incidents.view', 'incidents.update',
+
+        // -------------------------------------------------------------------
+        // Comptable : Uniquement Finances & Recouvrement + Rapports lecture
+        // -------------------------------------------------------------------
+        'Comptable' => [
+            // Finances
+            'rents.view', 'rents.record-payment',
+            'deposits.view', 'deposits.manage',
+            'arrears.view', 'arrears.manage',
+            // Rapports (lecture seule)
+            'documents.view',
+            'reports.view',
+            'notifications.view',
         ],
+
+        // -------------------------------------------------------------------
+        // Agent : Gestion Locative partielle (pas les finances, pas les rapports)
+        // -------------------------------------------------------------------
+        'Agent' => [
+            // Lecture bailleurs
+            'owners.view',
+            // Biens complets
+            'properties.view', 'properties.create', 'properties.update', 'properties.delete',
+            // Lecture locataires
+            'tenants.view',
+            // Incidents limités
+            'incidents.view', 'incidents.create', 'incidents.update',
+        ],
+
+        // -------------------------------------------------------------------
+        // Rôles sans permissions back-office
+        // -------------------------------------------------------------------
         'Propriétaire' => [],
+
         'Locataire' => [
             'incidents.view', 'incidents.create',
             'rents.view',
@@ -67,19 +110,21 @@ class RolesAndPermissionsSeeder extends Seeder
 
     public function run(): void
     {
+        // Créer toutes les permissions
         foreach (self::PERMISSIONS as $permission) {
             Permission::findOrCreate($permission);
         }
 
-        // Super Admin SaaS : Accès complet à la plateforme et à l'espace Admin SaaS
+        // Super Admin SaaS : Accès complet à la plateforme
         $superAdmin = Role::findOrCreate('Super Admin');
         $superAdmin->syncPermissions(self::PERMISSIONS);
 
-        // Administrateur Agence : Accès complet à la gestion locative de son agence (sans saas.admin)
+        // Administrateur Agence : Tout sauf saas.admin
         $agencyPermissions = array_filter(self::PERMISSIONS, fn ($p) => $p !== 'saas.admin');
-        $administrateur = Role::findOrCreate('Administrateur');
+        $administrateur    = Role::findOrCreate('Administrateur');
         $administrateur->syncPermissions($agencyPermissions);
 
+        // Rôles spécialisés
         foreach (self::ROLE_PERMISSIONS as $roleName => $permissions) {
             Role::findOrCreate($roleName)->syncPermissions($permissions);
         }

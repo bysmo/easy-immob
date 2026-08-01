@@ -29,30 +29,36 @@ class TemplateVariableReplacer
         $depositMonths = ($rent > 0) ? (int) round($deposit / $rent) : 2;
 
         $replacements = [
+            // Locataire
             '{locataire_nom}'           => $tenant?->last_name ?? '',
             '{locataire_prenom}'        => $tenant?->first_name ?? '',
             '{locataire_nom_complet}'   => $tenant?->full_name ?? '',
             '{locataire_telephone}'     => $tenant?->phone ?? '',
             '{locataire_email}'         => $tenant?->email ?? '',
-            '{locataire_piece_identite}'=> $tenant?->id_card_number ?? 'CNIB N° non spécifiée',
+            '{locataire_piece_identite}'=> $tenant?->id_card_number ?? $tenant?->identity_document ?? 'CNIB N° non spécifiée',
             '{locataire_profession}'    => $tenant?->profession ?? 'N/A',
             '{locataire_nationalite}'   => $tenant?->nationality ?? 'Burkinabè',
-            
+
+            // Bien Immobilier
             '{bien_titre}'              => $property?->title ?? '',
             '{bien_reference}'          => $property?->reference ?? '',
             '{bien_adresse}'            => $property?->address ?? '',
             '{bien_ville}'              => $property?->city ?? 'Ouagadougou',
             '{bien_quartier}'           => $property?->neighborhood ?? '',
-            
+
+            // Propriétaire / Bailleur
             '{proprietaire_nom_complet}' => $owner?->full_name ?? '',
             '{proprietaire_telephone}'   => $owner?->phone ?? '',
             '{proprietaire_email}'       => $owner?->email ?? '',
-            '{proprietaire_piece_identite}' => $owner?->identity_document ?? 'N/A',
-            '{proprietaire_profession}'  => 'Propriétaire bailleur',
-            
+            '{proprietaire_piece_identite}' => $owner?->id_card_number ?? $owner?->identity_document ?? 'N/A',
+            '{proprietaire_profession}'  => $owner?->profession ?? 'Propriétaire bailleur',
+            '{proprietaire_nationalite}' => $owner?->nationality ?? 'Burkinabè',
+
+            // Mandat de gestion
             '{mandat_reference}'        => $mandat?->reference ?? 'En date',
             '{mandat_date}'             => $mandat?->start_date?->format('d/m/Y') ?? now()->subMonths(3)->format('d/m/Y'),
-            
+
+            // Loyer & Conditions financières
             '{loyer_montant}'           => number_format($rent, 0, ',', ' ') . ' FCFA',
             '{charges_montant}'         => number_format($charges, 0, ',', ' ') . ' FCFA',
             '{total_montant}'           => number_format($total, 0, ',', ' ') . ' FCFA',
@@ -60,19 +66,24 @@ class TemplateVariableReplacer
             '{caution_mois}'            => (string) $depositMonths,
             '{avance_mois}'             => '2',
             '{total_entree_montant}'    => number_format(($rent * 2) + $deposit, 0, ',', ' ') . ' FCFA',
-            
+
+            // Dates & Durée
             '{date_debut}'              => $lease->start_date?->format('d/m/Y') ?? '',
             '{date_fin}'                => $lease->end_date?->format('d/m/Y') ?? 'Indéterminée',
             '{duree_mois}'              => (string) ($lease->duration_months ?? 12),
             '{jour_echeance}'           => (string) ($lease->payment_due_day ?? 5),
-            
+
+            // Agence & Représentant / Gérant
             '{agence_nom}'              => $agency?->name ?? 'KIPRESS ESTATE SARL',
             '{agence_legal_name}'       => $agency?->legal_name ?? $agency?->name ?? 'KIPRESS ESTATE SARL',
             '{agence_phone}'            => $agency?->phone ?? '',
             '{agence_email}'            => $agency?->email ?? '',
             '{agence_adresse}'          => $agency?->address ?? '',
             '{agence_nif_rccm}'         => $agency?->nif_rccm ?? '',
-            '{agence_gerant}'           => 'Le Gérant',
+            '{agence_gerant}'           => $agency?->manager_name ?? 'CONGO ERIC AMED WENDKUNI',
+            '{agence_gerant_titre}'     => $agency?->manager_title ?? 'Gérant',
+            '{agence_gerant_phone}'     => $agency?->manager_phone ?? $agency?->phone ?? '',
+            '{agence_gerant_piece}'     => $agency?->manager_id_card ?? 'CNIB N°B15795168 du 03/06/2021 par ONI/Ouaga',
             '{date_du_jour}'            => now()->format('d/m/Y'),
         ];
 
@@ -90,7 +101,9 @@ class TemplateVariableReplacer
             '{proprietaire_nom_complet}'   => $owner->full_name ?? '',
             '{proprietaire_telephone}'   => $owner->phone ?? '',
             '{proprietaire_email}'       => $owner->email ?? '',
-            '{proprietaire_piece_identite}' => $owner->identity_document ?? 'N/A',
+            '{proprietaire_piece_identite}' => $owner->id_card_number ?? $owner->identity_document ?? 'N/A',
+            '{proprietaire_profession}'  => $owner->profession ?? 'Propriétaire',
+            '{proprietaire_nationalite}' => $owner->nationality ?? 'Burkinabè',
             '{bien_titre}'               => $property?->title ?? 'Tous les biens du propriétaire',
             '{bien_adresse}'             => $property?->address ?? 'N/A',
             '{bien_ville}'               => $property?->city ?? 'N/A',
@@ -99,6 +112,8 @@ class TemplateVariableReplacer
             '{agence_telephone}'         => $owner->agency?->phone ?? '',
             '{agence_email}'             => $owner->agency?->email ?? '',
             '{agence_nif_rccm}'          => $owner->agency?->nif_rccm ?? '',
+            '{agence_gerant}'           => $owner->agency?->manager_name ?? 'Le Gérant',
+            '{agence_gerant_titre}'     => $owner->agency?->manager_title ?? 'Gérant',
             '{date_du_jour}'             => now()->format('d/m/Y'),
         ];
 
@@ -111,35 +126,53 @@ class TemplateVariableReplacer
     public static function getAvailableVariables(): array
     {
         return [
-            'Bail Locatif' => [
+            'Locataire' => [
                 '{locataire_nom_complet}'   => 'Nom et prénom du locataire',
                 '{locataire_telephone}'     => 'Numéro de téléphone du locataire',
-                '{locataire_piece_identite}'=> 'Numéro CNI ou passeport',
+                '{locataire_email}'         => 'Adresse email du locataire',
+                '{locataire_piece_identite}'=> 'Numéro CNI, passeport ou détails d\'identité',
                 '{locataire_profession}'    => 'Profession du locataire',
-                '{bien_titre}'              => 'Désignation du bien loué',
-                '{bien_adresse}'            => 'Adresse exacte du bien',
-                '{bien_ville}'              => 'Ville du bien',
+                '{locataire_nationalite}'   => 'Nationalité du locataire',
+            ],
+            'Propriétaire / Bailleur' => [
                 '{proprietaire_nom_complet}'=> 'Nom complet du bailleur',
+                '{proprietaire_telephone}'  => 'Téléphone du bailleur',
+                '{proprietaire_email}'      => 'Email du bailleur',
+                '{proprietaire_piece_identite}' => 'Pièce d\'identité du bailleur',
+                '{proprietaire_profession}' => 'Profession du bailleur',
+                '{proprietaire_nationalite}' => 'Nationalité du bailleur',
+            ],
+            'Bien & Mandat' => [
+                '{bien_titre}'              => 'Désignation / Titre du bien loué',
+                '{bien_adresse}'            => 'Adresse exacte du bien (parcelle, lot)',
+                '{bien_quartier}'           => 'Quartier du bien',
+                '{bien_ville}'              => 'Ville du bien',
                 '{mandat_reference}'        => 'Référence du mandat de gestion',
-                '{mandat_date}'             => 'Date du mandat de gestion',
-                '{loyer_montant}'           => 'Montant du loyer en FCFA',
-                '{caution_montant}'         => 'Montant du dépôt de garantie',
+                '{mandat_date}'             => 'Date de signature du mandat',
+            ],
+            'Financier & Conditions' => [
+                '{loyer_montant}'           => 'Montant du loyer mensuel en FCFA',
+                '{charges_montant}'         => 'Montant des charges mensuelles',
+                '{caution_montant}'         => 'Montant total du dépôt de garantie',
                 '{caution_mois}'            => 'Nombre de mois de caution',
-                '{total_entree_montant}'    => 'Somme totale perçue à l\'entrée',
+                '{avance_mois}'             => 'Nombre de mois d\'avance',
+                '{total_entree_montant}'    => 'Somme totale perçue à l\'entrée (Avance + Caution)',
                 '{date_debut}'              => 'Date de démarrage du bail',
                 '{date_fin}'                => 'Date d\'échéance du bail',
-                '{agence_nom}'              => 'Nom de l\'agence mandataire',
-                '{date_du_jour}'            => 'Date du jour de génération',
+                '{duree_mois}'              => 'Durée du bail en mois',
+                '{jour_echeance}'           => 'Jour d\'échéance mensuelle du loyer',
             ],
-            'Mandat de Gestion' => [
-                '{proprietaire_nom_complet}' => 'Nom du propriétaire mandant',
-                '{proprietaire_telephone}'   => 'Téléphone du propriétaire',
-                '{proprietaire_email}'       => 'Adresse e-mail du propriétaire',
-                '{bien_titre}'               => 'Titre / désignation du bien',
-                '{bien_adresse}'             => 'Adresse du bien géré',
-                '{commission_pourcentage}'   => 'Taux d\'honoraires d\'agence (%)',
-                '{agence_nom}'               => 'Nom de l\'agence mandataire',
-                '{date_du_jour}'             => 'Date de signature',
+            'Agence & Gérant' => [
+                '{agence_nom}'              => 'Nom de l\'agence immobilière',
+                '{agence_legal_name}'       => 'Raison sociale de l\'agence',
+                '{agence_nif_rccm}'         => 'NIF / IFU / RCCM de l\'agence',
+                '{agence_phone}'            => 'Téléphone de l\'agence',
+                '{agence_adresse}'          => 'Adresse du siège social de l\'agence',
+                '{agence_gerant}'           => 'Nom complet du Gérant / Responsable',
+                '{agence_gerant_titre}'     => 'Titre / Qualité du responsable (ex: Gérant)',
+                '{agence_gerant_phone}'     => 'Téléphone direct du responsable',
+                '{agence_gerant_piece}'     => 'Pièce d\'identité du responsable',
+                '{date_du_jour}'            => 'Date du jour de génération',
             ],
         ];
     }

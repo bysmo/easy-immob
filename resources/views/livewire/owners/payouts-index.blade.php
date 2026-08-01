@@ -149,6 +149,8 @@
                         <th class="py-3.5 px-4">Mode de calcul</th>
                         <th class="py-3.5 px-4 text-right">Loyer Brut</th>
                         <th class="py-3.5 px-4 text-right">Com. Agence</th>
+                        <th class="py-3.5 px-4 text-right text-amber-600 dark:text-amber-400">IRF</th>
+                        <th class="py-3.5 px-4 text-right text-rose-600 dark:text-rose-400">Réparations</th>
                         <th class="py-3.5 px-4 text-right">Net à Reverser</th>
                         <th class="py-3.5 px-4 text-right">Déjà Réglé</th>
                         <th class="py-3.5 px-4 text-center">Statut</th>
@@ -187,6 +189,20 @@
                             <td class="py-3 px-4 text-right text-slate-500">
                                 {{ number_format($payout->commission_amount, 0, ',', ' ') }} FCFA
                             </td>
+                            <td class="py-3 px-4 text-right text-amber-600 dark:text-amber-400 font-medium">
+                                @if($payout->irf_amount > 0)
+                                    {{ number_format($payout->irf_amount, 0, ',', ' ') }} FCFA
+                                @else
+                                    <span class="text-slate-300 dark:text-slate-600">—</span>
+                                @endif
+                            </td>
+                            <td class="py-3 px-4 text-right text-rose-600 dark:text-rose-400 font-medium">
+                                @if($payout->repair_amount > 0)
+                                    {{ number_format($payout->repair_amount, 0, ',', ' ') }} FCFA
+                                @else
+                                    <span class="text-slate-300 dark:text-slate-600">—</span>
+                                @endif
+                            </td>
                             <td class="py-3 px-4 text-right font-bold text-slate-900 dark:text-white">
                                 {{ number_format($payout->net_amount, 0, ',', ' ') }} FCFA
                             </td>
@@ -220,7 +236,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="py-12 text-center text-slate-400">
+                            <td colspan="12" class="py-12 text-center text-slate-400">
                                 <x-icon name="rents" class="w-10 h-10 mx-auto mb-2 text-slate-300 dark:text-slate-700" />
                                 <p class="text-sm font-semibold text-slate-600 dark:text-slate-400">Aucune facture de reversement trouvée.</p>
                                 <p class="text-xs text-slate-400 mt-1">Cliquer sur "Calculer les reversements" ci-dessus pour lancer le calcul de la période.</p>
@@ -429,7 +445,7 @@
                 </div>
 
                 <!-- Informations globales -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl text-xs">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl text-xs">
                     <div>
                         <span class="text-slate-400 block">Mode de calcul :</span>
                         <span class="font-bold text-slate-800 dark:text-slate-200">{{ $detailPayout->calculation_type->label() }}</span>
@@ -441,6 +457,26 @@
                     <div>
                         <span class="text-slate-400 block">Commission Agence :</span>
                         <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ number_format($detailPayout->commission_amount, 0, ',', ' ') }} FCFA</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block">IRF :</span>
+                        <span class="font-bold text-amber-600 dark:text-amber-400">
+                            @if($detailPayout->irf_amount > 0)
+                                {{ number_format($detailPayout->irf_amount, 0, ',', ' ') }} FCFA
+                            @else
+                                <span class="text-slate-400 font-normal">Non soumis</span>
+                            @endif
+                        </span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block">Réparations :</span>
+                        <span class="font-bold text-rose-600 dark:text-rose-400">
+                            @if($detailPayout->repair_amount > 0)
+                                {{ number_format($detailPayout->repair_amount, 0, ',', ' ') }} FCFA
+                            @else
+                                <span class="text-slate-400 font-normal">Néant</span>
+                            @endif
+                        </span>
                     </div>
                     <div>
                         <span class="text-slate-400 block">Net à Reverser :</span>
@@ -456,7 +492,8 @@
                                 <th class="p-3">Bien Immobiliers</th>
                                 <th class="p-3 text-right">Loyer Brut</th>
                                 <th class="p-3 text-right">Commission</th>
-                                <th class="p-3 text-right">IRF</th>
+                                <th class="p-3 text-right text-amber-600 dark:text-amber-400">IRF</th>
+                                <th class="p-3 text-right text-rose-600 dark:text-rose-400">Réparations</th>
                                 <th class="p-3 text-right">Net</th>
                             </tr>
                         </thead>
@@ -473,8 +510,19 @@
                                     <td class="p-3 text-right text-slate-500">
                                         {{ number_format($item->commission_amount, 0, ',', ' ') }} FCFA
                                     </td>
-                                    <td class="p-3 text-right text-slate-500">
-                                        {{ number_format($item->irf_amount, 0, ',', ' ') }} FCFA
+                                    <td class="p-3 text-right text-amber-600 dark:text-amber-400">
+                                        @if($item->irf_amount > 0)
+                                            {{ number_format($item->irf_amount, 0, ',', ' ') }} FCFA
+                                        @else
+                                            <span class="text-slate-300 dark:text-slate-600">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="p-3 text-right text-rose-600 dark:text-rose-400">
+                                        @if($item->repair_amount > 0)
+                                            {{ number_format($item->repair_amount, 0, ',', ' ') }} FCFA
+                                        @else
+                                            <span class="text-slate-300 dark:text-slate-600">—</span>
+                                        @endif
                                     </td>
                                     <td class="p-3 text-right font-bold text-slate-900 dark:text-white">
                                         {{ number_format($item->net_amount, 0, ',', ' ') }} FCFA

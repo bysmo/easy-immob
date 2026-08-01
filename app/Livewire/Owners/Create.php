@@ -28,6 +28,15 @@ class Create extends Component
     #[Validate('nullable|string')]
     public ?string $address = null;
 
+    #[Validate('nullable|string|max:255')]
+    public ?string $profession = null;
+
+    #[Validate('nullable|string|max:255')]
+    public string $nationality = 'Burkinabè';
+
+    #[Validate('nullable|string|max:255')]
+    public ?string $id_card_number = null;
+
     #[Validate('required|in:active,inactive')]
     public string $status = 'active';
 
@@ -42,14 +51,17 @@ class Create extends Component
         $reference = $generator->generate(Owner::class, $user->agency_id, 'PRO');
 
         $owner = Owner::create([
-            'reference'    => $reference,
-            'first_name'   => $this->first_name,
-            'last_name'    => $this->last_name,
-            'company_name' => $this->company_name,
-            'email'        => $this->email,
-            'phone'        => $this->phone,
-            'address'      => $this->address,
-            'status'       => $this->status,
+            'reference'      => $reference,
+            'first_name'     => $this->first_name,
+            'last_name'      => $this->last_name,
+            'company_name'   => $this->company_name,
+            'email'          => $this->email,
+            'phone'          => $this->phone,
+            'address'        => $this->address,
+            'profession'     => $this->profession,
+            'nationality'    => $this->nationality,
+            'id_card_number' => $this->id_card_number,
+            'status'         => $this->status,
         ]);
 
         session()->flash('success', "Le bailleur {$owner->full_name} a été créé avec la référence {$owner->reference}.");

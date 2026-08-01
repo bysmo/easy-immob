@@ -28,12 +28,28 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                     <x-label for="first_name" :required="true">Prénom</x-label>
-                    <x-input wire:model="first_name" type="text" id="first_name" placeholder="Ex: Marc" autofocus :error="$errors->first('first_name')" />
+                    <x-input wire:model="first_name" type="text" id="first_name" placeholder="Ex: Mariam" autofocus :error="$errors->first('first_name')" />
                 </div>
 
                 <div>
                     <x-label for="last_name" :required="true">Nom de famille</x-label>
-                    <x-input wire:model="last_name" type="text" id="last_name" placeholder="Ex: Kouassi" :error="$errors->first('last_name')" />
+                    <x-input wire:model="last_name" type="text" id="last_name" placeholder="Ex: Compaoré" :error="$errors->first('last_name')" />
+                </div>
+
+                <div>
+                    <x-label for="profession">Profession / Occupation</x-label>
+                    <x-input wire:model="profession" type="text" id="profession" placeholder="Ex: Secrétaire de Direction, Commerçant" :error="$errors->first('profession')" />
+                </div>
+
+                <div>
+                    <x-label for="nationality">Nationalité</x-label>
+                    <x-input wire:model="nationality" type="text" id="nationality" placeholder="Ex: Burkinabè" :error="$errors->first('nationality')" />
+                </div>
+
+                <div class="sm:col-span-2">
+                    <x-label for="id_card_number">Pièce d'identité (N° & détails)</x-label>
+                    <x-input wire:model="id_card_number" type="text" id="id_card_number" placeholder="Ex: CNIB N°B18203984 du 05/04/2023 par ONI/Ouaga" :error="$errors->first('id_card_number')" />
+                    <p class="text-[11px] text-slate-500 mt-1">Utilisé automatiquement pour personnaliser les contrats de bail et reçus.</p>
                 </div>
             </div>
         </x-card>
