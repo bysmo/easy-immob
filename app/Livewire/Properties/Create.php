@@ -21,6 +21,9 @@ class Create extends Component
     #[Validate('required|exists:owners,id')]
     public ?int $owner_id = null;
 
+    #[Validate('nullable|exists:management_contracts,id')]
+    public ?int $management_contract_id = null;
+
     #[Validate('required|exists:property_types,id')]
     public ?int $property_type_id = null;
 
@@ -198,9 +201,10 @@ class Create extends Component
         $reference = $generator->generate(Property::class, $user->agency_id, 'BIE');
 
         $property = Property::create([
-            'reference'        => $reference,
-            'owner_id'         => $this->owner_id,
-            'property_type_id' => $this->property_type_id,
+            'reference'              => $reference,
+            'owner_id'               => $this->owner_id,
+            'management_contract_id' => $this->management_contract_id,
+            'property_type_id'       => $this->property_type_id,
             'title'            => $this->title,
             'description'      => $this->description,
             'address'          => $this->address,
@@ -228,10 +232,13 @@ class Create extends Component
 
     public function render(): \Illuminate\View\View
     {
-        $owners        = Owner::where('status', 'active')->orderBy('last_name')->get();
-        $propertyTypes = PropertyType::where('status', 'active')->orderBy('name')->get();
-        $statusOptions = PropertyStatus::options();
+        $owners              = Owner::where('status', 'active')->orderBy('last_name')->get();
+        $managementContracts = $this->owner_id
+            ? \App\Domain\Owner\Models\ManagementContract::where('owner_id', $this->owner_id)->get()
+            : collect();
+        $propertyTypes       = PropertyType::where('status', 'active')->orderBy('name')->get();
+        $statusOptions       = PropertyStatus::options();
 
-        return view('livewire.properties.create', compact('owners', 'propertyTypes', 'statusOptions'));
+        return view('livewire.properties.create', compact('owners', 'managementContracts', 'propertyTypes', 'statusOptions'));
     }
 }

@@ -25,6 +25,9 @@ class Edit extends Component
     #[Validate('required|exists:owners,id')]
     public ?int $owner_id = null;
 
+    #[Validate('nullable|exists:management_contracts,id')]
+    public ?int $management_contract_id = null;
+
     #[Validate('required|exists:property_types,id')]
     public ?int $property_type_id = null;
 
@@ -96,8 +99,9 @@ class Edit extends Component
         $this->property = Property::with(['rentHistories.user'])->where('id', $propertyId)->first() ?? abort(404);
         $this->authorize('update', $this->property);
 
-        $this->owner_id          = $this->property->owner_id;
-        $this->property_type_id  = $this->property->property_type_id;
+        $this->owner_id               = $this->property->owner_id;
+        $this->management_contract_id = $this->property->management_contract_id;
+        $this->property_type_id       = $this->property->property_type_id;
         $this->title             = $this->property->title;
         $this->description       = $this->property->description;
         $this->address           = $this->property->address;
@@ -295,26 +299,27 @@ class Edit extends Component
         $this->validate();
 
         $this->property->update([
-            'owner_id'          => $this->owner_id,
-            'property_type_id'  => $this->property_type_id,
-            'title'             => $this->title,
-            'description'       => $this->description,
-            'address'           => $this->address,
-            'city'              => $this->city,
-            'neighborhood'      => $this->neighborhood,
-            'latitude'          => $this->latitude,
-            'longitude'         => $this->longitude,
-            'google_maps_url'   => $this->google_maps_url,
-            'surface_area'      => $this->surface_area,
-            'bedrooms'          => $this->bedrooms,
-            'bathrooms'         => $this->bathrooms,
-            'rent_amount'       => $this->rent_amount,
-            'is_subject_to_irf' => $this->is_subject_to_irf,
-            'agency_fee_type'   => $this->agency_fee_type,
-            'agency_fee_value'  => $this->agency_fee_value,
-            'photos'            => array_slice(array_values(array_filter($this->photos)), 0, 10),
-            'videos'            => array_slice(array_values(array_filter($this->videos)), 0, 3),
-            'status'            => $this->status,
+            'owner_id'               => $this->owner_id,
+            'management_contract_id' => $this->management_contract_id,
+            'property_type_id'       => $this->property_type_id,
+            'title'                  => $this->title,
+            'description'            => $this->description,
+            'address'                => $this->address,
+            'city'                   => $this->city,
+            'neighborhood'           => $this->neighborhood,
+            'latitude'               => $this->latitude,
+            'longitude'              => $this->longitude,
+            'google_maps_url'        => $this->google_maps_url,
+            'surface_area'           => $this->surface_area,
+            'bedrooms'               => $this->bedrooms,
+            'bathrooms'              => $this->bathrooms,
+            'rent_amount'            => $this->rent_amount,
+            'is_subject_to_irf'      => $this->is_subject_to_irf,
+            'agency_fee_type'        => $this->agency_fee_type,
+            'agency_fee_value'       => $this->agency_fee_value,
+            'photos'                 => array_slice(array_values(array_filter($this->photos)), 0, 10),
+            'videos'                 => array_slice(array_values(array_filter($this->videos)), 0, 3),
+            'status'                 => $this->status,
         ]);
 
         session()->flash('success', "Le bien {$this->property->title} a été mis à jour.");
@@ -324,10 +329,13 @@ class Edit extends Component
 
     public function render(): \Illuminate\View\View
     {
-        $owners        = Owner::where('status', 'active')->orWhere('id', $this->owner_id)->orderBy('last_name')->get();
-        $propertyTypes = PropertyType::where('status', 'active')->orWhere('id', $this->property_type_id)->orderBy('name')->get();
-        $statusOptions = PropertyStatus::options();
+        $owners              = Owner::where('status', 'active')->orWhere('id', $this->owner_id)->orderBy('last_name')->get();
+        $managementContracts = $this->owner_id
+            ? \App\Domain\Owner\Models\ManagementContract::where('owner_id', $this->owner_id)->get()
+            : collect();
+        $propertyTypes       = PropertyType::where('status', 'active')->orWhere('id', $this->property_type_id)->orderBy('name')->get();
+        $statusOptions       = PropertyStatus::options();
 
-        return view('livewire.properties.edit', compact('owners', 'propertyTypes', 'statusOptions'));
+        return view('livewire.properties.edit', compact('owners', 'managementContracts', 'propertyTypes', 'statusOptions'));
     }
 }

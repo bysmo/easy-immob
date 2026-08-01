@@ -35,6 +35,11 @@
             <span>Identité & Coordonnées</span>
         </button>
 
+        <button wire:click="setTab('contracts')" class="py-3 px-4 text-xs font-bold border-b-2 transition-colors flex items-center gap-2 {{ $activeTab === 'contracts' ? 'border-emerald-600 text-emerald-600 dark:text-emerald-400' : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300' }}">
+            <x-icon name="document" class="w-4 h-4" />
+            <span>Mandats de Gestion ({{ $contracts->count() }})</span>
+        </button>
+
         <button wire:click="setTab('properties')" class="py-3 px-4 text-xs font-bold border-b-2 transition-colors flex items-center gap-2 {{ $activeTab === 'properties' ? 'border-emerald-600 text-emerald-600 dark:text-emerald-400' : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300' }}">
             <x-icon name="building" class="w-4 h-4" />
             <span>Biens rattachés ({{ $properties->count() }})</span>
@@ -151,7 +156,74 @@
         </form>
     @endif
 
-    <!-- TAB 2 : Biens rattachés -->
+    <!-- TAB 2 : Mandats de gestion -->
+    @if($activeTab === 'contracts')
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">Mandats de Gestion Confiés par {{ $owner->full_name }}</h3>
+                <a href="{{ route('management-contracts.create', ['ownerId' => $owner->id]) }}">
+                    <x-button variant="primary" class="text-xs">
+                        <x-icon name="plus" class="w-3.5 h-3.5 mr-1" />
+                        <span>Nouveau Mandat de Gestion</span>
+                    </x-button>
+                </a>
+            </div>
+
+            <x-card class="!p-0 overflow-hidden">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-50 dark:bg-slate-800/60 uppercase font-bold text-[10px] text-slate-500 border-b border-slate-200 dark:border-slate-800">
+                        <tr>
+                            <th class="p-3">Référence</th>
+                            <th class="p-3">Titre</th>
+                            <th class="p-3">Commission</th>
+                            <th class="p-3">Biens Rattachés</th>
+                            <th class="p-3">Période</th>
+                            <th class="p-3">Statut</th>
+                            <th class="p-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                        @forelse($contracts as $contract)
+                            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                                <td class="p-3 font-bold text-slate-900 dark:text-white">
+                                    <a href="{{ route('management-contracts.show', $contract->id) }}" class="text-emerald-600 hover:underline">
+                                        {{ $contract->reference }}
+                                    </a>
+                                </td>
+                                <td class="p-3">{{ $contract->title }}</td>
+                                <td class="p-3 font-semibold text-slate-700 dark:text-slate-300">{{ $contract->formatted_commission }}</td>
+                                <td class="p-3">
+                                    @if($contract->properties->count() > 0)
+                                        <span class="text-emerald-600 font-bold">{{ $contract->properties->count() }} bien(s)</span>
+                                    @else
+                                        <span class="text-slate-400 italic">Aucun bien</span>
+                                    @endif
+                                </td>
+                                <td class="p-3 text-slate-500">
+                                    {{ $contract->start_date?->format('d/m/Y') }} ({{ $contract->duration_months }} mois)
+                                </td>
+                                <td class="p-3">
+                                    <span class="badge {{ $contract->status->badgeClass() }} text-[10px]">
+                                        {{ $contract->status->label() }}
+                                    </span>
+                                </td>
+                                <td class="p-3 text-right space-x-1">
+                                    <a href="{{ route('management-contracts.show', $contract->id) }}" class="text-sky-600 hover:underline font-semibold" title="Voir">Consulter</a>
+                                    <a href="{{ route('management-contracts.print', $contract->id) }}" target="_blank" class="text-emerald-600 hover:underline font-semibold ml-2" title="Imprimer">🖨️ PDF</a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="p-8 text-center text-slate-400">Aucun mandat de gestion enregistré pour ce bailleur.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </x-card>
+        </div>
+    @endif
+
+    <!-- TAB 3 : Biens rattachés -->
     @if($activeTab === 'properties')
         <div class="space-y-4">
             <div class="flex items-center justify-between">

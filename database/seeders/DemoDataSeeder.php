@@ -15,6 +15,8 @@ use App\Domain\Lease\Enums\LeaseStatus;
 use App\Domain\Lease\Models\Lease;
 use App\Domain\Lease\Models\LeaseTemplate;
 use App\Domain\Notification\Models\SystemNotification;
+use App\Domain\Owner\Enums\ManagementContractStatus;
+use App\Domain\Owner\Models\ManagementContract;
 use App\Domain\Owner\Models\Owner;
 use App\Domain\Payment\Enums\PaymentMethod;
 use App\Domain\Payment\Models\Payment;
@@ -215,6 +217,31 @@ class DemoDataSeeder extends Seeder
                     'reference' => $oData['reference'],
                 ],
                 array_merge($oData, ['status' => 'active'])
+            );
+        }
+
+        // 3b. Mandats de gestion (Management Contracts)
+        $contracts = [];
+        foreach ($owners as $ref => $owner) {
+            $contracts[$ref] = ManagementContract::withoutGlobalScopes()->firstOrCreate(
+                [
+                    'agency_id' => $primaryAgency->id,
+                    'reference' => 'MAN-2025-' . str_replace('PRO-', '', $ref),
+                ],
+                [
+                    'owner_id'              => $owner->id,
+                    'title'                 => 'Mandat de Gestion Exclusif — ' . $owner->full_name,
+                    'start_date'            => '2025-01-01',
+                    'duration_months'       => 12,
+                    'commission_type'       => 'percentage',
+                    'commission_value'      => 10.00,
+                    'irf_paid_by_owner'     => true,
+                    'caution_kept_by_agency'=> true,
+                    'notice_period_months'  => 3,
+                    'payment_bank_details'  => 'Virement bancaire / Compte BOA N° CI092 01001 123456789012 34',
+                    'status'                => ManagementContractStatus::Active,
+                    'signed_at'             => '2024-12-15 10:00:00',
+                ]
             );
         }
 
@@ -431,6 +458,11 @@ class DemoDataSeeder extends Seeder
 
         $properties = [];
         foreach ($propertiesData as $pData) {
+            $ownerRef = array_search($pData['owner_id'], array_map(fn($o) => $o->id, $owners));
+            if ($ownerRef && isset($contracts[$ownerRef])) {
+                $pData['management_contract_id'] = $contracts[$ownerRef]->id;
+            }
+
             $properties[$pData['reference']] = Property::withoutGlobalScopes()->updateOrCreate(
                 [
                     'agency_id' => $primaryAgency->id,

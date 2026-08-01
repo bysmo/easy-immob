@@ -62,6 +62,20 @@ Route::middleware('auth')->group(function () {
             Route::get('/{ownerId}',            fn (int $ownerId) => view('owners.edit', compact('ownerId')))->name('edit')->middleware('can:owners.update');
         });
 
+    // Mandats de gestion
+    Route::prefix('management-contracts')
+        ->name('management-contracts.')
+        ->middleware('can:owners.view')
+        ->group(function () {
+            Route::get('/', \App\Livewire\ManagementContracts\Index::class)->name('index');
+            Route::get('/create', \App\Livewire\ManagementContracts\Create::class)->name('create');
+            Route::get('/{contractId}', \App\Livewire\ManagementContracts\Show::class)->name('show');
+            Route::get('/{contractId}/print', function (int $contractId) {
+                $contract = \App\Domain\Owner\Models\ManagementContract::with(['agency', 'owner', 'properties'])->findOrFail($contractId);
+                return view('management-contracts.print', compact('contract'));
+            })->name('print');
+        });
+
     // Biens immobiliers
     Route::prefix('properties')
         ->name('properties.')

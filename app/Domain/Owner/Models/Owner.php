@@ -52,6 +52,11 @@ class Owner extends Model
         return $this->hasMany(Property::class);
     }
 
+    public function managementContracts(): HasMany
+    {
+        return $this->hasMany(ManagementContract::class)->orderBy('created_at', 'desc');
+    }
+
     public function payouts(): HasMany
     {
         return $this->hasMany(OwnerPayout::class)->orderBy('created_at', 'desc');

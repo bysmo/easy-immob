@@ -141,17 +141,19 @@ class Edit extends Component
 
     public function render(): \Illuminate\View\View
     {
-        $properties = $this->owner->properties()->with(['propertyType'])->get();
-        $payouts = $this->owner->payouts()->with(['items.property', 'settlements'])->get();
-        $settlements = $this->owner->payoutSettlements()->with(['ownerPayout'])->get();
+        $properties   = $this->owner->properties()->with(['propertyType', 'managementContract'])->get();
+        $contracts    = $this->owner->managementContracts()->with(['properties'])->get();
+        $payouts      = $this->owner->payouts()->with(['items.property', 'settlements'])->get();
+        $settlements  = $this->owner->payoutSettlements()->with(['ownerPayout'])->get();
         $settlePayout = $this->settlePayoutId ? OwnerPayout::find($this->settlePayoutId) : null;
 
-        $totalNet = (float) $payouts->sum('net_amount');
-        $totalPaid = (float) $payouts->sum('paid_amount');
+        $totalNet     = (float) $payouts->sum('net_amount');
+        $totalPaid    = (float) $payouts->sum('paid_amount');
         $totalPending = max(0, $totalNet - $totalPaid);
 
         return view('livewire.owners.edit', [
             'properties'    => $properties,
+            'contracts'     => $contracts,
             'payouts'       => $payouts,
             'settlements'   => $settlements,
             'settlePayout'  => $settlePayout,

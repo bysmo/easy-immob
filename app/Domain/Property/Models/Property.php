@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'agency_id',
     'reference',
     'owner_id',
+    'management_contract_id',
     'property_type_id',
     'title',
     'description',
@@ -68,6 +69,11 @@ class Property extends Model
     public function owner(): BelongsTo
     {
         return $this->belongsTo(Owner::class);
+    }
+
+    public function managementContract(): BelongsTo
+    {
+        return $this->belongsTo(\App\Domain\Owner\Models\ManagementContract::class, 'management_contract_id');
     }
 
     public function propertyType(): BelongsTo

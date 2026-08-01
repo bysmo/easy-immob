@@ -48,13 +48,23 @@
                     <x-input wire:model="title" type="text" id="title" autofocus :error="$errors->first('title')" />
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                     <div>
                         <x-label for="owner_id" :required="true">Bailleur</x-label>
-                        <x-select wire:model="owner_id" id="owner_id" icon="owners" :error="$errors->first('owner_id')">
+                        <x-select wire:model.live="owner_id" id="owner_id" icon="owners" :error="$errors->first('owner_id')">
                             <option value="">— Sélectionner un bailleur —</option>
                             @foreach($owners as $owner)
                                 <option value="{{ $owner->id }}">{{ $owner->full_name }} ({{ $owner->reference }})</option>
+                            @endforeach
+                        </x-select>
+                    </div>
+
+                    <div>
+                        <x-label for="management_contract_id">Mandat de Gestion</x-label>
+                        <x-select wire:model="management_contract_id" id="management_contract_id" :error="$errors->first('management_contract_id')">
+                            <option value="">— Aucun ou sélectionner un mandat —</option>
+                            @foreach($managementContracts as $contract)
+                                <option value="{{ $contract->id }}">{{ $contract->reference }} (Prise d'effet: {{ $contract->start_date?->format('d/m/Y') }})</option>
                             @endforeach
                         </x-select>
                     </div>
