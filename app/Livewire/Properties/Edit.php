@@ -296,6 +296,11 @@ class Edit extends Component
             return;
         }
 
+        if ($this->status === PropertyStatus::Inactive->value && $this->property->isAssignedToTenant()) {
+            $this->addError('status', 'Un bien affecté à un locataire ne peut pas être désactivé.');
+            return;
+        }
+
         $this->validate();
 
         $this->property->update([

@@ -22,21 +22,24 @@ class Incidents extends Component
     #[Url]
     public string $propertyFilter = '';
 
-    // Modale de confirmation bailleur
+    // Modale Fiche / Confirmation bailleur
     public bool $showConfirmModal = false;
     public ?int $confirmIncidentId = null;
+    public ?Incident $selectedIncident = null;
     public float $confirmedAmount = 0.0;
 
     #[Validate('nullable|string|max:1000')]
     public ?string $confirmNote = null;
 
-    public function confirmRepair(int $incidentId): void
+    public function viewIncident(int $incidentId): void
     {
         /** @var \App\Models\User $user */
         $user  = Auth::user();
         $owner = $user->owner;
 
-        $incident = Incident::withoutGlobalScopes()->findOrFail($incidentId);
+        $incident = Incident::withoutGlobalScopes()
+            ->with(['property', 'agency', 'tenant', 'lease'])
+            ->findOrFail($incidentId);
 
         // Vérifier que c'est bien un bien de ce bailleur
         $property = Property::withoutGlobalScopes()->find($incident->property_id);
@@ -44,10 +47,22 @@ class Incidents extends Component
             abort(403);
         }
 
+        $this->selectedIncident  = $incident;
         $this->confirmIncidentId = $incidentId;
-        $this->confirmedAmount   = (float) $incident->repair_cost;
-        $this->confirmNote       = null;
+        $this->confirmedAmount   = (float) ($incident->owner_confirmed_amount ?: ($incident->repair_cost ?: 0.0));
+        $this->confirmNote       = $incident->owner_confirmation_note;
         $this->showConfirmModal  = true;
+    }
+
+    public function confirmRepair(int $incidentId): void
+    {
+        $this->viewIncident($incidentId);
+    }
+
+    public function closeConfirmModal(): void
+    {
+        $this->showConfirmModal = false;
+        $this->selectedIncident = null;
     }
 
     public function saveConfirmRepair(): void
@@ -78,7 +93,40 @@ class Incidents extends Component
         ]);
 
         $this->showConfirmModal = false;
-        session()->flash('success', 'Réparation confirmée avec succès.');
+        $this->selectedIncident = null;
+        session()->flash('success', 'Réparation approuvée et confirmée avec succès.');
+    }
+
+    public function rejectRepair(): void
+    {
+        $this->validate([
+            'confirmNote' => ['required', 'string', 'max:1000'],
+        ], [
+            'confirmNote.required' => 'Veuillez saisir un motif pour justifier le rejet de la réparation.',
+        ]);
+
+        /** @var \App\Models\User $user */
+        $user  = Auth::user();
+        $owner = $user->owner;
+
+        $incident = Incident::withoutGlobalScopes()->findOrFail($this->confirmIncidentId);
+
+        // Re-vérification
+        $property = Property::withoutGlobalScopes()->find($incident->property_id);
+        if (! $property || $property->owner_id !== $owner?->id) {
+            abort(403);
+        }
+
+        $incident->update([
+            'owner_confirmed_at'     => now(),
+            'owner_confirmed_amount' => 0,
+            'owner_confirmation_note'=> $this->confirmNote,
+            'status'                 => IncidentStatus::Rejected,
+        ]);
+
+        $this->showConfirmModal = false;
+        $this->selectedIncident = null;
+        session()->flash('success', 'La réparation a été rejetée.');
     }
 
     public function render(): \Illuminate\View\View

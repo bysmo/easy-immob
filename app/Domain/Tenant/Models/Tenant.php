@@ -35,6 +35,23 @@ class Tenant extends Model
     /** @use HasFactory<TenantFactory> */
     use BelongsToAgency, HasFactory, SoftDeletes;
 
+    protected $fillable = [
+        'agency_id',
+        'user_id',
+        'reference',
+        'first_name',
+        'last_name',
+        'email',
+        'phone',
+        'address',
+        'profession',
+        'nationality',
+        'id_card_number',
+        'identity_document',
+        'emergency_contact',
+        'status',
+    ];
+
     // ------------------------------------------------------------------
     // Accessors
     // ------------------------------------------------------------------
@@ -56,6 +73,19 @@ class Tenant extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function hasPortalAccess(): bool
+    {
+        return $this->user_id !== null && $this->user?->hasRole('Locataire');
+    }
+
+    /**
+     * Indique si le portail du locataire est actif (mot de passe créé, email vérifié).
+     */
+    public function isPortalActive(): bool
+    {
+        return $this->hasPortalAccess() && $this->user?->email_verified_at !== null;
     }
 
     public function leases(): HasMany

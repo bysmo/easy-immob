@@ -22,6 +22,12 @@ class Index extends Component
     public function delete(int $propertyId): void
     {
         $property = Property::where('id', $propertyId)->firstOrFail();
+
+        if ($property->isAssignedToTenant()) {
+            session()->flash('error', "Le bien {$property->title} est actuellement affecté à un locataire et ne peut pas être supprimé.");
+            return;
+        }
+
         $this->authorize('delete', $property);
 
         $property->delete();

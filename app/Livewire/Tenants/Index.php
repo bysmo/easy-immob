@@ -3,9 +3,18 @@
 namespace App\Livewire\Tenants;
 
 use App\Application\Imports\TenantImport;
+use App\Application\Services\DynamicMailConfigurator;
 use App\Application\Services\ReferenceGenerator;
 use App\Domain\Tenant\Models\Tenant;
 use App\Livewire\Traits\WithDataTable;
+use App\Mail\TenantInvitationMail;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
@@ -63,6 +72,12 @@ class Index extends Component
     public function delete(int $tenantId): void
     {
         $tenant = Tenant::where('id', $tenantId)->firstOrFail();
+
+        if ($tenant->hasPortalAccess()) {
+            session()->flash('error', "Un locataire possédant un compte portail ne peut pas être supprimé par l'agence.");
+            return;
+        }
+
         $this->authorize('delete', $tenant);
 
         $tenant->delete();
@@ -70,9 +85,57 @@ class Index extends Component
         session()->flash('success', "Le locataire {$tenant->full_name} a été supprimé.");
     }
 
+    public function sendInvitation(int $tenantId): void
+    {
+        $tenant = Tenant::where('id', $tenantId)->firstOrFail();
+        $this->authorize('update', $tenant);
+
+        if (! $tenant->email) {
+            session()->flash('error', "Ce locataire n'a pas d'adresse email.");
+            return;
+        }
+
+        /** @var User $authUser */
+        $authUser = Auth::user();
+
+        $user = User::withoutGlobalScopes()
+            ->where('email', mb_strtolower($tenant->email))
+            ->first();
+
+        if (! $user) {
+            $user = User::create([
+                'agency_id' => $tenant->agency_id,
+                'name'      => $tenant->full_name,
+                'email'     => mb_strtolower($tenant->email),
+                'password'  => Hash::make(Str::random(32)),
+            ]);
+        }
+
+        $user->assignRole('Locataire');
+        $tenant->update(['user_id' => $user->id]);
+
+        $signedUrl = URL::temporarySignedRoute(
+            'tenant-portal.activate',
+            now()->addHours(72),
+            ['user' => $user->id],
+        );
+
+        DynamicMailConfigurator::apply($authUser?->agency);
+
+        try {
+            Mail::to($user->email)->send(
+                new TenantInvitationMail($user, $tenant, $signedUrl, $authUser?->agency?->name ?? 'EasyImmob')
+            );
+            session()->flash('success', "L'invitation au portail locataire a été envoyée à {$tenant->email}.");
+        } catch (\Throwable $e) {
+            Log::error("Erreur lors de l'envoi du mail d'invitation locataire : " . $e->getMessage());
+            session()->flash('error', "Impossible d'envoyer l'email d'invitation : " . $e->getMessage());
+        }
+    }
+
     public function render(): \Illuminate\View\View
     {
-        $query = Tenant::query()
+        $query = Tenant::with('user')
             ->when($this->search, function ($q) {
                 $q->where(function ($query) {
                     $query->where('first_name', 'like', '%' . $this->search . '%')

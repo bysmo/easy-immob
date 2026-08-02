@@ -37,7 +37,7 @@ class Index extends Component
         $this->email = $user->email ?? '';
         $this->phone = $user->phone ?? '';
 
-        if ($user->agency) {
+        if ($user->agency && ! $user->isOwner()) {
             $this->agency_commission_rate = (float) ($user->agency->commission_rate ?? 10.0);
             $this->agency_is_subject_to_tva = (bool) ($user->agency->is_subject_to_tva ?? true);
         }
@@ -48,7 +48,7 @@ class Index extends Component
         /** @var User $user */
         $user = Auth::user();
 
-        if (! $user->agency) {
+        if (! $user->agency || $user->isOwner()) {
             return;
         }
 

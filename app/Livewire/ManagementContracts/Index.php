@@ -28,6 +28,14 @@ class Index extends Component
     public function delete(int $contractId): void
     {
         $contract = ManagementContract::findOrFail($contractId);
+
+        if ($contract->status === ManagementContractStatus::Active) {
+            session()->flash('error', "Un mandat de gestion actif ne peut pas être supprimé. Veuillez le résilier ou attendre son expiration.");
+            return;
+        }
+
+        $this->authorize('delete', $contract);
+
         $contract->delete();
 
         session()->flash('success', "Le mandat de gestion {$contract->reference} a été supprimé.");

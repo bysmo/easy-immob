@@ -57,6 +57,15 @@
         </div>
     @endif
 
+    @if ($owner->hasPortalAccess())
+        <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-sm flex items-center gap-3">
+            <x-icon name="lock" class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
+            <div>
+                <span class="font-bold">Portail bailleur attribué ou actif :</span> Les informations personnelles de ce bailleur sont désormais gérées directement depuis son portail. Elles ne peuvent plus être modifiées ni supprimées par l'agence.
+            </div>
+        </div>
+    @endif
+
     <!-- System d'onglets (Tabs) -->
     <div class="flex border-b border-slate-200 dark:border-slate-800 space-x-4">
         <button wire:click="setTab('info')" class="py-3 px-4 text-xs font-bold border-b-2 transition-colors flex items-center gap-2 {{ $activeTab === 'info' ? 'border-emerald-600 text-emerald-600 dark:text-emerald-400' : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300' }}">
@@ -101,34 +110,34 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <x-label for="first_name" :required="true">Prénom</x-label>
-                        <x-input wire:model="first_name" type="text" id="first_name" autofocus :error="$errors->first('first_name')" />
+                        <x-input wire:model="first_name" type="text" id="first_name" autofocus :disabled="$owner->hasPortalAccess()" :error="$errors->first('first_name')" />
                     </div>
 
                     <div>
                         <x-label for="last_name" :required="true">Nom de famille</x-label>
-                        <x-input wire:model="last_name" type="text" id="last_name" :error="$errors->first('last_name')" />
+                        <x-input wire:model="last_name" type="text" id="last_name" :disabled="$owner->hasPortalAccess()" :error="$errors->first('last_name')" />
                     </div>
 
                     <div>
                         <x-label for="profession">Profession / Qualité</x-label>
-                        <x-input wire:model="profession" type="text" id="profession" placeholder="Ex: Employé de commerce, Opérateur économique" :error="$errors->first('profession')" />
+                        <x-input wire:model="profession" type="text" id="profession" placeholder="Ex: Employé de commerce, Opérateur économique" :disabled="$owner->hasPortalAccess()" :error="$errors->first('profession')" />
                     </div>
 
                     <div>
                         <x-label for="nationality">Nationalité</x-label>
-                        <x-input wire:model="nationality" type="text" id="nationality" placeholder="Ex: Burkinabè" :error="$errors->first('nationality')" />
+                        <x-input wire:model="nationality" type="text" id="nationality" placeholder="Ex: Burkinabè" :disabled="$owner->hasPortalAccess()" :error="$errors->first('nationality')" />
                     </div>
 
                     <div class="sm:col-span-2">
                         <x-label for="id_card_number">Pièce d'identité (N° & détails)</x-label>
-                        <x-input wire:model="id_card_number" type="text" id="id_card_number" placeholder="Ex: CNIB N°B15795168 du 03/06/2021 par ONI/Ouaga" :error="$errors->first('id_card_number')" />
+                        <x-input wire:model="id_card_number" type="text" id="id_card_number" placeholder="Ex: CNIB N°B15795168 du 03/06/2021 par ONI/Ouaga" :disabled="$owner->hasPortalAccess()" :error="$errors->first('id_card_number')" />
                         <p class="text-[11px] text-slate-500 mt-1">Utilisé pour renseigner automatiquement l'identité du bailleur dans les contrats.</p>
                     </div>
                 </div>
 
                 <div class="mt-5">
                     <x-label for="company_name">Raison Sociale <span class="normal-case font-normal text-slate-400">(Facultatif pour une entreprise/SCI)</span></x-label>
-                    <x-input wire:model="company_name" type="text" id="company_name" icon="building" :error="$errors->first('company_name')" />
+                    <x-input wire:model="company_name" type="text" id="company_name" icon="building" :disabled="$owner->hasPortalAccess()" :error="$errors->first('company_name')" />
                 </div>
             </x-card>
 
@@ -147,18 +156,18 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <x-label for="email">Adresse Email</x-label>
-                        <x-input wire:model="email" type="email" id="email" icon="notifications" :error="$errors->first('email')" />
+                        <x-input wire:model="email" type="email" id="email" icon="notifications" :disabled="$owner->hasPortalAccess()" :error="$errors->first('email')" />
                     </div>
 
                     <div>
                         <x-label for="phone">Numéro de Téléphone</x-label>
-                        <x-input wire:model="phone" type="text" id="phone" :error="$errors->first('phone')" />
+                        <x-input wire:model="phone" type="text" id="phone" :disabled="$owner->hasPortalAccess()" :error="$errors->first('phone')" />
                     </div>
                 </div>
 
                 <div class="mt-5">
                     <x-label for="address">Adresse Résidentielle / Siège Social</x-label>
-                    <x-input wire:model="address" type="text" id="address" :error="$errors->first('address')" />
+                    <x-input wire:model="address" type="text" id="address" :disabled="$owner->hasPortalAccess()" :error="$errors->first('address')" />
                 </div>
             </x-card>
 
@@ -176,7 +185,7 @@
 
                 <div class="max-w-xs">
                     <x-label for="status" :required="true">Statut</x-label>
-                    <x-select wire:model="status" id="status" :error="$errors->first('status')">
+                    <x-select wire:model="status" id="status" :disabled="$owner->hasPortalAccess()" :error="$errors->first('status')">
                         <option value="active">Actif (Délégation en cours)</option>
                         <option value="inactive">Inactif (Archivé)</option>
                     </x-select>
@@ -186,17 +195,19 @@
             <!-- Actions -->
             <div class="flex items-center justify-end gap-3 pt-3">
                 <a href="{{ route('owners.index') }}">
-                    <x-button type="button" variant="secondary">Annuler</x-button>
+                    <x-button type="button" variant="secondary">Retour</x-button>
                 </a>
-                <x-button type="submit" variant="primary" wire:loading.attr="disabled" class="min-w-32">
-                    <span wire:loading.remove class="flex items-center gap-2">
-                        <x-icon name="check" class="w-4 h-4" />
-                        <span>Mettre à jour</span>
-                    </span>
-                    <span wire:loading class="flex items-center gap-2">
-                        <span>Sauvegarde...</span>
-                    </span>
-                </x-button>
+                @unless($owner->hasPortalAccess())
+                    <x-button type="submit" variant="primary" wire:loading.attr="disabled" class="min-w-32">
+                        <span wire:loading.remove class="flex items-center gap-2">
+                            <x-icon name="check" class="w-4 h-4" />
+                            <span>Mettre à jour</span>
+                        </span>
+                        <span wire:loading class="flex items-center gap-2">
+                            <span>Sauvegarde...</span>
+                        </span>
+                    </x-button>
+                @endunless
             </div>
         </form>
     @endif

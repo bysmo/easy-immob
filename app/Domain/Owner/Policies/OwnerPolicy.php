@@ -28,12 +28,20 @@ class OwnerPolicy
 
     public function update(User $user, Owner $owner): bool
     {
+        if ($owner->hasPortalAccess()) {
+            return false;
+        }
+
         return $user->can('owners.update')
             && $user->agency_id === $owner->agency_id;
     }
 
     public function delete(User $user, Owner $owner): bool
     {
+        if ($owner->hasPortalAccess()) {
+            return false;
+        }
+
         return $user->can('owners.delete')
             && $user->agency_id === $owner->agency_id;
     }

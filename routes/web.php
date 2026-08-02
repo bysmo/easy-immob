@@ -10,6 +10,11 @@ Route::get('/owner-portal/activate/{user}', \App\Livewire\OwnerPortal\Activate::
     ->middleware('signed')
     ->name('owner-portal.activate');
 
+// Activation compte Locataire (Signed URL 72h, pas besoin d'être connecté)
+Route::get('/tenant-portal/activate/{user}', \App\Livewire\TenantPortal\Activate::class)
+    ->middleware('signed')
+    ->name('tenant-portal.activate');
+
 // Zone authentifiée
 Route::middleware('auth')->group(function () {
 

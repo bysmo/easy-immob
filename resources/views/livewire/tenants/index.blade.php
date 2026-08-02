@@ -63,6 +63,7 @@
                         <x-datatable.th field="email" :sortField="$sortField" :sortDirection="$sortDirection">Contact</x-datatable.th>
                         <x-datatable.th field="id_card_number" :sortField="$sortField" :sortDirection="$sortDirection">Pièce d'identité</x-datatable.th>
                         <x-datatable.th field="status" :sortField="$sortField" :sortDirection="$sortDirection">Statut</x-datatable.th>
+                        <x-datatable.th>Portail</x-datatable.th>
                         <x-datatable.th align="right">Actions</x-datatable.th>
                     </tr>
                 </thead>
@@ -101,36 +102,76 @@
                                     {{ $tenant->status === 'active' ? 'Actif' : 'Inactif' }}
                                 </x-badge>
                             </td>
+                            <td class="px-6 py-4">
+                                @if ($tenant->isPortalActive())
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 text-xs font-semibold border border-emerald-200 dark:border-emerald-800">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        Portail actif
+                                    </span>
+                                @elseif ($tenant->hasPortalAccess())
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 text-xs font-semibold border border-amber-200 dark:border-amber-800">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                        En attente d'activation
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-medium border border-slate-200 dark:border-slate-700">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                        Portail inactif
+                                    </span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">
-                                    @can('tenants.update')
-                                        <a href="{{ route('tenants.edit', $tenant->id) }}" 
-                                           class="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors"
-                                           title="Modifier">
-                                            <x-icon name="edit" class="w-4 h-4" />
-                                        </a>
-                                    @endcan
-
-                                    @can('tenants.delete')
+                                    @if($tenant->email)
                                         <button type="button"
                                                 @click="$dispatch('open-confirm', {
-                                                    title: 'Supprimer la fiche locataire',
-                                                    message: 'Êtes-vous sûr de vouloir supprimer le locataire {{ $tenant->full_name }} ({{ $tenant->reference }}) ? Cette action est irréversible.',
-                                                    confirmText: 'Supprimer le locataire',
-                                                    variant: 'danger',
-                                                    onConfirm: () => $wire.delete({{ $tenant->id }})
+                                                    title: @js($tenant->hasPortalAccess() ? "Renvoyer l'invitation portail" : "Envoyer l'invitation portail"),
+                                                    message: @js("Voulez-vous envoyer un lien d'accès au portail locataire à {$tenant->email} ?"),
+                                                    confirmText: @js("Envoyer l'invitation"),
+                                                    variant: 'primary',
+                                                    onConfirm: () => $wire.sendInvitation({{ $tenant->id }})
                                                 })"
-                                                class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                                                title="Supprimer">
-                                            <x-icon name="trash" class="w-4 h-4" />
+                                                class="p-1.5 rounded-lg text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer"
+                                                title="{{ $tenant->hasPortalAccess() ? 'Renvoyer l\'invitation portail' : 'Envoyer l\'invitation portail' }}">
+                                            <x-icon name="notifications" class="w-4 h-4" />
                                         </button>
-                                    @endcan
+                                    @endif
+
+                                    @if($tenant->hasPortalAccess())
+                                        <span class="p-1.5 rounded-lg text-slate-300 dark:text-slate-600 opacity-60 cursor-not-allowed" 
+                                              title="Portail actif — Fiche non modifiable ni supprimable par l'agence">
+                                            <x-icon name="lock" class="w-4 h-4 text-amber-500" />
+                                        </span>
+                                    @else
+                                        @can('tenants.update')
+                                            <a href="{{ route('tenants.edit', $tenant->id) }}" 
+                                               class="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors"
+                                               title="Modifier">
+                                                <x-icon name="edit" class="w-4 h-4" />
+                                            </a>
+                                        @endcan
+
+                                        @can('tenants.delete')
+                                            <button type="button"
+                                                    @click="$dispatch('open-confirm', {
+                                                        title: 'Supprimer la fiche locataire',
+                                                        message: 'Êtes-vous sûr de vouloir supprimer le locataire {{ $tenant->full_name }} ({{ $tenant->reference }}) ? Cette action est irréversible.',
+                                                        confirmText: 'Supprimer le locataire',
+                                                        variant: 'danger',
+                                                        onConfirm: () => $wire.delete({{ $tenant->id }})
+                                                    })"
+                                                    class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                                                    title="Supprimer">
+                                                <x-icon name="trash" class="w-4 h-4" />
+                                            </button>
+                                        @endcan
+                                    @endif
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-slate-400">
+                            <td colspan="7" class="px-6 py-12 text-center text-slate-400">
                                 Aucun locataire trouvé.
                             </td>
                         </tr>

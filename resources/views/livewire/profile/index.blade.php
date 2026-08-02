@@ -101,8 +101,8 @@
         </div>
     </div>
 
-    <!-- Section 2: Paramètres Financiers de l'Agence -->
-    @if(auth()->user()->agency_id)
+    <!-- Section 2: Paramètres Financiers de l'Agence (Masqué pour les bailleurs et locataires) -->
+    @if(auth()->user()->agency_id && !auth()->user()->isOwner() && !auth()->user()->isTenant())
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
             <div class="p-6 sm:p-8 space-y-6">
                 <div>

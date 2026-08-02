@@ -35,6 +35,23 @@ class Owner extends Model
     /** @use HasFactory<OwnerFactory> */
     use BelongsToAgency, HasFactory, SoftDeletes;
 
+    protected $fillable = [
+        'agency_id',
+        'user_id',
+        'reference',
+        'first_name',
+        'last_name',
+        'company_name',
+        'email',
+        'phone',
+        'address',
+        'profession',
+        'nationality',
+        'id_card_number',
+        'identity_document',
+        'status',
+    ];
+
     // ------------------------------------------------------------------
     // Accessors
     // ------------------------------------------------------------------
@@ -67,11 +84,19 @@ class Owner extends Model
     }
 
     /**
-     * Indique si ce bailleur a un accès portail actif.
+     * Indique si ce bailleur a un accès portail attribué.
      */
     public function hasPortalAccess(): bool
     {
         return $this->user_id !== null && $this->user?->hasRole('Bailleur');
+    }
+
+    /**
+     * Indique si le portail du bailleur est actif (mot de passe créé, email vérifié).
+     */
+    public function isPortalActive(): bool
+    {
+        return $this->hasPortalAccess() && $this->user?->email_verified_at !== null;
     }
 
     public function managementContracts(): HasMany

@@ -20,6 +20,37 @@ class Properties extends Component
     #[Url]
     public string $agencyFilter = '';
 
+    public bool $showPropertyModal = false;
+    public ?Property $selectedProperty = null;
+
+    public function viewProperty(int $propertyId): void
+    {
+        /** @var \App\Models\User $user */
+        $user  = Auth::user();
+        $owner = $user->owner;
+
+        if (! $owner) {
+            abort(403);
+        }
+
+        $this->selectedProperty = Property::withoutGlobalScopes()
+            ->where('owner_id', $owner->id)
+            ->with([
+                'propertyType',
+                'managementContract.agency',
+                'incidents' => fn ($q) => $q->withoutGlobalScopes()->latest()->take(5),
+            ])
+            ->findOrFail($propertyId);
+
+        $this->showPropertyModal = true;
+    }
+
+    public function closePropertyModal(): void
+    {
+        $this->showPropertyModal = false;
+        $this->selectedProperty = null;
+    }
+
     public function render(): \Illuminate\View\View
     {
         /** @var \App\Models\User $user */

@@ -64,6 +64,12 @@ class Index extends Component
     public function delete(int $ownerId): void
     {
         $owner = Owner::where('id', $ownerId)->firstOrFail();
+
+        if ($owner->hasPortalAccess()) {
+            session()->flash('error', "Un bailleur possédant un compte portail ne peut pas être supprimé par l'agence.");
+            return;
+        }
+
         $this->authorize('delete', $owner);
 
         $owner->delete();

@@ -123,18 +123,25 @@
                                         <x-icon name="printer" class="w-4 h-4" />
                                     </a>
 
-                                    <button type="button"
-                                            @click="$dispatch('open-confirm', {
-                                                title: 'Supprimer le mandat de gestion',
-                                                message: 'Êtes-vous sûr de vouloir supprimer le mandat {{ $contract->reference }} ? Cette action est irréversible.',
-                                                confirmText: 'Supprimer le mandat',
-                                                variant: 'danger',
-                                                onConfirm: () => $wire.delete({{ $contract->id }})
-                                            })"
-                                            class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                                            title="Supprimer">
-                                        <x-icon name="trash" class="w-4 h-4" />
-                                    </button>
+                                    @if($contract->status === \App\Domain\Owner\Enums\ManagementContractStatus::Active)
+                                        <span class="p-1.5 rounded-lg text-slate-300 dark:text-slate-600 opacity-50 cursor-not-allowed" 
+                                              title="Un mandat de gestion actif ne peut pas être supprimé par l'agence">
+                                            <x-icon name="trash" class="w-4 h-4 text-slate-300 dark:text-slate-600" />
+                                        </span>
+                                    @else
+                                        <button type="button"
+                                                @click="$dispatch('open-confirm', {
+                                                    title: 'Supprimer le mandat de gestion',
+                                                    message: 'Êtes-vous sûr de vouloir supprimer le mandat {{ $contract->reference }} ? Cette action est irréversible.',
+                                                    confirmText: 'Supprimer le mandat',
+                                                    variant: 'danger',
+                                                    onConfirm: () => $wire.delete({{ $contract->id }})
+                                                })"
+                                                class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                                                title="Supprimer">
+                                            <x-icon name="trash" class="w-4 h-4" />
+                                        </button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

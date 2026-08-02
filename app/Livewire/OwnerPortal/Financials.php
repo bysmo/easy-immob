@@ -18,6 +18,9 @@ class Financials extends Component
     #[Url]
     public string $period = '';
 
+    #[Url]
+    public string $agencyFilter = '';
+
     public function render(): \Illuminate\View\View
     {
         /** @var \App\Models\User $user */
@@ -28,8 +31,17 @@ class Financials extends Component
             abort(403);
         }
 
+        // Agences partenaires du bailleur
+        $agencies = \App\Domain\Agency\Models\Agency::whereIn('id', function ($q) use ($owner) {
+            $q->select('agency_id')
+              ->from('properties')
+              ->where('owner_id', $owner->id)
+              ->whereNotNull('agency_id');
+        })->orderBy('name')->get();
+
         $propertyIds = Property::withoutGlobalScopes()
             ->where('owner_id', $owner->id)
+            ->when($this->agencyFilter, fn ($q) => $q->where('agency_id', $this->agencyFilter))
             ->pluck('id');
 
         // Périodes disponibles
@@ -62,7 +74,8 @@ class Financials extends Component
         // Reversements (payouts)
         $payoutsQuery = OwnerPayout::withoutGlobalScopes()
             ->where('owner_id', $owner->id)
-            ->with(['items.property'])
+            ->with(['items.property', 'agency'])
+            ->when($this->agencyFilter, fn ($q) => $q->where('agency_id', $this->agencyFilter))
             ->when($this->period, fn ($q) => $q->where('period', $this->period))
             ->latest();
 
@@ -80,6 +93,7 @@ class Financials extends Component
 
         return view('livewire.owner-portal.financials', [
             'owner'            => $owner,
+            'agencies'         => $agencies,
             'availablePeriods' => $availablePeriods,
             'schedules'        => $schedules,
             'payouts'          => $payouts,

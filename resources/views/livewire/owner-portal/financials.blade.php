@@ -4,7 +4,15 @@
             <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Récap Financier</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Loyers et reversements par période</p>
         </div>
-        <div>
+        <div class="flex gap-3 flex-wrap">
+            <select wire:model.live="agencyFilter"
+                    class="text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                <option value="">Toutes les agences</option>
+                @foreach ($agencies as $agency)
+                    <option value="{{ $agency->id }}">{{ $agency->name }}</option>
+                @endforeach
+            </select>
+
             <select wire:model.live="period"
                     class="text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                 <option value="">Toutes les périodes</option>

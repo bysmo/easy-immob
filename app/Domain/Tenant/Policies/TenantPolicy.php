@@ -28,12 +28,20 @@ class TenantPolicy
 
     public function update(User $user, Tenant $tenant): bool
     {
+        if ($tenant->hasPortalAccess()) {
+            return false;
+        }
+
         return $user->can('tenants.update')
             && $user->agency_id === $tenant->agency_id;
     }
 
     public function delete(User $user, Tenant $tenant): bool
     {
+        if ($tenant->hasPortalAccess()) {
+            return false;
+        }
+
         return $user->can('tenants.delete')
             && $user->agency_id === $tenant->agency_id;
     }

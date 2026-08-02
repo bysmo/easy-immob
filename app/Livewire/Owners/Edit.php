@@ -67,7 +67,7 @@ class Edit extends Component
     public function mount(int $ownerId): void
     {
         $this->owner = Owner::where('id', $ownerId)->first() ?? abort(404);
-        $this->authorize('update', $this->owner);
+        $this->authorize('view', $this->owner);
 
         $this->first_name     = $this->owner->first_name;
         $this->last_name      = $this->owner->last_name;
@@ -89,6 +89,12 @@ class Edit extends Component
 
     public function save(): void
     {
+        $this->owner->load('user');
+        if ($this->owner->hasPortalAccess()) {
+            session()->flash('error', "Le portail de ce bailleur est attribué ou actif. Ses informations ne peuvent plus être modifiées par l'agence.");
+            return;
+        }
+
         $this->authorize('update', $this->owner);
         $this->validate();
 

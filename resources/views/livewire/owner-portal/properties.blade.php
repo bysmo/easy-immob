@@ -51,6 +51,7 @@
                                 <th class="py-3 px-4 text-right">IRF</th>
                                 <th class="py-3 px-4 text-right">Commission</th>
                                 <th class="py-3 px-4 text-right">Net Bailleur</th>
+                                <th class="py-3 px-4 text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
@@ -92,6 +93,13 @@
                                     <td class="py-3 px-4 text-right font-bold text-emerald-700 dark:text-emerald-400">
                                         {{ number_format($property->net_owner_income, 0, ',', ' ') }} F
                                     </td>
+                                    <td class="py-3 px-4 text-center">
+                                        <button wire:click="viewProperty({{ $property->id }})"
+                                                class="px-2.5 py-1 rounded-lg text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 transition inline-flex items-center gap-1.5 text-xs font-semibold cursor-pointer">
+                                            <x-icon name="eye" class="w-3.5 h-3.5" />
+                                            <span>Fiche</span>
+                                        </button>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -99,5 +107,140 @@
                 </div>
             </div>
         @endforeach
+    @endif
+
+    {{-- Modale Fiche du bien --}}
+    @if ($showPropertyModal && $selectedProperty)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden my-auto">
+                <!-- En-tête de la modale -->
+                <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/40 shrink-0">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 flex items-center justify-center text-emerald-700 dark:text-emerald-300">
+                            <x-icon name="building" class="w-5 h-5" />
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">{{ $selectedProperty->title }}</h3>
+                                <span class="font-mono text-xs px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold">
+                                    {{ $selectedProperty->reference }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                {{ $selectedProperty->city }} @if($selectedProperty->neighborhood) • {{ $selectedProperty->neighborhood }} @endif
+                            </p>
+                        </div>
+                    </div>
+                    <button wire:click="closePropertyModal" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
+                        <x-icon name="x" class="w-5 h-5" />
+                    </button>
+                </div>
+
+                <!-- Corps de la modale (scrollable) -->
+                <div class="p-6 overflow-y-auto space-y-6 flex-1">
+                    
+                    <!-- Galerie photos -->
+                    @if(count($selectedProperty->photo_list) > 0)
+                        <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 aspect-video relative group">
+                            <img src="{{ $selectedProperty->photo_list[0] }}" class="w-full h-full object-cover">
+                            <div class="absolute bottom-3 left-3 bg-slate-900/70 text-white text-xs px-2.5 py-1 rounded-full backdrop-blur-xs font-medium">
+                                {{ count($selectedProperty->photo_list) }} photo(s) disponible(s)
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Infos générales -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 text-xs">
+                        <div>
+                            <span class="text-slate-400 block font-medium">Type</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200 mt-0.5 block">{{ $selectedProperty->propertyType?->name ?? '—' }}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block font-medium">Surface</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200 mt-0.5 block">{{ $selectedProperty->surface_area ? $selectedProperty->surface_area . ' m²' : '—' }}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block font-medium">Pièces / Chambres</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200 mt-0.5 block">{{ $selectedProperty->bedrooms ? $selectedProperty->bedrooms . ' ch. / ' . ($selectedProperty->bathrooms ?? 0) . ' sdb' : '—' }}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block font-medium">Statut Actuel</span>
+                            @php
+                                $stVal = $selectedProperty->status instanceof \BackedEnum ? $selectedProperty->status->value : (string)$selectedProperty->status;
+                                $stLbl = ['available' => 'Disponible', 'rented' => 'En location', 'maintenance' => 'En travaux'];
+                            @endphp
+                            <span class="font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 block">{{ $stLbl[$stVal] ?? $stVal }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Localisation / Adresse -->
+                    @if($selectedProperty->address)
+                        <div class="space-y-1">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Adresse & Localisation</h4>
+                            <p class="text-sm text-slate-700 dark:text-slate-300 font-medium">{{ $selectedProperty->address }}</p>
+                        </div>
+                    @endif
+
+                    <!-- Récapitulatif Financier du Bien -->
+                    <div class="space-y-3">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Répartition Financière Mensuelle</h4>
+                        <div class="rounded-xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 text-xs overflow-hidden">
+                            <div class="p-3 bg-white dark:bg-slate-900 flex justify-between items-center">
+                                <span class="text-slate-600 dark:text-slate-400 font-medium">Loyer Mensuel HC</span>
+                                <span class="font-bold text-slate-900 dark:text-white text-sm">{{ number_format((float)$selectedProperty->rent_amount, 0, ',', ' ') }} FCFA</span>
+                            </div>
+                            <div class="p-3 bg-slate-50/50 dark:bg-slate-800/30 flex justify-between items-center">
+                                <span class="text-slate-600 dark:text-slate-400 font-medium">Impôt sur Revenu Foncier (IRF)</span>
+                                <span class="font-semibold text-rose-600 dark:text-rose-400">
+                                    {{ $selectedProperty->is_subject_to_irf ? '− ' . number_format($selectedProperty->irf_amount, 0, ',', ' ') . ' FCFA' : 'Exonéré' }}
+                                </span>
+                            </div>
+                            <div class="p-3 bg-white dark:bg-slate-900 flex justify-between items-center">
+                                <span class="text-slate-600 dark:text-slate-400 font-medium">Commission de Gestion Agence</span>
+                                <span class="font-semibold text-amber-600 dark:text-amber-400">
+                                    − {{ number_format($selectedProperty->agency_fee_amount, 0, ',', ' ') }} FCFA
+                                </span>
+                            </div>
+                            <div class="p-3 bg-emerald-50/60 dark:bg-emerald-950/40 flex justify-between items-center text-emerald-900 dark:text-emerald-200">
+                                <span class="font-bold">Revenu Net Bailleur Estimé</span>
+                                <span class="font-bold text-sm text-emerald-700 dark:text-emerald-300">{{ number_format($selectedProperty->net_owner_income, 0, ',', ' ') }} FCFA</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Agence de gestion -->
+                    @if($selectedProperty->managementContract?->agency)
+                        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800 space-y-2">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Agence Mandataire</h4>
+                            <div class="flex items-center justify-between text-xs">
+                                <div>
+                                    <p class="font-bold text-slate-900 dark:text-white text-sm">{{ $selectedProperty->managementContract->agency->name }}</p>
+                                    <p class="text-slate-500 mt-0.5">{{ $selectedProperty->managementContract->agency->email ?? $selectedProperty->managementContract->agency->phone }}</p>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-semibold text-[11px]">
+                                    Mandat Actif
+                                </span>
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Entretien / Réparations -->
+                    <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500 font-medium">Cumul Coût Réparations & Entretien</span>
+                            <span class="font-bold text-slate-900 dark:text-white">{{ number_format($selectedProperty->total_maintenance_cost, 0, ',', ' ') }} FCFA</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Pied de modale -->
+                <div class="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex justify-end shrink-0">
+                    <button wire:click="closePropertyModal" class="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold rounded-xl text-xs hover:bg-slate-300 dark:hover:bg-slate-700 transition cursor-pointer">
+                        Fermer
+                    </button>
+                </div>
+            </div>
+        </div>
     @endif
 </div>

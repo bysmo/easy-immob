@@ -34,6 +34,10 @@ class PropertyPolicy
 
     public function delete(User $user, Property $property): bool
     {
+        if ($property->isAssignedToTenant()) {
+            return false;
+        }
+
         return $user->can('properties.delete')
             && $user->agency_id === $property->agency_id;
     }

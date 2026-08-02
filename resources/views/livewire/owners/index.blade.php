@@ -102,10 +102,15 @@
                                 </x-badge>
                             </td>
                             <td class="px-6 py-4">
-                                @if ($owner->hasPortalAccess())
+                                @if ($owner->isPortalActive())
                                     <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 text-xs font-semibold border border-emerald-200 dark:border-emerald-800">
                                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                         Portail actif
+                                    </span>
+                                @elseif ($owner->hasPortalAccess())
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 text-xs font-semibold border border-amber-200 dark:border-amber-800">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                        En attente d'activation
                                     </span>
                                 @else
                                     <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-medium border border-slate-200 dark:border-slate-700">
@@ -116,43 +121,50 @@
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">
-                                    @can('owners.update')
-                                        @if($owner->email)
-                                            <button type="button"
-                                                    @click="$dispatch('open-confirm', {
-                                                        title: @js($owner->hasPortalAccess() ? "Renvoyer l'invitation portail" : "Envoyer l'invitation portail"),
-                                                        message: @js("Voulez-vous envoyer un lien d'accès au portail bailleur à {$owner->email} ?"),
-                                                        confirmText: @js("Envoyer l'invitation"),
-                                                        variant: 'primary',
-                                                        onConfirm: () => $wire.sendInvitation({{ $owner->id }})
-                                                    })"
-                                                    class="p-1.5 rounded-lg text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer"
-                                                    title="{{ $owner->hasPortalAccess() ? 'Renvoyer l\'invitation portail' : 'Envoyer l\'invitation portail' }}">
-                                                <x-icon name="notifications" class="w-4 h-4" />
-                                            </button>
-                                        @endif
-
-                                        <a href="{{ route('owners.edit', $owner->id) }}" 
-                                           class="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors"
-                                           title="Modifier">
-                                            <x-icon name="edit" class="w-4 h-4" />
-                                        </a>
-                                    @endcan
-
-                                    @can('owners.delete')
+                                    @if($owner->email)
                                         <button type="button"
                                                 @click="$dispatch('open-confirm', {
-                                                    title: 'Supprimer le bailleur',
-                                                    message: 'Êtes-vous sûr de vouloir supprimer le bailleur {{ $owner->full_name }} ({{ $owner->reference }}) ? Cette action est irréversible.',
-                                                    confirmText: 'Supprimer le bailleur',
-                                                    variant: 'danger',
-                                                    onConfirm: () => $wire.delete({{ $owner->id }})
+                                                    title: @js($owner->hasPortalAccess() ? "Renvoyer l'invitation portail" : "Envoyer l'invitation portail"),
+                                                    message: @js("Voulez-vous envoyer un lien d'accès au portail bailleur à {$owner->email} ?"),
+                                                    confirmText: @js("Envoyer l'invitation"),
+                                                    variant: 'primary',
+                                                    onConfirm: () => $wire.sendInvitation({{ $owner->id }})
                                                 })"
-                                                class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                                                title="Supprimer">
-                                            <x-icon name="trash" class="w-4 h-4" />
+                                                class="p-1.5 rounded-lg text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer"
+                                                title="{{ $owner->hasPortalAccess() ? 'Renvoyer l\'invitation portail' : 'Envoyer l\'invitation portail' }}">
+                                            <x-icon name="notifications" class="w-4 h-4" />
                                         </button>
-                                    @endcan
+                                    @endif
+
+                                    @if($owner->hasPortalAccess())
+                                        <span class="p-1.5 rounded-lg text-slate-300 dark:text-slate-600 opacity-60 cursor-not-allowed" 
+                                              title="Portail actif — Fiche non modifiable ni supprimable par l'agence">
+                                            <x-icon name="lock" class="w-4 h-4 text-amber-500" />
+                                        </span>
+                                    @else
+                                        @can('owners.update')
+                                            <a href="{{ route('owners.edit', $owner->id) }}" 
+                                               class="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors"
+                                               title="Modifier">
+                                                <x-icon name="edit" class="w-4 h-4" />
+                                            </a>
+                                        @endcan
+
+                                        @can('owners.delete')
+                                            <button type="button"
+                                                    @click="$dispatch('open-confirm', {
+                                                        title: 'Supprimer le bailleur',
+                                                        message: 'Êtes-vous sûr de vouloir supprimer le bailleur {{ $owner->full_name }} ({{ $owner->reference }}) ? Cette action est irréversible.',
+                                                        confirmText: 'Supprimer le bailleur',
+                                                        variant: 'danger',
+                                                        onConfirm: () => $wire.delete({{ $owner->id }})
+                                                    })"
+                                                    class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                                                    title="Supprimer">
+                                                <x-icon name="trash" class="w-4 h-4" />
+                                            </button>
+                                        @endcan
+                                    @endif
                                 </div>
                             </td>
                         </tr>

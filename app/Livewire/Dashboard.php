@@ -40,12 +40,43 @@ class Dashboard extends Component
                     ->where('tenant_id', $this->tenant->id)
                     ->get();
 
-                $leaseIds = $this->tenantLeases->pluck('id')->toArray();
+                $activeLease = $this->tenantLeases->firstWhere('status.value', 'active') ?? $this->tenantLeases->first();
 
-                $this->tenantRentSchedules = RentSchedule::withoutGlobalScopes()->with(['lease.property'])
-                    ->whereIn('lease_id', $leaseIds)
-                    ->orderBy('due_date', 'desc')
-                    ->get();
+                if ($activeLease) {
+                    $today = now()->startOfDay();
+
+                    // Impayés & en retard pour le contrat actif
+                    $unpaidSchedules = RentSchedule::withoutGlobalScopes()
+                        ->with(['lease.property'])
+                        ->where('lease_id', $activeLease->id)
+                        ->where(function ($q) use ($today) {
+                            $q->whereIn('status', [RentScheduleStatus::Overdue, RentScheduleStatus::PartiallyPaid])
+                              ->orWhere(function ($q2) use ($today) {
+                                  $q2->where('status', RentScheduleStatus::Pending)
+                                     ->where('due_date', '<', $today);
+                              });
+                        })
+                        ->get();
+
+                    // 3 prochains à venir pour le contrat actif
+                    $upcomingSchedules = RentSchedule::withoutGlobalScopes()
+                        ->with(['lease.property'])
+                        ->where('lease_id', $activeLease->id)
+                        ->where('status', RentScheduleStatus::Pending)
+                        ->where('due_date', '>=', $today)
+                        ->orderBy('due_date', 'asc')
+                        ->take(3)
+                        ->get();
+
+                    // Fusionner, dédoublonner et trier du plus vieux au plus récent (due_date ASC)
+                    $this->tenantRentSchedules = $unpaidSchedules
+                        ->merge($upcomingSchedules)
+                        ->unique('id')
+                        ->sortBy('due_date')
+                        ->values();
+                } else {
+                    $this->tenantRentSchedules = collect();
+                }
 
                 $this->tenantIncidents = Incident::with(['property'])
                     ->where('tenant_id', $this->tenant->id)

@@ -97,18 +97,25 @@
                                     @endcan
 
                                     @can('properties.delete')
-                                        <button type="button"
-                                                @click="$dispatch('open-confirm', {
-                                                    title: 'Supprimer le bien immobilier',
-                                                    message: 'Êtes-vous sûr de vouloir supprimer le bien {{ $property->reference }} ({{ $property->title }}) ? Cette action est irréversible.',
-                                                    confirmText: 'Supprimer le bien',
-                                                    variant: 'danger',
-                                                    onConfirm: () => $wire.delete({{ $property->id }})
-                                                })"
-                                                class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                                                title="Supprimer">
-                                            <x-icon name="trash" class="w-4 h-4" />
-                                        </button>
+                                        @if($property->isAssignedToTenant())
+                                            <span class="p-1.5 rounded-lg text-slate-300 dark:text-slate-600 opacity-50 cursor-not-allowed" 
+                                                  title="Bien affecté à un locataire — suppression impossible">
+                                                <x-icon name="trash" class="w-4 h-4 text-slate-300 dark:text-slate-600" />
+                                            </span>
+                                        @else
+                                            <button type="button"
+                                                    @click="$dispatch('open-confirm', {
+                                                        title: 'Supprimer le bien immobilier',
+                                                        message: 'Êtes-vous sûr de vouloir supprimer le bien {{ $property->reference }} ({{ $property->title }}) ? Cette action est irréversible.',
+                                                        confirmText: 'Supprimer le bien',
+                                                        variant: 'danger',
+                                                        onConfirm: () => $wire.delete({{ $property->id }})
+                                                    })"
+                                                    class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                                                    title="Supprimer">
+                                                <x-icon name="trash" class="w-4 h-4" />
+                                            </button>
+                                        @endif
                                     @endcan
                                 </div>
                             </td>

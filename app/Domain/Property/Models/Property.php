@@ -91,6 +91,28 @@ class Property extends Model
         return $this->hasMany(\App\Domain\Rent\Models\RentHistory::class)->orderBy('created_at', 'desc');
     }
 
+    public function leases(): HasMany
+    {
+        return $this->hasMany(\App\Domain\Lease\Models\Lease::class);
+    }
+
+    /**
+     * Indique si ce bien est affecté / loué à un locataire (occupé ou avec bail actif/en attente).
+     */
+    public function isAssignedToTenant(): bool
+    {
+        if ($this->status === PropertyStatus::Occupied) {
+            return true;
+        }
+
+        return $this->leases()
+            ->whereIn('status', [
+                \App\Domain\Lease\Enums\LeaseStatus::Active,
+                \App\Domain\Lease\Enums\LeaseStatus::PendingSignature,
+            ])
+            ->exists();
+    }
+
     public function inquiries(): HasMany
     {
         return $this->hasMany(PropertyInquiry::class)->orderBy('updated_at', 'desc');
