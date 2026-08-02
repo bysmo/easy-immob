@@ -37,7 +37,7 @@ class DemoDataSeeder extends Seeder
     {
         // 1. Agences
         $primaryAgency = Agency::firstOrCreate(
-            ['email' => 'contact@horizon-immo.ci'],
+            ['email' => 'contact@kipress.estate'],
             [
                 'name'              => 'KIPRESS ESTATE SARL',
                 'legal_name'        => 'KIPRESS ESTATE SARL',

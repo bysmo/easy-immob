@@ -71,6 +71,54 @@ class Index extends Component
         session()->flash('success', "Le bailleur {$owner->full_name} a été supprimé.");
     }
 
+    public function sendInvitation(int $ownerId): void
+    {
+        $owner = Owner::where('id', $ownerId)->firstOrFail();
+        $this->authorize('update', $owner);
+
+        if (! $owner->email) {
+            session()->flash('error', 'Ce bailleur n\'a pas d\'adresse email.');
+            return;
+        }
+
+        /** @var \App\Models\User $authUser */
+        $authUser = Auth::user();
+
+        $user = \App\Models\User::withoutGlobalScopes()
+            ->where('email', mb_strtolower($owner->email))
+            ->first();
+
+        if (! $user) {
+            $user = \App\Models\User::create([
+                'agency_id' => $owner->agency_id,
+                'name'      => $owner->full_name,
+                'email'     => mb_strtolower($owner->email),
+                'password'  => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(32)),
+            ]);
+        }
+
+        $user->assignRole('Bailleur');
+        $owner->update(['user_id' => $user->id]);
+
+        $signedUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+            'owner-portal.activate',
+            now()->addHours(72),
+            ['user' => $user->id],
+        );
+
+        \App\Application\Services\DynamicMailConfigurator::apply($authUser?->agency);
+
+        try {
+            \Illuminate\Support\Facades\Mail::to($user->email)->send(
+                new \App\Mail\OwnerInvitationMail($user, $owner, $signedUrl, $authUser?->agency?->name ?? 'EasyImmob')
+            );
+            session()->flash('success', "L'invitation au portail bailleur a été envoyée à {$owner->email}.");
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Erreur lors de l'envoi du mail d'invitation bailleur : " . $e->getMessage());
+            session()->flash('error', "Impossible d'envoyer l'email d'invitation : " . $e->getMessage());
+        }
+    }
+
     public function render(): \Illuminate\View\View
     {
         $query = Owner::query()

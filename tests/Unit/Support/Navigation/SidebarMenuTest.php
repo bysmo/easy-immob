@@ -62,7 +62,7 @@ class SidebarMenuTest extends TestCase
         $routes = array_map(static fn (array $item) => $item['route'], SidebarMenu::items());
 
         $this->assertSame(
-            ['admin.saas-dashboard', 'admin.agencies.index', 'admin.saas-invoices.index', 'admin.plans.index'],
+            ['admin.saas-dashboard', 'admin.agencies.index', 'admin.saas-invoices.index', 'admin.plans.index', 'admin.mail-settings.index'],
             $routes
         );
     }

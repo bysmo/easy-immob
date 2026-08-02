@@ -34,6 +34,14 @@ use Illuminate\Support\Facades\Storage;
     'subscription_status',
     'subscription_ends_at',
     'trial_ends_at',
+    'mail_mailer',
+    'mail_host',
+    'mail_port',
+    'mail_username',
+    'mail_password',
+    'mail_encryption',
+    'mail_from_address',
+    'mail_from_name',
 ])]
 class Agency extends Model
 {

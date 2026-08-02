@@ -3,17 +3,20 @@
 namespace App\Domain\Owner\Models;
 
 use App\Domain\Property\Models\Property;
+use App\Models\User;
 use App\Support\Tenancy\BelongsToAgency;
 use Database\Factories\OwnerFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
     'agency_id',
+    'user_id',
     'reference',
     'first_name',
     'last_name',
@@ -53,6 +56,22 @@ class Owner extends Model
     public function properties(): HasMany
     {
         return $this->hasMany(Property::class);
+    }
+
+    /**
+     * Le compte utilisateur du portail bailleur (si activé).
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Indique si ce bailleur a un accès portail actif.
+     */
+    public function hasPortalAccess(): bool
+    {
+        return $this->user_id !== null && $this->user?->hasRole('Bailleur');
     }
 
     public function managementContracts(): HasMany

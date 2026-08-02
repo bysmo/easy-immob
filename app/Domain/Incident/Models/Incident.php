@@ -32,6 +32,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'tenant_confirmation_note',
     'resolved_at',
     'closed_at',
+    'owner_confirmed_at',
+    'owner_confirmed_amount',
+    'owner_confirmation_note',
 ])]
 class Incident extends Model
 {
@@ -40,12 +43,14 @@ class Incident extends Model
     protected function casts(): array
     {
         return [
-            'photos'      => 'array',
-            'videos'      => 'array',
-            'status'      => IncidentStatus::class,
-            'repair_cost' => 'decimal:2',
-            'resolved_at' => 'datetime',
-            'closed_at'   => 'datetime',
+            'photos'                  => 'array',
+            'videos'                  => 'array',
+            'status'                  => IncidentStatus::class,
+            'repair_cost'             => 'decimal:2',
+            'owner_confirmed_amount'  => 'decimal:2',
+            'resolved_at'             => 'datetime',
+            'closed_at'               => 'datetime',
+            'owner_confirmed_at'      => 'datetime',
         ];
     }
 

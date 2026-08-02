@@ -27,6 +27,7 @@ class SidebarMenu
                         ['label' => 'Agences Clients', 'icon' => 'owners', 'route' => 'admin.agencies.index', 'params' => []],
                         ['label' => 'Factures SaaS Agences', 'icon' => 'rents', 'route' => 'admin.saas-invoices.index', 'params' => []],
                         ['label' => 'Forfaits & Offres SaaS', 'icon' => 'building', 'route' => 'admin.plans.index', 'params' => []],
+                        ['label' => 'Configuration Mails SMTP', 'icon' => 'notifications', 'route' => 'admin.mail-settings.index', 'params' => []],
                     ],
                 ],
             ];
@@ -48,6 +49,22 @@ class SidebarMenu
                     'items' => [
                         ['label' => 'Incidents & Réparations', 'icon' => 'bell', 'route' => 'incidents.index', 'params' => []],
                         ['label' => 'Notifications', 'icon' => 'notifications', 'route' => 'notifications.index', 'params' => []],
+                    ],
+                ],
+            ];
+        }
+
+        // 3. Le Bailleur voit son portail propriétaire
+        if ($user && $user->isOwner()) {
+            return [
+                [
+                    'section' => 'Mon Espace Bailleur',
+                    'items'   => [
+                        ['label' => 'Tableau de bord',       'icon' => 'dashboard',    'route' => 'owner-portal.dashboard',   'params' => []],
+                        ['label' => 'Mes Biens',             'icon' => 'properties',   'route' => 'owner-portal.properties',  'params' => []],
+                        ['label' => 'Réparations',          'icon' => 'bell',         'route' => 'owner-portal.incidents',   'params' => []],
+                        ['label' => 'Mes Finances',          'icon' => 'rents',        'route' => 'owner-portal.financials',  'params' => []],
+                        ['label' => 'Mandats de Gestion',    'icon' => 'leases',       'route' => 'owner-portal.contracts',   'params' => []],
                     ],
                 ],
             ];

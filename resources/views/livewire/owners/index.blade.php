@@ -62,6 +62,7 @@
                         <x-datatable.th field="first_name" :sortField="$sortField" :sortDirection="$sortDirection">Bailleur</x-datatable.th>
                         <x-datatable.th field="email" :sortField="$sortField" :sortDirection="$sortDirection">Coordonnées</x-datatable.th>
                         <x-datatable.th field="status" :sortField="$sortField" :sortDirection="$sortDirection">Statut</x-datatable.th>
+                        <x-datatable.th>Portail</x-datatable.th>
                         <x-datatable.th align="right">Actions</x-datatable.th>
                     </tr>
                 </thead>
@@ -100,9 +101,37 @@
                                     {{ $owner->status === 'active' ? 'Actif' : 'Inactif' }}
                                 </x-badge>
                             </td>
+                            <td class="px-6 py-4">
+                                @if ($owner->hasPortalAccess())
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 text-xs font-semibold border border-emerald-200 dark:border-emerald-800">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        Portail actif
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-medium border border-slate-200 dark:border-slate-700">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                        Portail inactif
+                                    </span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">
                                     @can('owners.update')
+                                        @if($owner->email)
+                                            <button type="button"
+                                                    @click="$dispatch('open-confirm', {
+                                                        title: @js($owner->hasPortalAccess() ? "Renvoyer l'invitation portail" : "Envoyer l'invitation portail"),
+                                                        message: @js("Voulez-vous envoyer un lien d'accès au portail bailleur à {$owner->email} ?"),
+                                                        confirmText: @js("Envoyer l'invitation"),
+                                                        variant: 'primary',
+                                                        onConfirm: () => $wire.sendInvitation({{ $owner->id }})
+                                                    })"
+                                                    class="p-1.5 rounded-lg text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer"
+                                                    title="{{ $owner->hasPortalAccess() ? 'Renvoyer l\'invitation portail' : 'Envoyer l\'invitation portail' }}">
+                                                <x-icon name="notifications" class="w-4 h-4" />
+                                            </button>
+                                        @endif
+
                                         <a href="{{ route('owners.edit', $owner->id) }}" 
                                            class="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors"
                                            title="Modifier">

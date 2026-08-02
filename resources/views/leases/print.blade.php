@@ -16,7 +16,7 @@
         .section-title { font-size: 14px; font-weight: bold; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-top: 20px; margin-bottom: 10px; text-transform: uppercase; }
         .party-card { margin-bottom: 15px; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0; }
         .article-title { font-weight: bold; color: #0f172a; margin-top: 15px; text-decoration: underline; }
-        .content { font-size: 13px; text-align: justify; }
+        .content { white-space: pre-wrap; font-size: 13px; text-align: justify; line-height: 1.6; }
         .content p { margin-top: 4px; margin-bottom: 8px; }
         .content ul, .content ol { margin-top: 4px; margin-bottom: 8px; padding-left: 20px; }
         .signatures { margin-top: 50px; display: table; width: 100%; page-break-inside: avoid; }

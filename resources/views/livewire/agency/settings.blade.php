@@ -3,7 +3,7 @@
     <!-- En-tête de page -->
     <div class="border-b border-slate-200/80 dark:border-slate-800 pb-5">
         <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Informations & Paramètres de l'Agence</h1>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Configurez l'identité de votre agence, votre logo officiel pour les imprimés, ainsi que le régime fiscal (TVA) et le taux de commission.</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Configurez l'identité de votre agence, votre logo officiel pour les imprimés, votre régime fiscal (TVA) ainsi que vos paramètres de serveur d'envoi de mails (SMTP).</p>
     </div>
 
     <!-- Alert Succès -->
@@ -11,6 +11,14 @@
         <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-3">
             <x-icon name="check" class="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{{ session('message') }}</span>
+        </div>
+    @endif
+
+    <!-- Alert Erreur -->
+    @if(session('error'))
+        <div class="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs font-semibold text-rose-800 dark:text-rose-300 flex items-center gap-3">
+            <x-icon name="alert" class="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{{ session('error') }}</span>
         </div>
     @endif
 
@@ -203,6 +211,92 @@
                             <p class="text-[11px] text-slate-500 mt-1">Pourcentage par défaut prélevé sur les encaissements pour le calcul du reversement bailleur.</p>
                             @error('commission_rate') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4: Configuration Serveur & Paramètres d'Envoi de Mails (SMTP) -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div class="p-6 sm:p-8 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <x-icon name="notifications" class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                            <span>Configuration Serveur & Paramètres d'Envoi de Mails (SMTP)</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Configurez le serveur d'envoi de mails de votre agence pour l'expédition automatique d'invitations, de reçus et de notifications.</p>
+                    </div>
+                    <div>
+                        <button type="button"
+                                wire:click="testMailConnection"
+                                wire:loading.attr="disabled"
+                                class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-semibold hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition cursor-pointer">
+                            <x-icon name="notifications" class="w-4 h-4" />
+                            <span wire:loading.remove wire:target="testMailConnection">Tester l'envoi SMTP</span>
+                            <span wire:loading wire:target="testMailConnection">Test en cours...</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                    <div>
+                        <x-label for="mail_mailer">Driver Mail</x-label>
+                        <x-select id="mail_mailer" wire:model="mail_mailer">
+                            <option value="smtp">SMTP (Recommandé)</option>
+                            <option value="sendmail">Sendmail</option>
+                            <option value="log">Log (Mode Test local)</option>
+                        </x-select>
+                        @error('mail_mailer') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <x-label for="mail_host">Hôte / Serveur SMTP</x-label>
+                        <x-input id="mail_host" type="text" wire:model="mail_host" placeholder="Ex: smtp.gmail.com ou mail.horizon-immo.com" />
+                        @error('mail_host') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <x-label for="mail_port">Port SMTP</x-label>
+                        <x-input id="mail_port" type="number" wire:model="mail_port" placeholder="587" />
+                        <p class="text-[11px] text-slate-500 mt-1">Ex: 587 (TLS), 465 (SSL), 25.</p>
+                        @error('mail_port') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <x-label for="mail_encryption">Chiffrement / Sécurité</x-label>
+                        <x-select id="mail_encryption" wire:model="mail_encryption">
+                            <option value="tls">TLS (Recommandé - Port 587)</option>
+                            <option value="ssl">SSL (Port 465)</option>
+                            <option value="none">Aucun (Non sécurisé)</option>
+                        </x-select>
+                        @error('mail_encryption') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <x-label for="mail_username">Nom d'utilisateur SMTP</x-label>
+                        <x-input id="mail_username" type="text" wire:model="mail_username" placeholder="expediteur@horizon-immo.com" />
+                        @error('mail_username') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <x-label for="mail_password">Mot de passe SMTP / Clé d'application</x-label>
+                        <x-input id="mail_password" type="password" wire:model="mail_password" placeholder="••••••••••••" />
+                        @error('mail_password') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <x-label for="mail_from_address">Adresse d'expéditeur (From Email)</x-label>
+                        <x-input id="mail_from_address" type="email" wire:model="mail_from_address" placeholder="notifications@horizon-immo.com" />
+                        <p class="text-[11px] text-slate-500 mt-1">Laissez vide pour utiliser l'email de l'agence.</p>
+                        @error('mail_from_address') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <x-label for="mail_from_name">Nom d'expéditeur affiché (From Name)</x-label>
+                        <x-input id="mail_from_name" type="text" wire:model="mail_from_name" placeholder="Horizon Immobilier" />
+                        <p class="text-[11px] text-slate-500 mt-1">Nom affiché dans la boîte de réception des destinataires.</p>
+                        @error('mail_from_name') <span class="text-xs text-rose-600 font-medium mt-1 block">{{ $message }}</span> @enderror
                     </div>
                 </div>
             </div>

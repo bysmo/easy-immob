@@ -12,7 +12,36 @@
             </div>
             <p class="text-xs text-slate-500 dark:text-slate-400">Gestion des informations contractuelles, des biens et de l'historique financier des reversements.</p>
         </div>
-        <div>
+        <div class="flex flex-col sm:flex-row items-end gap-2">
+            {{-- Badge accès portail --}}
+            @if ($owner->hasPortalAccess())
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Portail actif
+                </span>
+            @else
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 text-xs font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                    Portail inactif
+                </span>
+            @endif
+
+            {{-- Bouton invitation --}}
+            @if ($owner->email)
+                <button type="button"
+                        @click="$dispatch('open-confirm', {
+                            title: @js($owner->hasPortalAccess() ? "Renvoyer l'invitation portail" : "Envoyer l'invitation portail"),
+                            message: @js("Voulez-vous envoyer un lien d'accès au portail bailleur à {$owner->email} ?"),
+                            confirmText: @js("Envoyer l'invitation"),
+                            variant: 'primary',
+                            onConfirm: () => $wire.sendInvitation()
+                        })"
+                        class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold hover:bg-emerald-100 transition-colors cursor-pointer">
+                    <x-icon name="notifications" class="w-4 h-4" />
+                    <span>{{ $owner->hasPortalAccess() ? 'Renvoyer l\'invitation' : 'Envoyer l\'invitation portail' }}</span>
+                </button>
+            @endif
+
             <a href="{{ \Illuminate\Support\Facades\Route::has('owners.payouts.index') ? route('owners.payouts.index') : '#' }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold hover:bg-emerald-100 transition-colors">
                 <x-icon name="rents" class="w-4 h-4" />
                 <span>Gestion Globale des Reversements</span>

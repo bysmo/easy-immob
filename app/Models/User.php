@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Domain\Owner\Models\Owner;
 use App\Domain\Tenant\Models\Tenant;
 use App\Support\Tenancy\BelongsToAgency;
 use Database\Factories\UserFactory;
@@ -55,6 +56,16 @@ class User extends Authenticatable
     public function isTenant(): bool
     {
         return $this->hasRole('Locataire');
+    }
+
+    public function isOwner(): bool
+    {
+        return $this->hasRole('Bailleur');
+    }
+
+    public function owner(): HasOne
+    {
+        return $this->hasOne(Owner::class)->withoutGlobalScopes();
     }
 
     public function isAgencyAdmin(): bool

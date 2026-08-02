@@ -83,7 +83,7 @@
             </template>
 
             <template x-if="variant === 'primary' || !['danger', 'success', 'warning'].includes(variant)">
-                <div class="w-12 h-12 rounded-2xl bg-teal-100 dark:bg-teal-950/80 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800 flex items-center justify-center shrink-0 shadow-sm">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 shadow-sm">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -107,7 +107,7 @@
             <template x-if="variant === 'danger'">
                 <button type="button"
                         @click="confirm()"
-                        class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-semibold text-xs transition shadow-md shadow-rose-600/20 cursor-pointer">
+                        class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs transition shadow-md shadow-rose-600/20 cursor-pointer">
                     <span x-text="confirmText">Confirmer</span>
                 </button>
             </template>
@@ -115,7 +115,7 @@
             <template x-if="variant === 'success'">
                 <button type="button"
                         @click="confirm()"
-                        class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs transition shadow-md shadow-emerald-600/20 cursor-pointer">
+                        class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition shadow-md shadow-emerald-600/20 cursor-pointer">
                     <span x-text="confirmText">Confirmer</span>
                 </button>
             </template>
@@ -123,7 +123,7 @@
             <template x-if="variant === 'warning'">
                 <button type="button"
                         @click="confirm()"
-                        class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-semibold text-xs transition shadow-md shadow-amber-600/20 cursor-pointer">
+                        class="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs transition shadow-md shadow-amber-600/20 cursor-pointer">
                     <span x-text="confirmText">Confirmer</span>
                 </button>
             </template>
@@ -131,7 +131,7 @@
             <template x-if="variant === 'primary' || !['danger', 'success', 'warning'].includes(variant)">
                 <button type="button"
                         @click="confirm()"
-                        class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-semibold text-xs transition shadow-md shadow-teal-600/20 cursor-pointer">
+                        class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition shadow-md shadow-emerald-600/20 cursor-pointer">
                     <span x-text="confirmText">Confirmer</span>
                 </button>
             </template>

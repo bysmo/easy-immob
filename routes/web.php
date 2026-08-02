@@ -5,6 +5,11 @@ use Illuminate\Support\Facades\Route;
 // Racine → connexion
 Route::get('/', fn () => redirect()->route('login'));
 
+// Activation compte Bailleur (Signed URL 72h, pas besoin d'être connecté)
+Route::get('/owner-portal/activate/{user}', \App\Livewire\OwnerPortal\Activate::class)
+    ->middleware('signed')
+    ->name('owner-portal.activate');
+
 // Zone authentifiée
 Route::middleware('auth')->group(function () {
 
@@ -14,6 +19,9 @@ Route::middleware('auth')->group(function () {
         $user = \Illuminate\Support\Facades\Auth::user();
         if ($user && $user->isSuperAdmin()) {
             return redirect()->route('admin.saas-dashboard');
+        }
+        if ($user && $user->isOwner()) {
+            return redirect()->route('owner-portal.dashboard');
         }
         return view('dashboard');
     })->name('dashboard');
@@ -212,6 +220,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/agencies', \App\Livewire\Admin\Agencies\Index::class)->name('agencies.index');
             Route::get('/saas-invoices', \App\Livewire\Admin\SaasInvoices\Index::class)->name('saas-invoices.index');
             Route::get('/plans', \App\Livewire\Admin\Plans\Index::class)->name('plans.index');
+            Route::get('/mail-settings', \App\Livewire\Admin\MailSettings::class)->name('mail-settings.index');
             Route::get('/saas-invoices/{invoiceId}/print', function (int $invoiceId) {
                 $invoice = \App\Domain\Subscription\Models\SaasInvoice::with(['agency', 'subscriptionPlan'])->findOrFail($invoiceId);
                 return view('admin.saas-invoices.print', compact('invoice'));
@@ -243,4 +252,18 @@ Route::middleware('auth')->group(function () {
                 Route::get('/{userId}',  fn (int $userId) => view('admin.users.edit', compact('userId')))->name('edit')->middleware('can:users.update');
             });
     });
+
+    // ===================================================================
+    // Portail Bailleur (espace privé propriétaire)
+    // ===================================================================
+    Route::prefix('owner-portal')
+        ->name('owner-portal.')
+        ->middleware('can:owner.portal.view')
+        ->group(function () {
+            Route::get('/',           \App\Livewire\OwnerPortal\Dashboard::class)->name('dashboard');
+            Route::get('/properties', \App\Livewire\OwnerPortal\Properties::class)->name('properties');
+            Route::get('/incidents',  \App\Livewire\OwnerPortal\Incidents::class)->name('incidents');
+            Route::get('/financials', \App\Livewire\OwnerPortal\Financials::class)->name('financials');
+            Route::get('/contracts',  \App\Livewire\OwnerPortal\Contracts::class)->name('contracts');
+        });
 });

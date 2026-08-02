@@ -17,7 +17,7 @@ class RolesAndPermissionsSeederTest extends TestCase
         $this->seed(RolesAndPermissionsSeeder::class);
 
         $this->assertSame(
-            ['Super Admin', 'Administrateur', 'Gestionnaire', 'Comptable', 'Agent', 'Propriétaire', 'Locataire'],
+            ['Super Admin', 'Administrateur', 'Gestionnaire', 'Comptable', 'Agent', 'Bailleur', 'Locataire'],
             Role::orderBy('id')->pluck('name')->all(),
         );
     }
@@ -62,7 +62,7 @@ class RolesAndPermissionsSeederTest extends TestCase
     {
         $this->seed(RolesAndPermissionsSeeder::class);
 
-        $this->assertSame(0, Role::findByName('Propriétaire')->permissions()->count());
+        $this->assertTrue(Role::findByName('Bailleur')->hasPermissionTo('owner.portal.view'));
         $this->assertTrue(Role::findByName('Locataire')->hasPermissionTo('incidents.create'));
         $this->assertTrue(Role::findByName('Locataire')->hasPermissionTo('rents.view'));
     }

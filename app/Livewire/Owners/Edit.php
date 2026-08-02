@@ -6,7 +6,12 @@ use App\Domain\Owner\Actions\SettleOwnerPayoutAction;
 use App\Domain\Owner\Models\Owner;
 use App\Domain\Owner\Models\OwnerPayout;
 use App\Domain\Payment\Enums\PaymentMethod;
+use App\Mail\OwnerInvitationMail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -103,6 +108,57 @@ class Edit extends Component
         session()->flash('success', "Le bailleur {$this->owner->full_name} a été mis à jour.");
 
         $this->redirect(route('owners.index'), navigate: false);
+    }
+
+    /**
+     * Envoie ou renvoie l'invitation portail au bailleur.
+     * Crée un compte User si nécessaire.
+     */
+    public function sendInvitation(): void
+    {
+        $this->authorize('update', $this->owner);
+
+        if (! $this->owner->email) {
+            session()->flash('error', 'Ce bailleur n\'a pas d\'adresse email. Veuillez en saisir une.');
+            return;
+        }
+
+        /** @var \App\Models\User $authUser */
+        $authUser = Auth::user();
+
+        $user = \App\Models\User::withoutGlobalScopes()
+            ->where('email', mb_strtolower($this->owner->email))
+            ->first();
+
+        if (! $user) {
+            $user = \App\Models\User::create([
+                'agency_id' => $this->owner->agency_id,
+                'name'      => $this->owner->full_name,
+                'email'     => mb_strtolower($this->owner->email),
+                'password'  => Hash::make(Str::random(32)),
+            ]);
+        }
+
+        $user->assignRole('Bailleur');
+        $this->owner->update(['user_id' => $user->id]);
+
+        $signedUrl = URL::temporarySignedRoute(
+            'owner-portal.activate',
+            now()->addHours(72),
+            ['user' => $user->id],
+        );
+
+        \App\Application\Services\DynamicMailConfigurator::apply($authUser?->agency);
+
+        try {
+            Mail::to($user->email)->send(
+                new OwnerInvitationMail($user, $this->owner, $signedUrl, $authUser?->agency?->name ?? 'EasyImmob')
+            );
+            session()->flash('success', "Invitation envoyée à {$this->owner->email}.");
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Erreur lors de l'envoi du mail d'invitation bailleur : " . $e->getMessage());
+            session()->flash('error', "Impossible d'envoyer l'email d'invitation : " . $e->getMessage());
+        }
     }
 
     public function openSettlementModal(int $payoutId): void

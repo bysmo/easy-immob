@@ -35,6 +35,10 @@ class RolesAndPermissionsSeeder extends Seeder
         'documents.view', 'documents.upload',
         'reports.view',
         'audit.view',
+        // Portail Bailleur (espace propriétaire)
+        'owner.portal.view',
+        'owner.portal.confirm_repair',
+        'owner.portal.revoke_contract',
         // SaaS réservé
         'saas.admin',
     ];
@@ -97,9 +101,13 @@ class RolesAndPermissionsSeeder extends Seeder
         ],
 
         // -------------------------------------------------------------------
-        // Rôles sans permissions back-office
+        // Portail Bailleur : accès à son espace propriétaire uniquement
         // -------------------------------------------------------------------
-        'Propriétaire' => [],
+        'Bailleur' => [
+            'owner.portal.view',
+            'owner.portal.confirm_repair',
+            'owner.portal.revoke_contract',
+        ],
 
         'Locataire' => [
             'incidents.view', 'incidents.create',
